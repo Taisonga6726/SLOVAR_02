@@ -269,7 +269,7 @@ body {
 
 /* Вариант C: hover-эффект по AI логотипу */
 .ai-logo-hotspot {
-  display: none !important;
+  display: block;
   position: absolute;
   left: 50%;
   top: 13%;
@@ -278,7 +278,7 @@ body {
   transform: translate(-50%, -50%);
   z-index: 7;
   border-radius: 14px;
-  pointer-events: auto;
+  pointer-events: none;
   background: transparent;
 }
 
@@ -287,7 +287,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  opacity: 0;
+  opacity: 0.46;
   background: radial-gradient(
     ellipse at 50% 45%,
     rgba(122, 245, 255, 0.22) 0%,
@@ -295,7 +295,7 @@ body {
     rgba(255, 116, 210, 0.1) 62%,
     transparent 76%
   );
-  transition: opacity 0.15s ease;
+  animation: aiLogoShimmerPulse 2.8s ease-in-out infinite;
 }
 
 .ai-logo-hotspot::after {
@@ -322,26 +322,38 @@ body {
 .ai-logo-c-spark:nth-child(5) { left: 30%; top: 58%; transform: rotate(-22deg); }
 .ai-logo-c-spark:nth-child(6) { left: 66%; top: 56%; transform: rotate(18deg); }
 
-.scene-stage.ai-logo-fx-active .ai-logo-hotspot::before {
-  opacity: 1;
-}
-
-.scene-stage.ai-logo-fx-active .ai-logo-hotspot::after {
-  display: none;
-}
-
-.scene-stage.ai-logo-fx-active .ai-logo-c-spark {
+.ai-logo-c-spark {
   animation: aiLogoSparkBurstC 0.64s ease-in-out infinite;
 }
+.ai-logo-c-spark:nth-child(2) { animation-delay: -0.16s; }
+.ai-logo-c-spark:nth-child(3) { animation-delay: -0.28s; }
+.ai-logo-c-spark:nth-child(4) { animation-delay: -0.35s; }
+.ai-logo-c-spark:nth-child(5) { animation-delay: -0.22s; }
+.ai-logo-c-spark:nth-child(6) { animation-delay: -0.4s; }
 
-.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(2) { animation-delay: -0.16s; }
-.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(3) { animation-delay: -0.28s; }
-.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(4) { animation-delay: -0.35s; }
-.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(5) { animation-delay: -0.22s; }
-.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(6) { animation-delay: -0.4s; }
-
-.scene-stage.scene--book-open .ai-logo-hotspot {
+/* Скрываем только подсветку на обложке; на картинке 2 — .ai-logo-hotspot--book */
+.scene-stage.scene--book-open #aiLogoHotspot {
   display: none;
+}
+
+/*
+ * Логотип AI на развороте: 1:1 с обложкой (vw/vh, top, z-index), те же ::before + искры.
+ * У wrap при открытой книге снимаем overflow — иначе обрезается неоновое свечение.
+ */
+.ai-logo-hotspot--book {
+  left: 50%;
+  top: 13%;
+  width: min(27vw, 360px);
+  height: min(19vh, 190px);
+  z-index: 7;
+}
+
+.scene-stage.scene--book-open .book-image-wrap {
+  overflow: visible;
+}
+
+.scene-stage.scene--book-open .book-image-wrap > .book-image {
+  border-radius: 18px 22px 22px 18px;
 }
 
 @keyframes aiLogoSparkBurstC {
@@ -356,6 +368,18 @@ body {
   100% {
     opacity: 0;
     transform: translateY(-8px) scaleY(0.9);
+  }
+}
+
+@keyframes aiLogoShimmerPulse {
+  0%,
+  100% {
+    opacity: 0.42;
+    filter: blur(0px) saturate(1.05) brightness(1);
+  }
+  50% {
+    opacity: 0.84;
+    filter: blur(0.6px) saturate(1.2) brightness(1.18);
   }
 }
 
@@ -1342,10 +1366,6 @@ body {
 /* D/E/F: индикаторные изменения интенсивности по режимам */
 .scene-stage.book-fx-mode-d .book-electric-fx-canvas {
   filter: saturate(1.2) brightness(1.18);
-}
-
-.scene-stage.book-fx-mode-e .book-electric-fx-canvas {
-  filter: saturate(1.05) brightness(1.08);
 }
 
 .scene-stage.book-fx-mode-f .book-electric-fx-canvas {

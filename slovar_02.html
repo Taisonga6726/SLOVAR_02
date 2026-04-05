@@ -131,6 +131,15 @@
                 </div>
                 <!-- Вариант B: неоновые лучи/искры на картинке 2 -->
                 <canvas id="bookElectricFxCanvas" class="book-electric-fx-canvas" width="300" height="200" aria-hidden="true"></canvas>
+                <!-- Та же подсветка логотипа AI, что на обложке (shimmer + искры) -->
+                <div class="ai-logo-hotspot ai-logo-hotspot--book" aria-hidden="true">
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                </div>
                 <!-- Шаг 2: те же слова/эффекты переносим и на картинку 2 -->
                 <div class="scene-float-words scene-float-words--book" aria-hidden="true">
                   <span class="scene-float-word scene-float-word--magic">MAGIC</span>
@@ -1083,15 +1092,6 @@
         dom.accessForm.addEventListener("submit", handleAccessSubmit);
 
         dom.bookHitZone.addEventListener("click", handleBookOpenClick);
-        if (dom.aiLogoHotspot) {
-          dom.aiLogoHotspot.addEventListener("mouseenter", () => {
-            if (!prefersReducedMotion()) dom.sceneStage.classList.add("ai-logo-fx-active");
-          });
-          dom.aiLogoHotspot.addEventListener("mouseleave", () => {
-            dom.sceneStage.classList.remove("ai-logo-fx-active");
-          });
-        }
-
         dom.accessWordInput.addEventListener("input", () => {
           if (dom.accessWordInput.getAttribute("aria-invalid") === "true") {
             setAccessFieldInvalid(false);
@@ -1558,8 +1558,7 @@ void main() {
       }
 
       /**
-       * D/E/F подряд: на картинке 2 автоматически переключаем стили
-       * D "Реактор книги" -> E "Энергокупол" -> F "Импульсные кольца".
+       * Картинка 2: лучи от переплёта (без колец). Основание — «камень на солнце», из него пышный веер лучей вверх.
        */
       function initBookElectricFxVariantsDEF() {
         const canvas = document.getElementById("bookElectricFxCanvas");
@@ -1571,12 +1570,10 @@ void main() {
         let raf = 0;
         let dpr = 1;
         let running = true;
-        let mode = -1;
-        const rays = Array.from({ length: 18 }, (_, i) => ({
-          a: i / 13,
-          seed: Math.random() * 1000
-        }));
-        const impulses = Array.from({ length: 8 }, () => ({
+        /* Много лучей в узком столбе над корешком — пышно, но без веера на людей по краям */
+        const rayCount = 52;
+        const rays = Array.from({ length: rayCount }, (_, i) => ({
+          a: i / Math.max(1, rayCount - 1),
           seed: Math.random() * 1000
         }));
 
@@ -1591,12 +1588,101 @@ void main() {
           canvas.style.height = `${rect.height}px`;
         }
 
-        function setMode(modeIndex) {
-          if (mode === modeIndex) return;
-          mode = modeIndex;
+        function setBookFxMode() {
           if (!dom.sceneStage) return;
-          dom.sceneStage.classList.remove("book-fx-mode-d", "book-fx-mode-e", "book-fx-mode-f");
-          dom.sceneStage.classList.add(mode === 0 ? "book-fx-mode-d" : mode === 1 ? "book-fx-mode-e" : "book-fx-mode-f");
+          dom.sceneStage.classList.remove("book-fx-mode-e", "book-fx-mode-f");
+          dom.sceneStage.classList.add("book-fx-mode-d");
+        }
+
+        function drawRaysFromGem(gemCx, gemCy, w, h, t, layer) {
+          const maxHalf = w * 0.052;
+          rays.forEach((r, idx) => {
+            const phase = layer * 0.52 + idx * 0.03;
+            const u = r.a - 0.5;
+            let spread = u * 2 * maxHalf + Math.sin(t * 1.4 + r.seed * 0.02) * w * 0.003;
+            const jitter = Math.sin(t * 2.4 + r.seed) * w * 0.0045;
+            spread = Math.max(-maxHalf, Math.min(maxHalf, spread));
+            const x1 = gemCx + spread * 0.03;
+            const y1 = gemCy;
+            let x2 = gemCx + spread * 0.92 + jitter + layer * 0.45;
+            x2 = Math.max(gemCx - maxHalf, Math.min(gemCx + maxHalf, x2));
+            const y2 = h * (0.05 + 0.2 * (0.32 + (idx % 7) * 0.09) + layer * 0.018);
+            const glow = 0.52 + 0.48 * Math.sin(t * 4.2 + r.seed * 0.12 + phase);
+
+            const g = ctx.createLinearGradient(x1, y1, x2, y2);
+            g.addColorStop(0, `rgba(255,214,120,${0.82 * glow})`);
+            g.addColorStop(0.35, `rgba(255,170,90,${0.62 * glow})`);
+            g.addColorStop(0.6, `rgba(140,230,255,${0.58 * glow})`);
+            g.addColorStop(1, "rgba(120,80,200,0)");
+
+            ctx.strokeStyle = g;
+            ctx.lineWidth = 2.05 + glow * 3.05 + layer * 0.5;
+            ctx.lineCap = "round";
+            ctx.globalAlpha = layer === 0 ? 0.92 : 0.45;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            const midX = Math.max(
+              gemCx - maxHalf * 1.08,
+              Math.min(gemCx + maxHalf * 1.08, gemCx + spread * 0.22 + jitter * 0.25)
+            );
+            const midY = (y1 + y2) * 0.5 - h * 0.065;
+            ctx.quadraticCurveTo(midX, midY, x2, y2);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          });
+        }
+
+        function drawGemstone(gemCx, gemCy, w, h, t) {
+          const pulse = 0.55 + 0.45 * Math.sin(t * 1.9);
+          const twinkle = 0.4 + 0.6 * Math.sin(t * 3.3 + 0.7);
+
+          const outer = ctx.createRadialGradient(gemCx, gemCy, 0, gemCx, gemCy, h * 0.11);
+          outer.addColorStop(0, `rgba(255,230,180,${0.38 * pulse})`);
+          outer.addColorStop(0.25, `rgba(255,160,70,${0.28 * pulse})`);
+          outer.addColorStop(0.55, `rgba(180,100,255,${0.16 * pulse})`);
+          outer.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = outer;
+          ctx.beginPath();
+          ctx.ellipse(gemCx, gemCy, w * 0.065, h * 0.042, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          const body = ctx.createRadialGradient(
+            gemCx - w * 0.012,
+            gemCy - h * 0.01,
+            0,
+            gemCx,
+            gemCy,
+            h * 0.052
+          );
+          body.addColorStop(0, `rgba(255,255,250,${0.92 * twinkle})`);
+          body.addColorStop(0.18, `rgba(255,210,130,${0.85 * pulse})`);
+          body.addColorStop(0.45, `rgba(255,140,80,${0.55 * pulse})`);
+          body.addColorStop(0.72, `rgba(140,90,220,${0.35 * pulse})`);
+          body.addColorStop(1, "rgba(40,20,80,0)");
+          ctx.fillStyle = body;
+          ctx.beginPath();
+          ctx.ellipse(gemCx, gemCy, w * 0.048, h * 0.026, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          const specX = gemCx - w * 0.022 + Math.sin(t * 2.1) * w * 0.006;
+          const specY = gemCy - h * 0.012 + Math.cos(t * 2.4) * h * 0.004;
+          const spec = ctx.createRadialGradient(specX, specY, 0, specX, specY, h * 0.018);
+          spec.addColorStop(0, `rgba(255,255,255,${0.75 * twinkle})`);
+          spec.addColorStop(0.4, "rgba(255,240,200,0.25)");
+          spec.addColorStop(1, "rgba(255,200,120,0)");
+          ctx.fillStyle = spec;
+          ctx.beginPath();
+          ctx.ellipse(specX, specY, w * 0.028, h * 0.011, -0.35, 0, Math.PI * 2);
+          ctx.fill();
+
+          const rim = ctx.createRadialGradient(gemCx, gemCy + h * 0.008, 0, gemCx, gemCy, h * 0.04);
+          rim.addColorStop(0, "rgba(255,200,100,0)");
+          rim.addColorStop(0.7, `rgba(255,120,60,${0.22 * pulse})`);
+          rim.addColorStop(1, "rgba(255,80,40,0)");
+          ctx.fillStyle = rim;
+          ctx.beginPath();
+          ctx.ellipse(gemCx, gemCy + h * 0.006, w * 0.07, h * 0.022, 0, 0, Math.PI * 2);
+          ctx.fill();
         }
 
         function draw(now) {
@@ -1613,85 +1699,19 @@ void main() {
           if (w < 2 || h < 2) return;
 
           const t = now * 0.001;
-          const modeIndex = Math.floor(t / 6) % 3; // D->E->F по 6с каждый
-          setMode(modeIndex);
+          setBookFxMode();
 
-          const cx = w * 0.5;
-          const cy = h * 0.77;
+          const gemCx = w * 0.5;
+          const gemCy = h * 0.805;
 
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           ctx.clearRect(0, 0, w, h);
           ctx.globalCompositeOperation = "lighter";
 
-          // Общее ядро света в центре книги
-          const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, h * 0.32);
-          core.addColorStop(0, "rgba(255,230,170,0.48)");
-          core.addColorStop(0.26, "rgba(255,166,78,0.25)");
-          core.addColorStop(0.55, "rgba(170,110,255,0.16)");
-          core.addColorStop(1, "rgba(0,0,0,0)");
-          ctx.fillStyle = core;
-          ctx.fillRect(0, 0, w, h);
+          drawRaysFromGem(gemCx, gemCy, w, h, t, 1);
+          drawRaysFromGem(gemCx, gemCy, w, h, t, 0);
 
-          if (modeIndex === 0) {
-            // D: Реактор книги — мощные лучи и пульс
-            rays.forEach((r, idx) => {
-              const spread = (r.a - 0.5) * w * 0.42;
-              const jitter = Math.sin(t * 2.6 + r.seed) * w * 0.02;
-              const x1 = cx + spread * 0.1;
-              const y1 = cy - h * 0.015;
-              const x2 = cx + spread + jitter;
-              const y2 = h * (0.2 + 0.32 * (idx % 4) / 4);
-              const glow = 0.56 + 0.44 * Math.sin(t * 5 + r.seed * 0.15);
-
-              const g = ctx.createLinearGradient(x1, y1, x2, y2);
-              g.addColorStop(0, `rgba(255,206,108,${0.86 * glow})`);
-              g.addColorStop(0.45, `rgba(126,238,255,${0.66 * glow})`);
-              g.addColorStop(1, "rgba(162,92,255,0)");
-              ctx.strokeStyle = g;
-              ctx.lineWidth = 1.6 + glow * 2.0;
-              ctx.beginPath();
-              ctx.moveTo(x1, y1);
-              ctx.quadraticCurveTo((x1 + x2) * 0.5 + jitter * 0.45, (y1 + y2) * 0.5 - h * 0.08, x2, y2);
-              ctx.stroke();
-            });
-          } else if (modeIndex === 1) {
-            // E: Энергокупол — мягкий купол + редкие импульсы
-            const dome = ctx.createRadialGradient(cx, h * 0.64, h * 0.06, cx, h * 0.64, h * 0.5);
-            dome.addColorStop(0, "rgba(136,238,255,0.26)");
-            dome.addColorStop(0.42, "rgba(164,124,255,0.18)");
-            dome.addColorStop(1, "rgba(100,72,210,0)");
-            ctx.fillStyle = dome;
-            ctx.beginPath();
-            ctx.ellipse(cx, h * 0.64, w * 0.26, h * 0.34, 0, Math.PI, 0, true);
-            ctx.fill();
-
-            impulses.forEach((imp, i) => {
-              const phase = (t * 0.42 + imp.seed) % 1;
-              if (phase > 0.22) return;
-              const alpha = (0.22 - phase) / 0.22;
-              const x = cx + Math.sin(imp.seed + i) * w * 0.2 * (0.5 + phase);
-              const yTop = h * (0.32 + 0.16 * Math.cos(imp.seed));
-              const yBottom = cy - h * 0.02;
-              ctx.strokeStyle = `rgba(152,240,255,${0.58 * alpha})`;
-              ctx.lineWidth = 1.0 + 2.0 * alpha;
-              ctx.beginPath();
-              ctx.moveTo(x, yBottom);
-              ctx.lineTo(x + Math.sin(t * 8 + imp.seed) * 6, yTop);
-              ctx.stroke();
-            });
-          } else {
-            // F: Импульсные кольца — минимализм
-            for (let i = 0; i < 3; i += 1) {
-              const p = (t * 0.32 + i * 0.33) % 1;
-              const radius = h * (0.06 + p * 0.36);
-              const alpha = 0.34 * (1 - p);
-              ctx.strokeStyle = `rgba(${140 + i * 30}, ${220 - i * 20}, 255, ${alpha})`;
-              ctx.lineWidth = 1.2 + (1 - p) * 1.8;
-              ctx.beginPath();
-              ctx.ellipse(cx, cy - h * 0.02, radius * 1.35, radius * 0.54, 0, 0, Math.PI * 2);
-              ctx.stroke();
-            }
-          }
+          drawGemstone(gemCx, gemCy, w, h, t);
 
           ctx.globalCompositeOperation = "source-over";
         }
