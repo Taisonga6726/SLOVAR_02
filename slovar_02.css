@@ -297,7 +297,7 @@ body {
   position: absolute;
   inset: 0;
   z-index: 5;
-  padding: 0 clamp(18%, 22vw, 26%);
+  padding: 0 clamp(26%, 30vw, 34%);
   pointer-events: none;
 }
 
@@ -307,7 +307,7 @@ body {
   top: clamp(26%, 31%, 36%);
   transform: translate(-50%, -50%);
   pointer-events: auto;
-  width: min(320px, 74vw);
+  width: min(234px, 46.8vw);
   max-width: 100%;
   padding: 0;
   text-align: center;
@@ -340,12 +340,12 @@ body {
 
 @media (max-width: 520px) {
   .cover-overlay {
-    padding: 0 clamp(14%, 16vw, 22%);
+    padding: 0 clamp(20%, 24vw, 30%);
   }
 
   .cover-access-float {
     top: clamp(24%, 29%, 34%);
-    width: min(300px, 82vw);
+    width: min(225px, 61.2vw);
   }
 
   .scene-stage:not(.scene--book-open) .book-slot {
@@ -525,7 +525,8 @@ body {
 
 .cover-login-msg {
   display: inline-block;
-  min-width: min(88vw, 360px);
+  min-width: min(50.4vw, 234px);
+  max-width: 100%;
   padding: 6px 12px;
   border-radius: 10px;
   border: 1px solid rgba(120, 225, 255, 0.5);
@@ -1154,8 +1155,8 @@ body {
    ПОДПИСИ ПОД КНИГОЙ (один блок, без наложения строк)
    ============================================================================= */
 .scene-footer {
-  /* Подписи включены: порядок задаётся HTML (сначала подпись, затем копирайт). */
-  display: flex !important;
+  /* Нижние подписи убраны из HTML, чтобы не было дублирования поверх картинки. */
+  display: none !important;
   position: absolute;
   left: 50%;
   bottom: 0;
