@@ -74,6 +74,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  height: 100%;
 }
 
 body {
@@ -84,9 +85,6 @@ body {
     radial-gradient(ellipse 70% 45% at 85% 75%, rgba(255, 170, 90, 0.1), transparent 48%),
     radial-gradient(ellipse 55% 40% at 12% 60%, rgba(116, 52, 185, 0.12), transparent 45%),
     linear-gradient(168deg, #150a24 0%, var(--bg-2) 42%, var(--bg-1) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-family: "Cormorant Garamond", serif;
   color: var(--light-text);
   overflow-x: hidden;
@@ -101,17 +99,13 @@ body {
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
+  padding: 0;
 }
 
 .screen {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .hidden {
@@ -151,18 +145,19 @@ body {
    ЭКРАН ОБЛОЖКИ
    ============================================================================= */
 .cover-stage {
-  width: min(1500px, 98vw);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
 }
 
 .cover-image-wrap {
-  width: min(1500px, 98vw);
-  max-width: 1500px;
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
-  border-radius: 20px;
+  border-radius: 0;
   overflow: hidden;
   box-shadow:
     0 22px 50px rgba(0, 0, 0, 0.55),
@@ -179,8 +174,9 @@ body {
 .book-slot {
   position: absolute;
   left: 50%;
-  bottom: 6%;
-  transform: translateX(-50%);
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
   width: min(52%, 440px);
   height: 40%;
   z-index: 4;
@@ -189,8 +185,8 @@ body {
 
 .scene-stage.scene--book-open .book-slot {
   left: 50%;
-  bottom: auto;
   top: 50%;
+  bottom: auto;
   transform: translate(-50%, -50%);
   width: min(96%, 1440px);
   max-width: 96vw;
@@ -361,7 +357,6 @@ body {
   .scene-stage:not(.scene--book-open) .book-slot {
     width: min(58%, 360px);
     height: 36%;
-    bottom: 5%;
   }
 }
 
@@ -1436,6 +1431,234 @@ body {
         padding: 2% 2.5%;
       }
     }
+
+    /* ========== ТЗ: заголовок обложки (outline, glow, letter-spacing) ========== */
+    .cover-title-hero {
+      margin: 0 auto 10px;
+      max-width: 18ch;
+      font-family: "Marck Script", "Cormorant Garamond", serif;
+      font-size: clamp(28px, 4.2vw, 46px);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: 0.06em;
+      text-align: center;
+      color: #fff8e8;
+      -webkit-text-stroke: 1px rgba(80, 40, 20, 0.35);
+      text-shadow:
+        0 0 20px rgba(255, 220, 140, 0.75),
+        0 0 40px rgba(180, 100, 255, 0.45),
+        0 0 60px rgba(100, 200, 255, 0.35),
+        0 3px 12px rgba(0, 0, 0, 0.85);
+    }
+
+    @supports not (-webkit-text-stroke: 1px red) {
+      .cover-title-hero {
+        text-shadow:
+          0 0 1px rgba(40, 20, 10, 0.9),
+          0 0 20px rgba(255, 220, 140, 0.75),
+          0 0 40px rgba(180, 100, 255, 0.45),
+          0 3px 12px rgba(0, 0, 0, 0.85);
+      }
+    }
+
+    .access-actions {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .access-submit-btn {
+      min-height: 44px;
+      padding: 0 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 210, 138, 0.45);
+      background: linear-gradient(
+        165deg,
+        rgba(240, 200, 120, 0.22) 0%,
+        rgba(120, 60, 140, 0.25) 100%
+      );
+      color: #fff6e6;
+      font-family: inherit;
+      font-size: clamp(15px, 1.5vw, 18px);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .access-submit-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(240, 210, 138, 0.2);
+    }
+
+    .access-submit-btn:focus-visible {
+      outline: var(--focus-ring);
+      outline-offset: 3px;
+    }
+
+    .access-submit-btn:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
+    /* ========== ТЗ: div.flash (успех / ошибка) ========== */
+    .flash {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+      border-radius: inherit;
+    }
+
+    #sceneFlash.flash {
+      z-index: 4;
+      border-radius: 0;
+    }
+
+    .flash--book {
+      z-index: 1;
+      border-radius: inherit;
+    }
+
+    .flash--success-pulse {
+      background: radial-gradient(
+        circle at 50% 45%,
+        rgba(120, 255, 160, 0.45) 0%,
+        rgba(80, 200, 120, 0.12) 42%,
+        transparent 68%
+      );
+      animation: flashSuccess 0.65s ease forwards;
+    }
+
+    .flash--error-pulse {
+      background: radial-gradient(
+        circle at 50% 45%,
+        rgba(255, 120, 120, 0.5) 0%,
+        rgba(200, 60, 80, 0.14) 42%,
+        transparent 68%
+      );
+      animation: flashError 0.65s ease forwards;
+    }
+
+    @keyframes flashSuccess {
+      0% {
+        opacity: 0;
+      }
+      22% {
+        opacity: 0.55;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes flashError {
+      0% {
+        opacity: 0;
+      }
+      18% {
+        opacity: 0.5;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* ТЗ: shake при неверном пароле */
+    .cover-access-float.access-shake {
+      animation: accessShake 0.45s ease;
+    }
+
+    @keyframes accessShake {
+      0%,
+      100% {
+        transform: translate(-50%, -50%) translateX(0);
+      }
+      18% {
+        transform: translate(-50%, -50%) translateX(-10px);
+      }
+      36% {
+        transform: translate(-50%, -50%) translateX(9px);
+      }
+      54% {
+        transform: translate(-50%, -50%) translateX(-7px);
+      }
+      72% {
+        transform: translate(-50%, -50%) translateX(5px);
+      }
+    }
+
+    /* ТЗ: Light Burst + crossfade на развороте книги */
+    .light-burst {
+      position: absolute;
+      inset: -8%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      background: radial-gradient(
+        circle at 50% 48%,
+        rgba(255, 248, 220, 0.95) 0%,
+        rgba(255, 210, 140, 0.45) 28%,
+        rgba(200, 120, 255, 0.12) 52%,
+        transparent 72%
+      );
+      filter: blur(14px);
+      transform: scale(0.2);
+      border-radius: 50%;
+    }
+
+    .light-burst.is-animating {
+      animation: lightBurstPop 0.62s cubic-bezier(0.25, 0.9, 0.35, 1) forwards;
+    }
+
+    @keyframes lightBurstPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.15);
+      }
+      35% {
+        opacity: 1;
+        transform: scale(1.15);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(2.1);
+      }
+    }
+
+    .book-image-wrap.page-turn-fx {
+      animation: pageTurnCrossfade 0.62s ease forwards;
+    }
+
+    @keyframes pageTurnCrossfade {
+      0% {
+        filter: brightness(1) blur(0);
+      }
+      35% {
+        filter: brightness(1.38) blur(2px);
+      }
+      65% {
+        filter: brightness(1.15) blur(1.5px);
+      }
+      100% {
+        filter: brightness(1) blur(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .flash--success-pulse,
+      .flash--error-pulse,
+      .light-burst.is-animating,
+      .book-image-wrap.page-turn-fx,
+      .cover-access-float.access-shake {
+        animation: none !important;
+      }
+      .light-burst.is-animating {
+        opacity: 0 !important;
+      }
+    }
   
   </style>
 
@@ -1460,6 +1683,9 @@ body {
           aria-labelledby="cover-heading"
           aria-describedby="accessHint"
         >
+          <!-- Вспышка успех/ошибка (ТЗ: div.flash) -->
+          <div id="sceneFlash" class="flash" aria-hidden="true"></div>
+
           <!-- Статичный фон сцены (не меняется, не анимируется) -->
           <div id="sceneBgWrap" class="scene-bg-wrap">
             <img
@@ -1495,6 +1721,8 @@ body {
             <div class="book-scene book-open-layer__scene">
               <!-- book-ui: контент позиционируется по областям страниц на изображении, без отдельных «карточек» -->
               <div id="bookImageWrap" class="book-image-wrap book-ui">
+                <div id="pageLightBurst" class="light-burst" aria-hidden="true"></div>
+                <div id="bookFxFlash" class="flash flash--book" aria-hidden="true"></div>
                 <img
                   id="bookImage"
                   class="book-image"
@@ -1575,7 +1803,7 @@ body {
 
           <div class="cover-overlay">
             <div id="accessOverlay" class="cover-access-float">
-              <h1 id="cover-heading" class="visually-hidden">Словарь вайбкодера</h1>
+              <h1 id="cover-heading" class="cover-title-hero">Словарь вайбкодера</h1>
               <p id="cover-subtitle" class="access-subtitle">Введите кодовое слово</p>
 
               <form id="accessForm" novalidate>
@@ -1591,6 +1819,11 @@ body {
                   aria-invalid="false"
                   required
                 />
+                <div class="access-actions">
+                  <button type="submit" class="access-submit-btn" id="accessSubmitBtn">
+                    Войти
+                  </button>
+                </div>
                 <p id="accessHint" class="visually-hidden">
                   Введите кодовое слово и нажмите Enter. Затем нажмите на книгу на картинке, чтобы открыть
                   словарь. Это не защита данных, а вход в интерфейс.
@@ -1625,6 +1858,9 @@ body {
      */
     (() => {
       "use strict";
+
+      /** ТЗ: счётчик неверных попыток ввода кодового слова */
+      let attempts = 0;
 
       /* --- Конфигурация --- */
       const CONFIG = {
@@ -1694,7 +1930,11 @@ body {
         dictionaryPage: document.getElementById("dictionaryPage"),
         pageCounter: document.getElementById("pageCounter"),
         prevBtn: document.getElementById("prevBtn"),
-        nextBtn: document.getElementById("nextBtn")
+        nextBtn: document.getElementById("nextBtn"),
+        sceneFlash: document.getElementById("sceneFlash"),
+        bookFxFlash: document.getElementById("bookFxFlash"),
+        pageLightBurst: document.getElementById("pageLightBurst"),
+        accessSubmitBtn: document.getElementById("accessSubmitBtn")
       };
 
       /* --- Утилиты --- */
@@ -1855,8 +2095,107 @@ body {
 
       function setAccessControlsDisabled(disabled) {
         dom.accessWordInput.disabled = disabled;
+        if (dom.accessSubmitBtn) dom.accessSubmitBtn.disabled = disabled;
         dom.accessForm.setAttribute("aria-busy", disabled ? "true" : "false");
         dom.sceneStage.setAttribute("aria-busy", disabled ? "true" : "false");
+      }
+
+      function triggerSceneFlash(kind) {
+        const el = dom.sceneFlash;
+        if (!el) return;
+        el.classList.remove("flash--success-pulse", "flash--error-pulse");
+        void el.offsetWidth;
+        el.classList.add(kind === "success" ? "flash--success-pulse" : "flash--error-pulse");
+        const onEnd = () => {
+          el.removeEventListener("animationend", onEnd);
+          el.classList.remove("flash--success-pulse", "flash--error-pulse");
+        };
+        el.addEventListener("animationend", onEnd, { once: true });
+      }
+
+      function triggerBookFlash(kind) {
+        const el = dom.bookFxFlash;
+        if (!el) return;
+        el.classList.remove("flash--success-pulse", "flash--error-pulse");
+        void el.offsetWidth;
+        el.classList.add(kind === "success" ? "flash--success-pulse" : "flash--error-pulse");
+        const onEnd = () => {
+          el.removeEventListener("animationend", onEnd);
+          el.classList.remove("flash--success-pulse", "flash--error-pulse");
+        };
+        el.addEventListener("animationend", onEnd, { once: true });
+      }
+
+      function triggerAccessShake() {
+        const el = dom.accessOverlay;
+        if (!el || prefersReducedMotion()) return;
+        el.classList.remove("access-shake");
+        void el.offsetWidth;
+        el.classList.add("access-shake");
+        const onEnd = () => {
+          el.removeEventListener("animationend", onEnd);
+          el.classList.remove("access-shake");
+        };
+        el.addEventListener("animationend", onEnd, { once: true });
+      }
+
+      /** Короткий звук перелистывания (ТЗ: 100–200 ms от клика) */
+      function playPageTurnSound(direction) {
+        try {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return;
+          const ctx = new AC();
+          const osc = ctx.createOscillator();
+          const g = ctx.createGain();
+          osc.connect(g);
+          g.connect(ctx.destination);
+          osc.frequency.value = direction === "prev" ? 360 : 520;
+          osc.type = "sine";
+          g.gain.setValueAtTime(0.0001, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.065, ctx.currentTime + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.085);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.09);
+          window.setTimeout(() => {
+            ctx.close().catch(() => {});
+          }, 220);
+        } catch (_) {
+          /* без звука — ок */
+        }
+      }
+
+      /**
+       * ТЗ: FLASH + CROSSFADE + LIGHT BURST; тайминг ~0 / ~150 / ~350 / ~600 ms
+       */
+      function runPageTurnVfx(direction) {
+        if (!dom.bookImageWrap || prefersReducedMotion()) return;
+
+        const wrap = dom.bookImageWrap;
+        const burst = dom.pageLightBurst;
+
+        wrap.classList.remove("page-turn-fx");
+        if (burst) burst.classList.remove("is-animating");
+
+        void wrap.offsetWidth;
+        wrap.classList.add("page-turn-fx");
+
+        window.setTimeout(() => {
+          playPageTurnSound(direction);
+        }, 150);
+
+        window.setTimeout(() => {
+          if (burst) {
+            burst.classList.remove("is-animating");
+            void burst.offsetWidth;
+            burst.classList.add("is-animating");
+          }
+          triggerBookFlash("success");
+        }, 320);
+
+        window.setTimeout(() => {
+          wrap.classList.remove("page-turn-fx");
+          if (burst) burst.classList.remove("is-animating");
+        }, 620);
       }
 
       function isAccessCodeValid() {
