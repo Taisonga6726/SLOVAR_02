@@ -165,6 +165,9 @@ body {
   height: 40%;
   z-index: 4;
   pointer-events: none;
+  transition:
+    transform 0.35s ease,
+    filter 0.35s ease;
 }
 
 .scene-stage.scene--book-open .book-slot {
@@ -178,6 +181,60 @@ body {
   min-height: 0;
   aspect-ratio: 1600 / 1000;
   max-height: min(82vh, 920px);
+}
+
+/* Вариант B: Lock Sigil Rotation — вращающийся сигил у замка книги */
+.book-slot::before {
+  content: "";
+  position: absolute;
+  left: 77%;
+  top: 51%;
+  width: 18%;
+  height: 23%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+  border: 1.4px solid rgba(154, 238, 255, 0.78);
+  box-shadow:
+    0 0 10px rgba(122, 233, 255, 0.6),
+    inset 0 0 10px rgba(168, 96, 255, 0.35);
+  background:
+    radial-gradient(circle at center, rgba(188, 240, 255, 0.2) 0%, rgba(126, 78, 206, 0.08) 48%, transparent 72%),
+    conic-gradient(
+      from 0deg,
+      rgba(162, 232, 255, 0.2) 0deg 18deg,
+      rgba(255, 255, 255, 0) 18deg 42deg,
+      rgba(204, 110, 255, 0.22) 42deg 58deg,
+      rgba(255, 255, 255, 0) 58deg 360deg
+    );
+  mix-blend-mode: screen;
+  animation:
+    lockSigilRotate 8s linear infinite,
+    lockSigilPulse 2.5s ease-in-out infinite;
+}
+
+/* Вариант B: Page Edge Sparkles — искры по краям книги */
+.book-slot::after {
+  content: "";
+  position: absolute;
+  inset: 7% 4%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 6% 22%, rgba(255, 240, 180, 0.95) 0 1px, transparent 2px),
+    radial-gradient(circle at 95% 28%, rgba(167, 236, 255, 0.9) 0 1px, transparent 2px),
+    radial-gradient(circle at 12% 88%, rgba(200, 112, 255, 0.92) 0 1px, transparent 2px),
+    radial-gradient(circle at 90% 84%, rgba(255, 232, 152, 0.88) 0 1px, transparent 2px),
+    radial-gradient(circle at 36% 10%, rgba(188, 242, 255, 0.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 64% 92%, rgba(200, 130, 255, 0.72) 0 1px, transparent 2px);
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  animation: pageEdgeSparkles 2.8s ease-in-out infinite;
+}
+
+.scene-stage.cover-ready .book-slot {
+  filter: drop-shadow(0 8px 22px rgba(255, 175, 85, 0.16));
 }
 
 .book-hit-zone {
@@ -199,7 +256,7 @@ body {
 
 /* Подсветка зоны книги (внутри слота; остальной кадр статичен) */
 .cover-book-glow {
-  display: none;
+  display: none !important;
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -212,11 +269,11 @@ body {
     transparent 72%
   );
   mix-blend-mode: screen;
-  animation: coverBookGlowPulse 2.2s ease-in-out infinite;
+  animation: none;
 }
 
 .scene-stage.cover-ready .cover-book-glow {
-  display: block;
+  display: none !important;
 }
 
 .scene-stage.scene--book-open .cover-book-glow {
@@ -237,10 +294,52 @@ body {
   }
 }
 
+@keyframes lockSigilRotate {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes lockSigilPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    filter: brightness(0.95);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+}
+
+@keyframes pageEdgeSparkles {
+  0%,
+  100% {
+    opacity: 0.35;
+    filter: brightness(0.9);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(1.35);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cover-book-glow {
     animation: none;
     opacity: 0.9;
+  }
+  .book-slot::before,
+  .book-slot::after {
+    animation: none;
+  }
+  .ai-logo-text,
+  .ai-logo-rune {
+    animation: none;
   }
 }
 
@@ -288,6 +387,97 @@ body {
 
 .scene-bg-wrap.image-error .scene-bg-fallback {
   display: flex;
+}
+
+/* Вариант A: логотип AI поверх фона (Neon Pulse + Scan Sweep) */
+.ai-logo-fx {
+  position: absolute;
+  left: 50%;
+  top: 8.7%;
+  transform: translate(-50%, -50%);
+  width: clamp(190px, 21vw, 360px);
+  height: clamp(86px, 13vh, 170px);
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-logo-text {
+  position: relative;
+  z-index: 1;
+  font-family: "Trebuchet MS", "Arial Black", "Segoe UI", sans-serif;
+  font-weight: 900;
+  font-size: clamp(56px, 8vw, 132px);
+  letter-spacing: 0.06em;
+  line-height: 0.9;
+  color: rgba(160, 235, 255, 0.16);
+  -webkit-text-stroke: 1.4px rgba(82, 230, 255, 0.85);
+  text-shadow:
+    0 0 8px rgba(90, 220, 255, 0.65),
+    0 0 18px rgba(90, 130, 255, 0.52),
+    0 0 36px rgba(171, 84, 255, 0.38);
+  filter: saturate(1.15);
+  animation: aiNeonPulse 2.9s ease-in-out infinite;
+}
+
+.ai-logo-sweep {
+  position: absolute;
+  left: -30%;
+  top: -14%;
+  width: 30%;
+  height: 128%;
+  z-index: 2;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(183, 246, 255, 0.68) 48%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  mix-blend-mode: screen;
+  filter: blur(0.8px);
+  transform: skewX(-20deg) translateX(0);
+  animation: aiLogoSweep 4.1s cubic-bezier(0.25, 0.85, 0.35, 1) infinite;
+}
+
+@keyframes aiNeonPulse {
+  0%,
+  100% {
+    opacity: 0.74;
+    transform: scale(1);
+    text-shadow:
+      0 0 8px rgba(90, 220, 255, 0.62),
+      0 0 18px rgba(90, 130, 255, 0.48),
+      0 0 34px rgba(171, 84, 255, 0.35);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.012);
+    text-shadow:
+      0 0 10px rgba(120, 246, 255, 0.9),
+      0 0 24px rgba(96, 150, 255, 0.74),
+      0 0 42px rgba(192, 98, 255, 0.56);
+  }
+}
+
+@keyframes aiLogoSweep {
+  0%,
+  12% {
+    transform: skewX(-20deg) translateX(0);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  42% {
+    transform: skewX(-20deg) translateX(520%);
+    opacity: 0;
+  }
+  100% {
+    transform: skewX(-20deg) translateX(520%);
+    opacity: 0;
+  }
 }
 
 /* Маска нижней зоны: приглушает встроенные подписи внизу самой картинки */
@@ -343,20 +533,27 @@ body {
 .fashion-tag {
   position: absolute;
   font-family: "Cormorant Garamond", serif;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-weight: 900;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   text-align: center;
-  line-height: 0.9;
+  line-height: 1;
   white-space: nowrap;
   text-shadow:
-    0 0 8px rgba(120, 235, 255, 0.45),
-    0 0 16px rgba(182, 105, 255, 0.35);
+    0 0 10px rgba(120, 235, 255, 0.62),
+    0 0 20px rgba(182, 105, 255, 0.48),
+    0 0 30px rgba(92, 52, 180, 0.35);
+  -webkit-text-stroke: 0.25px rgba(250, 250, 255, 0.35);
   mix-blend-mode: screen;
-  opacity: 0.64;
+  opacity: 0.9;
   animation:
     fashionGlowPulse 2.4s ease-in-out infinite,
     fashionGradientShift 6s linear infinite;
+}
+
+/* Единый крупный и читаемый стиль для всех светящихся слов */
+.scene-fashion-tags .fashion-tag {
+  font-size: clamp(18px, 1.5vw, 28px);
 }
 
 .fashion-tag--p1 {
@@ -476,6 +673,10 @@ body {
   display: none;
 }
 
+.scene-stage.scene--book-open .ai-logo-fx {
+  display: none;
+}
+
 /*
   Верхняя центральная колонка: между неоновым «AI» и книгой — без захода на лица и боковые надписи.
 */
@@ -525,6 +726,10 @@ body {
 }
 
 @media (max-width: 520px) {
+  .scene-fashion-tags .fashion-tag {
+    font-size: clamp(15px, 3.4vw, 20px);
+  }
+
   .cover-overlay {
     padding: 0 clamp(20%, 24vw, 30%);
   }
@@ -1976,8 +2181,12 @@ body {
         font-size: clamp(12px, 2.1vw, 17px);
       }
 
-      .fashion-tag--p7,
-      .fashion-tag--p8 {
+      .fashion-tag--p9,
+      .fashion-tag--p10,
+      .fashion-tag--p11,
+      .fashion-tag--p12,
+      .fashion-tag--p13,
+      .fashion-tag--p14 {
         display: none;
       }
     }
