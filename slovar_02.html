@@ -83,6 +83,11 @@
 
           <!-- ШАГ 2–3: слот книги = зона закрытой книги на обложке; подсветка и клик — только здесь -->
           <div id="bookSlot" class="book-slot">
+            <div class="book-electric-frame" aria-hidden="true">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <rect x="2.2" y="2.2" width="95.6" height="95.6" rx="9.5" ry="9.5"></rect>
+              </svg>
+            </div>
             <div class="cover-book-glow" aria-hidden="true"></div>
             <button
               type="button"
@@ -303,6 +308,7 @@
         sceneStage: document.getElementById("sceneStage"),
         sceneBgWrap: document.getElementById("sceneBgWrap"),
         sceneBg: document.getElementById("sceneBg"),
+        bookSlot: document.getElementById("bookSlot"),
         bookHitZone: document.getElementById("bookHitZone"),
         bookOpenLayer: document.getElementById("bookOpenLayer"),
         accessOverlay: document.getElementById("accessOverlay"),
@@ -1060,6 +1066,18 @@
         dom.accessForm.addEventListener("submit", handleAccessSubmit);
 
         dom.bookHitZone.addEventListener("click", handleBookOpenClick);
+        dom.bookHitZone.addEventListener("mouseenter", () => {
+          if (dom.bookSlot) dom.bookSlot.classList.add("book-slot--electric-active");
+        });
+        dom.bookHitZone.addEventListener("mouseleave", () => {
+          if (dom.bookSlot) dom.bookSlot.classList.remove("book-slot--electric-active");
+        });
+        dom.bookHitZone.addEventListener("focus", () => {
+          if (dom.bookSlot) dom.bookSlot.classList.add("book-slot--electric-active");
+        });
+        dom.bookHitZone.addEventListener("blur", () => {
+          if (dom.bookSlot) dom.bookSlot.classList.remove("book-slot--electric-active");
+        });
 
         dom.accessWordInput.addEventListener("input", () => {
           if (dom.accessWordInput.getAttribute("aria-invalid") === "true") {
