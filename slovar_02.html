@@ -513,16 +513,32 @@
         }
       }
 
+      function setLoginMessageHtml(html, type = "") {
+        dom.loginMessage.innerHTML = html;
+        dom.loginMessage.className = `helper-text cover-login-msg ${type}`.trim();
+        if (type.includes("error")) {
+          dom.loginMessage.classList.remove("msg-animate");
+          void dom.loginMessage.offsetWidth;
+          dom.loginMessage.classList.add("msg-animate");
+        }
+      }
+
       function showAccessErrorMessage() {
         if (attempts === 1) {
-          setLoginMessage("НЕТ! ОСТАЛОСЬ 2", "error");
+          setLoginMessageHtml(
+            'НЕТ! осталось <span class="login-msg-number">2</span> попытки',
+            "error error-hard error-attempt"
+          );
           return;
         }
         if (attempts === 2) {
-          setLoginMessage("НЕТ! ОСТАЛАСЬ 1", "error");
+          setLoginMessageHtml(
+            'НЕТ! осталось <span class="login-msg-number">1</span> попытка',
+            "error error-hard error-attempt"
+          );
           return;
         }
-        setLoginMessage("😄 Спросить у Тани? 😄", "error error-pop");
+        setLoginMessage("😄 СПРОСИТЬ У ТАНИ? 😄", "error error-pop");
       }
 
       function setFormMessage(text, type = "") {

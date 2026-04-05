@@ -925,21 +925,75 @@ body {
 }
 
 .cover-login-msg.error.error-pop {
-  color: #ffe7ec;
-  border-color: rgba(255, 132, 162, 0.9);
+  color: #ffffff;
+  border-color: rgba(255, 228, 245, 0.96);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 72, 162, 0.46) 0%,
+    rgba(198, 78, 255, 0.38) 52%,
+    rgba(92, 66, 255, 0.4) 100%
+  );
+  font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: clamp(16px, 1.65vw, 24px);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 210, 225, 0.24),
-    0 0 18px rgba(255, 92, 136, 0.78),
-    0 0 40px rgba(255, 66, 118, 0.52),
-    0 0 64px rgba(255, 48, 104, 0.28);
+    inset 0 0 0 1px rgba(255, 243, 250, 0.34),
+    0 0 20px rgba(255, 146, 220, 0.9),
+    0 0 42px rgba(220, 120, 255, 0.74),
+    0 0 70px rgba(130, 96, 255, 0.46);
   text-shadow:
-    0 0 12px rgba(255, 130, 168, 0.85),
-    0 0 22px rgba(255, 78, 132, 0.55),
-    0 1px 8px rgba(0, 0, 0, 0.9);
+    0 0 10px rgba(255, 214, 242, 0.92),
+    0 0 22px rgba(255, 142, 214, 0.9),
+    0 0 36px rgba(195, 126, 255, 0.68),
+    0 1px 8px rgba(0, 0, 0, 0.88);
 }
 
 .cover-login-msg.error.error-pop.msg-animate {
   animation: loginErrorPop 0.46s cubic-bezier(0.12, 0.9, 0.22, 1.1) both;
+}
+
+.cover-login-msg.error.error-hard {
+  color: #ffe7ec;
+  border-color: rgba(255, 86, 132, 0.92);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 34, 88, 0.36) 0%,
+    rgba(210, 24, 62, 0.28) 52%,
+    rgba(120, 10, 34, 0.34) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 184, 206, 0.24),
+    0 0 18px rgba(255, 54, 104, 0.8),
+    0 0 36px rgba(255, 32, 86, 0.62),
+    0 0 56px rgba(255, 14, 70, 0.34);
+  text-shadow:
+    0 0 12px rgba(255, 78, 136, 0.85),
+    0 0 22px rgba(255, 46, 106, 0.62),
+    0 1px 8px rgba(0, 0, 0, 0.92);
+}
+
+/* 1-2 попытки: крупнее, жирнее, с упором на цифру */
+.cover-login-msg.error.error-attempt {
+  font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-size: clamp(15px, 1.45vw, 21px);
+}
+
+.cover-login-msg.error.error-attempt .login-msg-number {
+  display: inline-block;
+  margin: 0 2px;
+  font-size: 1.5em;
+  line-height: 0.95;
+  font-weight: 900;
+  color: #fff6fb;
+  text-shadow:
+    0 0 8px rgba(255, 170, 215, 0.9),
+    0 0 18px rgba(255, 90, 150, 0.95),
+    0 0 30px rgba(255, 42, 112, 0.7);
+  transform: translateY(1px);
 }
 
 .ghost-btn:hover:not(:disabled) {
