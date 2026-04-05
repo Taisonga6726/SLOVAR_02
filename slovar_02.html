@@ -36,6 +36,9 @@
       --gold-soft: rgba(240, 210, 138, 0.18);
       --paper-ink: #5a2f17;
       --paper-ink-soft: rgba(90, 47, 23, 0.7);
+      --paper-cream: #faf3e4;
+      --paper-cream-mid: #f0e6d2;
+      --paper-edge: rgba(180, 140, 90, 0.35);
       --light-text: #f7ead5;
       --error: #ffb2b2;
       --success: #d4ffbc;
@@ -47,6 +50,9 @@
       --dur-book-in: 0.9s;
       --dur-page-turn: 0.85s;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --book-drop: 0 28px 56px rgba(0, 0, 0, 0.58), 0 12px 24px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      --page-inset: inset 0 2px 4px rgba(255, 255, 255, 0.45), inset 0 -3px 12px rgba(74, 42, 18, 0.12);
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -309,6 +315,7 @@
       position: relative;
       width: min(1550px, 99vw);
       animation: bookFadeIn var(--dur-book-in) ease;
+      filter: drop-shadow(0 22px 48px rgba(0, 0, 0, 0.5));
     }
 
     @keyframes bookFadeIn {
@@ -324,8 +331,27 @@
 
     .book-image-wrap {
       position: relative;
-      border-radius: 20px;
+      border-radius: 18px 22px 22px 18px;
       overflow: hidden;
+      box-shadow: var(--book-drop);
+      background: linear-gradient(145deg, #1a0d08 0%, #2d1810 40%, #1f120c 100%);
+    }
+
+    .book-image-wrap::after {
+      content: "";
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow:
+        inset 0 0 80px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 248, 230, 0.06);
+      z-index: 1;
+    }
+
+    .book-image-wrap .book-left,
+    .book-image-wrap .book-right {
+      pointer-events: auto;
     }
 
     .book-image {
@@ -333,41 +359,98 @@
       display: block;
       user-select: none;
       -webkit-user-drag: none;
-      background: rgba(255, 255, 255, 0.04);
+      background: linear-gradient(180deg, #3d2618, #2a1810);
     }
 
+    /* Fallback: разворот книги на «столе» — объём, корешок, фактура бумаги */
     .book-image-fallback {
       display: none;
       aspect-ratio: 16 / 10;
       width: 100%;
       position: relative;
-      background:
-        linear-gradient(135deg, #6e4a2d 0%, #9b7248 35%, #a87d50 50%, #8c653f 100%);
-      border-radius: 20px;
       overflow: hidden;
-      box-shadow: inset 0 0 0 1px rgba(255, 248, 226, 0.18);
+      border-radius: inherit;
+      background:
+        radial-gradient(ellipse 120% 80% at 50% 100%, rgba(0, 0, 0, 0.45), transparent 55%),
+        radial-gradient(ellipse 80% 50% at 30% 20%, rgba(255, 200, 120, 0.08), transparent 50%),
+        repeating-linear-gradient(
+          90deg,
+          #3d2818 0px,
+          #4a3320 2px,
+          #352418 4px,
+          #2a1a12 8px
+        ),
+        linear-gradient(180deg, #5c4030 0%, #2d1e14 50%, #1a100a 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 230, 190, 0.12);
+    }
+
+    .book-fallback-spine {
+      position: absolute;
+      left: 50%;
+      top: 5%;
+      bottom: 5%;
+      width: 3.2%;
+      transform: translateX(-50%);
+      background: linear-gradient(
+        90deg,
+        rgba(20, 12, 8, 0.95),
+        rgba(55, 38, 26, 0.9) 45%,
+        rgba(30, 20, 14, 0.95) 55%,
+        rgba(15, 10, 7, 0.98)
+      );
+      box-shadow:
+        inset 0 0 12px rgba(0, 0, 0, 0.6),
+        -4px 0 14px rgba(0, 0, 0, 0.35),
+        4px 0 14px rgba(0, 0, 0, 0.35);
+      border-radius: 3px;
+      z-index: 2;
     }
 
     .book-image-fallback::before,
     .book-image-fallback::after {
       content: "";
       position: absolute;
-      top: 6%;
-      bottom: 6%;
-      width: 34%;
-      background: linear-gradient(180deg, #f5e9cf, #ead8b5);
-      border-radius: 10px;
+      top: 5.5%;
+      bottom: 5.5%;
+      width: 38%;
+      border-radius: 3px 10px 12px 4px;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255, 252, 245, 0.95) 0%,
+          var(--paper-cream) 22%,
+          var(--paper-cream-mid) 55%,
+          #e8dcc4 100%
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 1.05em,
+          rgba(139, 90, 43, 0.07) 1.05em,
+          rgba(139, 90, 43, 0.07) 1.08em
+        );
       box-shadow:
-        inset 0 0 0 1px rgba(110, 68, 34, 0.15),
-        inset 0 0 35px rgba(146, 104, 55, 0.08);
+        var(--page-inset),
+        0 8px 24px rgba(0, 0, 0, 0.35),
+        0 2px 6px rgba(0, 0, 0, 0.2),
+        inset -1px 0 0 rgba(180, 140, 90, 0.2);
+      z-index: 1;
     }
 
     .book-image-fallback::before {
-      left: 13%;
+      left: 8%;
+      transform: rotate(-0.4deg);
     }
 
     .book-image-fallback::after {
-      right: 13%;
+      right: 8%;
+      transform: rotate(0.45deg);
+      border-radius: 10px 3px 4px 12px;
+      box-shadow:
+        var(--page-inset),
+        0 8px 24px rgba(0, 0, 0, 0.35),
+        0 2px 6px rgba(0, 0, 0, 0.2),
+        inset 1px 0 0 rgba(180, 140, 90, 0.18);
     }
 
     .book-image-wrap.image-error .book-image {
@@ -378,24 +461,69 @@
       display: block;
     }
 
+    /* Врезки: больше рабочей зоны, выше по центру разворота */
     .book-left {
       position: absolute;
-      left: 33.8%;
-      top: 37.5%;
-      width: 14.8%;
-      height: 19%;
+      z-index: 3;
+      left: 31.2%;
+      top: 27.5%;
+      width: 17.8%;
+      height: 46%;
+      min-height: 180px;
       display: flex;
       flex-direction: column;
+      align-items: stretch;
     }
 
     .book-right {
       position: absolute;
-      left: 51.3%;
-      top: 37.3%;
-      width: 15.2%;
-      height: 19.5%;
+      z-index: 3;
+      left: 50.2%;
+      top: 27.5%;
+      width: 18.2%;
+      height: 46%;
+      min-height: 180px;
       display: flex;
       flex-direction: column;
+      align-items: stretch;
+    }
+
+    .book-page-surface {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      padding: clamp(4px, 0.55vw, 10px) clamp(3px, 0.45vw, 8px);
+      border-radius: 5px;
+      background:
+        linear-gradient(165deg, rgba(255, 255, 255, 0.22) 0%, transparent 42%),
+        linear-gradient(180deg, rgba(252, 246, 232, 0.55) 0%, rgba(240, 228, 208, 0.35) 100%),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 1.12em,
+          rgba(120, 82, 48, 0.07) 1.12em,
+          rgba(120, 82, 48, 0.07) 1.15em
+        );
+      box-shadow:
+        var(--page-inset),
+        0 3px 14px rgba(40, 22, 10, 0.18),
+        inset 0 0 0 1px rgba(110, 68, 34, 0.1);
+      border: 1px solid rgba(90, 47, 23, 0.14);
+    }
+
+    .book-page-surface--right {
+      background:
+        linear-gradient(195deg, rgba(255, 255, 255, 0.18) 0%, transparent 38%),
+        linear-gradient(180deg, rgba(250, 243, 228, 0.5) 0%, rgba(235, 223, 198, 0.38) 100%),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 1.12em,
+          rgba(120, 82, 48, 0.065) 1.12em,
+          rgba(120, 82, 48, 0.065) 1.15em
+        );
     }
 
     .handwriting {
@@ -404,12 +532,14 @@
 
     .paper-label {
       display: block;
-      margin: 0 0 2px;
-      font-size: clamp(11px, 0.95vw, 14px);
-      line-height: 1.1;
-      color: rgba(88, 42, 19, 0.65);
+      margin: 0 0 3px;
+      font-size: clamp(10px, 0.88vw, 13px);
+      line-height: 1.15;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(72, 38, 18, 0.72);
       font-family: "Cormorant Garamond", serif;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .paper-input,
@@ -417,62 +547,82 @@
       width: 100%;
       border: none;
       outline: none;
-      background: transparent;
+      background: rgba(255, 252, 245, 0.22);
       color: var(--paper-ink);
       caret-color: #6a351a;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
       font-family: "Marck Script", cursive;
-      transition: box-shadow 0.2s ease;
+      transition: box-shadow 0.2s ease, background 0.2s ease;
+      border-radius: 4px;
+      padding: 2px 4px;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35);
     }
 
     .paper-input::placeholder,
     .paper-textarea::placeholder {
-      color: rgba(106, 53, 26, 0.3);
+      color: rgba(106, 53, 26, 0.32);
     }
 
     .paper-input[aria-invalid="true"],
     .paper-textarea[aria-invalid="true"] {
-      box-shadow: 0 0 0 1px rgba(180, 60, 60, 0.35);
-      border-radius: 4px;
+      box-shadow:
+        inset 0 0 0 1px rgba(180, 60, 60, 0.45),
+        inset 0 1px 2px rgba(255, 255, 255, 0.25);
     }
 
     .paper-input {
-      font-size: clamp(22px, 1.8vw, 34px);
-      line-height: 1.1;
+      font-size: clamp(20px, 1.65vw, 32px);
+      line-height: 1.12;
       margin-top: 0;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(90, 47, 23, 0.18);
+      border-radius: 4px 4px 0 0;
+      box-shadow: none;
+      background: transparent;
+      padding: 1px 2px 4px;
     }
 
     .paper-textarea {
-      margin-top: 6px;
-      min-height: 120px;
+      margin-top: 4px;
+      flex: 1;
+      min-height: 72px;
       resize: none;
-      font-size: clamp(18px, 1.5vw, 29px);
-      line-height: 1.1;
+      font-size: clamp(16px, 1.35vw, 26px);
+      line-height: 1.2;
+      border: 1px solid rgba(90, 47, 23, 0.12);
+      background: rgba(255, 250, 240, 0.35);
     }
 
     .actions-row {
       display: flex;
       justify-content: flex-start;
-      margin-top: 6px;
+      align-items: center;
+      margin-top: auto;
+      padding-top: clamp(4px, 0.5vw, 8px);
       gap: 8px;
+      flex-shrink: 0;
     }
 
     .book-btn {
       margin-top: 0;
-      color: rgba(94, 52, 25, 0.74);
-      border-color: rgba(94, 52, 25, 0.12);
-      background: rgba(255, 248, 238, 0.08);
+      padding: 7px 18px;
+      font-size: clamp(15px, 1.1vw, 18px);
+      color: rgba(72, 38, 18, 0.92);
+      border: 1px solid rgba(94, 52, 25, 0.22);
+      background: linear-gradient(180deg, rgba(255, 248, 232, 0.85), rgba(230, 212, 186, 0.55));
+      box-shadow: 0 2px 6px rgba(40, 22, 10, 0.15);
     }
 
     .book-btn:hover:not(:disabled) {
-      color: rgba(94, 52, 25, 0.95);
-      background: rgba(255, 248, 238, 0.14);
+      color: rgba(50, 26, 12, 0.98);
+      background: linear-gradient(180deg, rgba(255, 252, 245, 0.95), rgba(238, 224, 200, 0.7));
     }
 
     .form-helper {
-      margin-top: 6px;
-      font-size: 14px;
-      color: rgba(88, 42, 19, 0.82);
+      margin-top: 4px;
+      font-size: clamp(11px, 0.85vw, 14px);
+      line-height: 1.25;
+      color: rgba(72, 38, 18, 0.88);
     }
 
     /* =============================================================================
@@ -480,8 +630,22 @@
        ============================================================================= */
     .dictionary-page {
       flex: 1;
-      overflow: hidden;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
       transform-style: preserve-3d;
+      padding: 1px 2px 4px 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(90, 47, 23, 0.35) rgba(255, 248, 238, 0.3);
+    }
+
+    .dictionary-page::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .dictionary-page::-webkit-scrollbar-thumb {
+      background: rgba(90, 47, 23, 0.35);
+      border-radius: 4px;
     }
 
     .dictionary-page.turn-next {
@@ -533,11 +697,14 @@
     .word-line {
       color: var(--paper-ink);
       font-family: "Caveat", cursive;
-      font-size: clamp(20px, 1.5vw, 30px);
-      line-height: 1.02;
-      margin: 0 0 6px;
+      font-size: clamp(17px, 1.35vw, 28px);
+      line-height: 1.22;
+      margin: 0 0 7px;
+      padding: 2px 0 5px 6px;
+      border-left: 2px solid rgba(139, 90, 43, 0.22);
       white-space: pre-wrap;
       word-break: break-word;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
     }
 
     .word-line.typing::after {
@@ -565,43 +732,57 @@
     }
 
     .empty-note {
-      margin-top: 10px;
-      color: rgba(88, 42, 19, 0.56);
-      font-size: clamp(22px, 1.6vw, 28px);
+      margin-top: 4px;
+      color: rgba(72, 38, 18, 0.62);
+      font-size: clamp(16px, 1.35vw, 24px);
       font-family: "Caveat", cursive;
+      line-height: 1.3;
+      font-style: italic;
     }
 
     .page-nav {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 8px;
+      justify-content: center;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: clamp(4px, 0.55vw, 8px);
+      flex-shrink: 0;
     }
 
     .page-counter {
-      color: rgba(88, 42, 19, 0.8);
-      font-size: 16px;
+      color: rgba(72, 38, 18, 0.88);
+      font-size: clamp(12px, 0.95vw, 15px);
+      font-family: "Cormorant Garamond", serif;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      min-width: 3.2em;
+      text-align: center;
     }
 
     .nav-btn {
-      width: 32px;
-      height: 32px;
-      border: 1px solid rgba(90, 47, 23, 0.12);
+      width: clamp(28px, 2.2vw, 36px);
+      height: clamp(28px, 2.2vw, 36px);
+      border: 1px solid rgba(90, 47, 23, 0.28);
       border-radius: 50%;
       cursor: pointer;
-      color: rgba(255, 242, 219, 0.92);
-      font-size: 14px;
-      background: rgba(90, 47, 23, 0.62);
-      transition: background 0.25s ease;
+      color: rgba(72, 38, 18, 0.95);
+      font-size: 13px;
+      line-height: 1;
+      background: linear-gradient(165deg, rgba(255, 248, 232, 0.9), rgba(210, 188, 155, 0.65));
+      box-shadow: 0 2px 6px rgba(40, 22, 10, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      transition: background 0.2s ease, transform 0.15s ease;
     }
 
     .nav-btn:hover:not(:disabled) {
-      background: rgba(90, 47, 23, 0.8);
+      background: linear-gradient(165deg, rgba(255, 252, 245, 0.98), rgba(225, 205, 175, 0.8));
+      transform: scale(1.05);
     }
 
     .nav-btn:disabled {
-      opacity: 0.3;
+      opacity: 0.35;
       cursor: not-allowed;
+      transform: none;
     }
 
     /* =============================================================================
@@ -655,17 +836,17 @@
        ============================================================================= */
     @media (max-width: 1200px) {
       .book-left {
-        left: 33.3%;
-        top: 37.2%;
-        width: 15.5%;
-        height: 20%;
+        left: 30.8%;
+        top: 27%;
+        width: 18.5%;
+        height: 47%;
       }
 
       .book-right {
-        left: 51.1%;
-        top: 37%;
-        width: 15.8%;
-        height: 20%;
+        left: 50%;
+        top: 27%;
+        width: 18.8%;
+        height: 47%;
       }
     }
 
@@ -675,7 +856,21 @@
       }
 
       .paper-textarea {
-        min-height: 80px;
+        min-height: 56px;
+      }
+
+      .book-left {
+        left: 30%;
+        top: 26.5%;
+        width: 19%;
+        height: 48%;
+      }
+
+      .book-right {
+        left: 49.5%;
+        top: 26.5%;
+        width: 19.5%;
+        height: 48%;
       }
     }
 
@@ -685,29 +880,29 @@
       }
 
       .book-left {
-        left: 31.8%;
-        top: 35.2%;
-        width: 17%;
-        height: 23%;
+        left: 28.5%;
+        top: 25.5%;
+        width: 21.5%;
+        height: 50%;
       }
 
       .book-right {
-        left: 50.9%;
-        top: 35.1%;
-        width: 17.2%;
-        height: 23%;
+        left: 48.8%;
+        top: 25.5%;
+        width: 22%;
+        height: 50%;
       }
 
       .paper-input {
-        font-size: clamp(18px, 2.7vw, 24px);
+        font-size: clamp(16px, 2.5vw, 22px);
       }
 
       .paper-textarea {
-        font-size: clamp(15px, 2.2vw, 20px);
+        font-size: clamp(14px, 2vw, 18px);
       }
 
       .word-line {
-        font-size: clamp(16px, 2.4vw, 22px);
+        font-size: clamp(14px, 2.1vw, 20px);
       }
 
       .bottom-copyright {
@@ -728,6 +923,13 @@
     <!--
       Экран 1: обложка и ввод кодового слова.
       После успешного ввода — анимация обложки и переход к книге.
+
+      Оформление картинками (по шагам):
+      1) В папке images/ уже есть заготовки: cover.svg (обложка), book-open.svg (разворот).
+      2) Чтобы использовать свои фото — положите рядом cover.jpg и book.jpg (или png/webp)
+         и поменяйте порядок файлов в CONFIG.images внизу страницы (первый существующий подхватится).
+      3) Если локальный файл не найден, подставится следующий в списке, затем резервная ссылка;
+         если ничего не загрузилось — показывается графический fallback в разметке.
     -->
     <section
       id="coverScreen"
@@ -739,7 +941,7 @@
           <img
             id="coverImage"
             class="cover-image"
-            src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1600&auto=format&fit=crop"
+            src="images/cover.svg"
             alt=""
             decoding="async"
             fetchpriority="high"
@@ -797,75 +999,81 @@
           <img
             id="bookImage"
             class="book-image"
-            src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1600&auto=format&fit=crop"
+            src="images/book-open.svg"
             alt=""
             decoding="async"
             loading="lazy"
             fetchpriority="low"
           />
-          <div class="book-image-fallback" aria-hidden="true"></div>
+          <div class="book-image-fallback" aria-hidden="true">
+            <span class="book-fallback-spine" aria-hidden="true"></span>
+          </div>
 
           <!-- Левая страница: поля и кнопка -->
           <form id="wordForm" class="book-left" novalidate aria-describedby="formMessage formHints">
-            <p id="formHints" class="visually-hidden">
-              Поля «Слово» и «Описание» обязательны. В поле описания можно сохранить по Ctrl+Enter или Cmd+Enter.
-            </p>
+            <div class="book-page-surface book-page-surface--left">
+              <p id="formHints" class="visually-hidden">
+                Поля «Слово» и «Описание» обязательны. В поле описания можно сохранить по Ctrl+Enter или Cmd+Enter.
+              </p>
 
-            <label class="paper-label" for="wordInput">Слово</label>
-            <input
-              id="wordInput"
-              class="paper-input handwriting"
-              name="word"
-              type="text"
-              maxlength="30"
-              placeholder="Слово"
-              autocomplete="off"
-              aria-invalid="false"
-              aria-required="true"
-              required
-            />
+              <label class="paper-label" for="wordInput">Слово</label>
+              <input
+                id="wordInput"
+                class="paper-input handwriting"
+                name="word"
+                type="text"
+                maxlength="30"
+                placeholder="Слово"
+                autocomplete="off"
+                aria-invalid="false"
+                aria-required="true"
+                required
+              />
 
-            <label class="paper-label" for="descriptionInput">Краткое описание</label>
-            <textarea
-              id="descriptionInput"
-              class="paper-textarea handwriting"
-              name="description"
-              maxlength="150"
-              placeholder="Краткое описание"
-              aria-invalid="false"
-              aria-required="true"
-              required
-            ></textarea>
+              <label class="paper-label" for="descriptionInput">Краткое описание</label>
+              <textarea
+                id="descriptionInput"
+                class="paper-textarea handwriting"
+                name="description"
+                maxlength="150"
+                placeholder="Краткое описание"
+                aria-invalid="false"
+                aria-required="true"
+                required
+              ></textarea>
 
-            <div class="actions-row">
-              <button id="saveBtn" class="ghost-btn book-btn" type="submit">
-                вписать
-              </button>
+              <div class="actions-row">
+                <button id="saveBtn" class="ghost-btn book-btn" type="submit">
+                  вписать
+                </button>
+              </div>
+
+              <p id="formMessage" class="helper-text form-helper" role="status" aria-live="polite"></p>
             </div>
-
-            <p id="formMessage" class="helper-text form-helper" role="status" aria-live="polite"></p>
           </form>
 
           <!-- Правая страница: словарь и навигация -->
           <div class="book-right">
-            <div
-              id="dictionaryPage"
-              class="dictionary-page"
-              role="region"
-              aria-label="Текущая страница словаря"
-              aria-live="polite"
-              aria-busy="false"
-            ></div>
+            <div class="book-page-surface book-page-surface--right">
+              <div
+                id="dictionaryPage"
+                class="dictionary-page"
+                role="region"
+                aria-label="Текущая страница словаря"
+                aria-live="polite"
+                aria-busy="false"
+              ></div>
 
-            <nav class="page-nav" aria-label="Страницы словаря">
-              <button id="prevBtn" class="nav-btn" type="button" aria-label="Предыдущая страница">
-                <span aria-hidden="true">◀</span>
-              </button>
-              <span id="pageCounter" class="page-counter" aria-live="polite">1 / 1</span>
-              <button id="nextBtn" class="nav-btn" type="button" aria-label="Следующая страница">
-                <span aria-hidden="true">▶</span>
-              </button>
-            </nav>
+              <nav class="page-nav" aria-label="Страницы словаря">
+                <button id="prevBtn" class="nav-btn" type="button" aria-label="Предыдущая страница">
+                  <span aria-hidden="true">◀</span>
+                </button>
+                <span id="pageCounter" class="page-counter" aria-live="polite">1 / 1</span>
+                <button id="nextBtn" class="nav-btn" type="button" aria-label="Следующая страница">
+                  <span aria-hidden="true">▶</span>
+                </button>
+              </nav>
+            </div>
           </div>
 
           <div class="bottom-copyright">
@@ -898,7 +1106,27 @@
         coverAnimationMs: 1450,
         typingSpeed: 15,
         maxWordLength: 30,
-        maxDescriptionLength: 150
+        maxDescriptionLength: 150,
+        /**
+         * Цепочка источников для <img>: первый успешно загрузившийся используется.
+         * Поставьте свои файлы в images/ и при необходимости переставьте строки (например jpg первым).
+         */
+        images: {
+          coverSources: [
+            "images/cover.svg",
+            "images/cover.jpg",
+            "images/cover.png",
+            "images/cover.webp",
+            "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1600&auto=format&fit=crop"
+          ],
+          bookSources: [
+            "images/book-open.svg",
+            "images/book.jpg",
+            "images/book.png",
+            "images/book.webp",
+            "https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1600&auto=format&fit=crop"
+          ]
+        }
       };
 
       /* --- Состояние --- */
@@ -949,6 +1177,36 @@
           return window.crypto.randomUUID();
         }
         return `word_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+      }
+
+      /**
+       * Подключает цепочку URL для декоративного изображения: при ошибке загрузки — следующий источник,
+       * после исчерпания списка включается графический fallback на контейнере.
+       */
+      function setupImageSourceChain(img, wrap, sources) {
+        if (!img || !wrap || !sources || sources.length === 0) return;
+
+        let index = 0;
+
+        const tryNext = () => {
+          index += 1;
+          if (index < sources.length) {
+            img.src = sources[index];
+          } else {
+            wrap.classList.add("image-error");
+          }
+        };
+
+        img.addEventListener("error", tryNext, { passive: true });
+        img.addEventListener(
+          "load",
+          () => {
+            wrap.classList.remove("image-error");
+          },
+          { passive: true }
+        );
+
+        img.src = sources[0];
       }
 
       function clearCoverAnimationListeners() {
@@ -1397,14 +1655,17 @@
         });
       }
 
-      /* --- События --- */
-      function bindImageFallbacks() {
-        dom.coverImage.addEventListener("error", () => {
-          dom.coverImageWrap.classList.add("image-error");
-        });
-        dom.bookImage.addEventListener("error", () => {
-          dom.bookImageWrap.classList.add("image-error");
-        });
+      function bindDecorativeImages() {
+        setupImageSourceChain(
+          dom.coverImage,
+          dom.coverImageWrap,
+          CONFIG.images.coverSources
+        );
+        setupImageSourceChain(
+          dom.bookImage,
+          dom.bookImageWrap,
+          CONFIG.images.bookSources
+        );
       }
 
       function bindEvents() {
@@ -1458,7 +1719,7 @@
 
       function initApp() {
         bindEvents();
-        bindImageFallbacks();
+        bindDecorativeImages();
 
         if (storage.isAccessGranted()) {
           showBookInstantly();
