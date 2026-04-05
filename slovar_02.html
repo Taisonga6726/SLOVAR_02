@@ -10,1075 +10,12 @@
   <title>Словарь вайбкодера</title>
 
   <!--
-    Один самодостаточный файл: стили и скрипт внутри, можно открыть локально или вставить в онлайн-редактор.
+    Оформление: внешний файл slovar_02.css (рядом с этим HTML). Скрипт — в конце страницы.
     Клиентское «кодовое слово» — не защита, а декоративный доступ (значение задаётся в CONFIG в скрипте).
   -->
 
-  <style>
-    /* =============================================================================
-       ШРИФТЫ
-       ============================================================================= */
-    @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Marck+Script&family=Caveat:wght@400;500;600;700&display=swap");
+  <link rel="stylesheet" href="slovar_02.css" />
 
-    /* =============================================================================
-       СБРОС И КОРНЕВЫЕ ПЕРЕМЕННЫЕ
-       ============================================================================= */
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    :root {
-      --bg-1: #0b0613;
-      --bg-2: #130a22;
-      --gold: #f0d28a;
-      --gold-soft: rgba(240, 210, 138, 0.18);
-      --paper-ink: #5a2f17;
-      --paper-ink-soft: rgba(90, 47, 23, 0.7);
-      --paper-cream: #faf3e4;
-      --paper-cream-mid: #f0e6d2;
-      --paper-edge: rgba(180, 140, 90, 0.35);
-      --light-text: #f7ead5;
-      --error: #ffb2b2;
-      --success: #d4ffbc;
-      --focus: rgba(240, 210, 138, 0.92);
-      --focus-ring: 2px solid var(--focus);
-      --panel-dark: rgba(23, 10, 37, 0.4);
-      --panel-border: rgba(241, 205, 129, 0.2);
-      --dur-cover-open: 1.45s;
-      --dur-book-in: 0.9s;
-      --dur-page-turn: 0.85s;
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --book-drop:
-        0 32px 64px rgba(0, 0, 0, 0.62),
-        0 14px 28px rgba(0, 0, 0, 0.4),
-        0 0 1px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      --page-inset: inset 0 2px 5px rgba(255, 255, 255, 0.5), inset 0 -4px 14px rgba(74, 42, 18, 0.14);
-      --paper-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      :root {
-        --dur-cover-open: 0.01ms;
-        --dur-book-in: 0.01ms;
-        --dur-page-turn: 0.01ms;
-      }
-    }
-
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-    }
-
-    body {
-      min-height: 100vh;
-      min-height: 100dvh;
-      background:
-        radial-gradient(ellipse 90% 55% at 50% -8%, rgba(200, 160, 255, 0.14), transparent 52%),
-        radial-gradient(ellipse 70% 45% at 85% 75%, rgba(255, 170, 90, 0.1), transparent 48%),
-        radial-gradient(ellipse 55% 40% at 12% 60%, rgba(116, 52, 185, 0.12), transparent 45%),
-        linear-gradient(168deg, #150a24 0%, var(--bg-2) 42%, var(--bg-1) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: "Cormorant Garamond", serif;
-      color: var(--light-text);
-      overflow-x: hidden;
-      padding-bottom: var(--safe-bottom);
-      cursor: default;
-    }
-
-    /* =============================================================================
-       КАРКАС: ПРИЛОЖЕНИЕ, ЭКРАНЫ, УТИЛИТЫ
-       ============================================================================= */
-    .app {
-      width: 100%;
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-    }
-
-    .screen {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .visually-hidden {
-      position: absolute !important;
-      width: 1px !important;
-      height: 1px !important;
-      padding: 0 !important;
-      margin: -1px !important;
-      overflow: hidden !important;
-      clip: rect(0, 0, 0, 0) !important;
-      white-space: nowrap !important;
-      border: 0 !important;
-    }
-
-    .skip-link {
-      position: absolute;
-      left: -9999px;
-      z-index: 9999;
-      padding: 12px 16px;
-      background: var(--gold);
-      color: var(--bg-1);
-      font-size: 18px;
-      text-decoration: none;
-      border-radius: 8px;
-    }
-
-    .skip-link:focus {
-      left: 12px;
-      top: 12px;
-    }
-
-    /* =============================================================================
-       ЭКРАН ОБЛОЖКИ
-       ============================================================================= */
-    .cover-stage {
-      width: min(1500px, 98vw);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-
-    .cover-image-wrap {
-      width: min(1500px, 98vw);
-      max-width: 1500px;
-      position: relative;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow:
-        0 22px 50px rgba(0, 0, 0, 0.55),
-        0 0 0 1px rgba(255, 220, 160, 0.06),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
-      cursor: pointer;
-    }
-
-    .cover-image-wrap[aria-busy="true"] {
-      cursor: wait;
-      pointer-events: none;
-    }
-
-    .cover-image-wrap .access-input {
-      cursor: text;
-      pointer-events: auto;
-    }
-
-    .cover-image {
-      width: 100%;
-      display: block;
-      transform-origin: left center;
-      will-change: transform, opacity;
-      user-select: none;
-      -webkit-user-drag: none;
-      background: rgba(255, 255, 255, 0.04);
-      pointer-events: auto;
-    }
-
-    /*
-      Центр кадра между AI и книгой (как на макете): блок по центру по горизонтали,
-      вертикаль — якорь ~40% высоты картинки, без захода на книгу и на фигуры по бокам.
-    */
-    .cover-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      padding: 0 clamp(12px, 5vw, 48px);
-      pointer-events: none;
-    }
-
-    .cover-access-float {
-      position: absolute;
-      left: 50%;
-      top: clamp(37%, 41%, 45%);
-      transform: translate(-50%, -50%);
-      pointer-events: auto;
-      width: min(380px, 76vw);
-      max-width: 100%;
-      padding: clamp(14px, 2.5vw, 22px) clamp(16px, 3vw, 26px);
-      text-align: center;
-      background:
-        radial-gradient(ellipse 120% 80% at 50% 0%, rgba(80, 45, 28, 0.35), transparent 55%),
-        linear-gradient(168deg, #1c0f18 0%, #120a14 48%, #0c060e 100%);
-      border: 1px solid rgba(200, 165, 110, 0.35);
-      border-radius: 10px;
-      box-shadow:
-        0 14px 36px rgba(0, 0, 0, 0.55),
-        inset 0 2px 0 rgba(255, 235, 200, 0.1),
-        inset 0 -3px 12px rgba(0, 0, 0, 0.45),
-        0 0 0 1px rgba(0, 0, 0, 0.35);
-    }
-
-    .cover-access-float::before {
-      content: "";
-      position: absolute;
-      inset: 3px;
-      border-radius: 7px;
-      pointer-events: none;
-      border: 1px solid rgba(240, 210, 150, 0.12);
-      opacity: 0.85;
-    }
-
-    .cover-tap-hint {
-      margin: clamp(6px, 1.2vmin, 12px) 0 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      line-height: 1;
-    }
-
-    .cover-tap-arrow {
-      display: block;
-      font-size: clamp(28px, 4.2vw, 42px);
-      line-height: 1;
-      color: #ffd56a;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))
-        drop-shadow(0 0 10px rgba(255, 190, 80, 0.65));
-      animation: coverArrowNudge 1.6s ease-in-out infinite;
-    }
-
-    @media (max-width: 520px) {
-      .cover-overlay {
-        padding: 0 clamp(10px, 4vw, 24px);
-      }
-
-      .cover-access-float {
-        top: clamp(35%, 40%, 46%);
-        width: min(340px, 80vw);
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .cover-tap-arrow {
-        animation: none;
-      }
-    }
-
-    @keyframes coverArrowNudge {
-      0%,
-      100% {
-        transform: translateY(0);
-        opacity: 1;
-      }
-      50% {
-        transform: translateY(6px);
-        opacity: 0.88;
-      }
-    }
-
-    .cover-image.opening {
-      animation: coverOpen var(--dur-cover-open) cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-    }
-
-    .cover-image-fallback {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 30px;
-      color: rgba(255, 235, 201, 0.8);
-      background:
-        linear-gradient(135deg, rgba(61, 25, 93, 0.65), rgba(19, 10, 34, 0.85)),
-        radial-gradient(circle at center, rgba(240, 210, 138, 0.08), transparent 60%);
-      font-size: clamp(20px, 2vw, 34px);
-    }
-
-    .cover-image-wrap.image-error .cover-image {
-      opacity: 0;
-    }
-
-    .cover-image-wrap.image-error .cover-image-fallback {
-      display: flex;
-    }
-
-    @keyframes coverOpen {
-      0% {
-        transform: perspective(1800px) rotateY(0deg) translateX(0) scale(1);
-        opacity: 1;
-      }
-      40% {
-        transform: perspective(1800px) rotateY(-18deg) translateX(-10px) scale(1.01);
-        opacity: 1;
-      }
-      75% {
-        transform: perspective(1800px) rotateY(-52deg) translateX(-35px) scale(1.03);
-        opacity: 0.75;
-      }
-      100% {
-        transform: perspective(1800px) rotateY(-84deg) translateX(-75px) scale(1.04);
-        opacity: 0;
-      }
-    }
-
-    .cover-screen .access-subtitle {
-      margin: 0 auto 14px;
-      max-width: 22ch;
-      font-size: clamp(22px, 2.85vw, 32px);
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      line-height: 1.2;
-      color: #ffecc8;
-      text-shadow:
-        0 0 10px rgba(255, 210, 120, 0.95),
-        0 0 28px rgba(255, 170, 60, 0.65),
-        0 0 48px rgba(180, 100, 255, 0.45),
-        0 2px 6px rgba(0, 0, 0, 0.9);
-    }
-
-    .field-label {
-      display: block;
-      margin: 0 0 6px;
-      font-size: clamp(15px, 1.3vw, 18px);
-      font-weight: 500;
-      color: rgba(255, 236, 201, 0.78);
-      text-align: left;
-    }
-
-    /* Узкое «окно» под одно слово, в стиле неон / золото / артефакт */
-    .cover-screen .access-input {
-      display: block;
-      width: 11.5em;
-      max-width: min(11.5em, 78vw);
-      min-width: 9em;
-      height: 46px;
-      margin-left: auto;
-      margin-right: auto;
-      border-radius: 999px;
-      border: 1px solid rgba(200, 160, 255, 0.45);
-      background: linear-gradient(165deg, rgba(14, 8, 32, 0.96) 0%, rgba(32, 14, 52, 0.94) 50%, rgba(10, 6, 24, 0.98) 100%);
-      color: #fff8e8;
-      font-size: clamp(18px, 1.85vw, 22px);
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-align: center;
-      outline: none;
-      padding: 0 18px;
-      font-family: inherit;
-      transition:
-        box-shadow 0.28s ease,
-        border-color 0.28s ease,
-        transform 0.2s ease;
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.1),
-        0 0 0 1px rgba(255, 200, 100, 0.15),
-        0 0 22px rgba(168, 85, 255, 0.42),
-        0 0 38px rgba(255, 160, 50, 0.22),
-        0 4px 18px rgba(0, 0, 0, 0.55);
-    }
-
-    .cover-screen .access-input::placeholder {
-      color: rgba(255, 230, 200, 0.42);
-      font-weight: 500;
-      letter-spacing: 0.04em;
-    }
-
-    .cover-screen .access-input:hover:not(:disabled) {
-      border-color: rgba(220, 180, 255, 0.55);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.12),
-        0 0 0 1px rgba(255, 215, 140, 0.25),
-        0 0 28px rgba(180, 100, 255, 0.5),
-        0 0 44px rgba(255, 180, 80, 0.28),
-        0 4px 20px rgba(0, 0, 0, 0.55);
-    }
-
-    .cover-screen .access-input[aria-invalid="true"] {
-      border-color: rgba(255, 120, 140, 0.75);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        0 0 24px rgba(255, 80, 100, 0.4),
-        0 4px 16px rgba(0, 0, 0, 0.5);
-    }
-
-    .cover-screen .access-input:focus-visible {
-      outline: none;
-      border-color: rgba(255, 230, 180, 0.75);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        0 0 0 2px rgba(100, 200, 255, 0.35),
-        0 0 36px rgba(168, 85, 255, 0.55),
-        0 0 56px rgba(255, 185, 90, 0.38),
-        0 4px 22px rgba(0, 0, 0, 0.55);
-    }
-
-    .access-input::placeholder {
-      color: rgba(255, 236, 201, 0.5);
-    }
-
-    .access-input[aria-invalid="true"] {
-      border-color: rgba(255, 140, 140, 0.55);
-    }
-
-    /* =============================================================================
-       КНОПКИ И СООБЩЕНИЯ
-       ============================================================================= */
-    .ghost-btn {
-      margin-top: 12px;
-      border: 1px solid rgba(245, 212, 141, 0.18);
-      background: rgba(245, 212, 141, 0.05);
-      color: rgba(255, 238, 207, 0.82);
-      border-radius: 999px;
-      padding: 9px 16px;
-      cursor: pointer;
-      font-size: 18px;
-      font-family: "Cormorant Garamond", serif;
-      transition: background 0.25s ease, color 0.25s ease;
-    }
-
-    .cover-screen .helper-text {
-      margin-top: 8px;
-    }
-
-    .cover-login-msg {
-      font-size: clamp(15px, 1.35vw, 18px);
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-    }
-
-    .ghost-btn:hover:not(:disabled) {
-      background: rgba(245, 212, 141, 0.12);
-      color: rgba(255, 241, 219, 0.98);
-    }
-
-    .ghost-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .helper-text {
-      min-height: 24px;
-      margin: 8px 0 0;
-      font-size: 18px;
-    }
-
-    .helper-text.error {
-      color: var(--error);
-    }
-
-    .helper-text.success {
-      color: var(--success);
-    }
-
-    /* =============================================================================
-       КНИГА: СЦЕНА, ИЗОБРАЖЕНИЕ, ВРЕЗКИ СТРАНИЦ
-       ============================================================================= */
-    .book-scene {
-      position: relative;
-      width: min(1550px, 99vw);
-      animation: bookFadeIn var(--dur-book-in) ease;
-      filter: drop-shadow(0 22px 48px rgba(0, 0, 0, 0.5));
-    }
-
-    @keyframes bookFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.985);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .book-image-wrap {
-      position: relative;
-      border-radius: 18px 22px 22px 18px;
-      overflow: hidden;
-      box-shadow: var(--book-drop);
-      background: linear-gradient(145deg, #1a0d08 0%, #2d1810 40%, #1f120c 100%);
-    }
-
-    .book-image-wrap::after {
-      content: "";
-      pointer-events: none;
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      box-shadow:
-        inset 0 0 80px rgba(0, 0, 0, 0.25),
-        inset 0 1px 0 rgba(255, 248, 230, 0.06);
-      z-index: 1;
-    }
-
-    .book-image-wrap .book-left,
-    .book-image-wrap .book-right {
-      pointer-events: auto;
-    }
-
-    .book-image {
-      width: 100%;
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
-      background: linear-gradient(180deg, #3d2618, #2a1810);
-    }
-
-    /* Fallback: разворот книги на «столе» — объём, корешок, фактура бумаги */
-    .book-image-fallback {
-      display: none;
-      aspect-ratio: 16 / 10;
-      width: 100%;
-      position: relative;
-      overflow: hidden;
-      border-radius: inherit;
-      background:
-        radial-gradient(ellipse 120% 80% at 50% 100%, rgba(0, 0, 0, 0.45), transparent 55%),
-        radial-gradient(ellipse 80% 50% at 30% 20%, rgba(255, 200, 120, 0.08), transparent 50%),
-        repeating-linear-gradient(
-          90deg,
-          #3d2818 0px,
-          #4a3320 2px,
-          #352418 4px,
-          #2a1a12 8px
-        ),
-        linear-gradient(180deg, #5c4030 0%, #2d1e14 50%, #1a100a 100%);
-      box-shadow: inset 0 0 0 1px rgba(255, 230, 190, 0.12);
-    }
-
-    .book-fallback-spine {
-      position: absolute;
-      left: 50%;
-      top: 5%;
-      bottom: 5%;
-      width: 3.2%;
-      transform: translateX(-50%);
-      background: linear-gradient(
-        90deg,
-        rgba(20, 12, 8, 0.95),
-        rgba(55, 38, 26, 0.9) 45%,
-        rgba(30, 20, 14, 0.95) 55%,
-        rgba(15, 10, 7, 0.98)
-      );
-      box-shadow:
-        inset 0 0 12px rgba(0, 0, 0, 0.6),
-        -4px 0 14px rgba(0, 0, 0, 0.35),
-        4px 0 14px rgba(0, 0, 0, 0.35);
-      border-radius: 3px;
-      z-index: 2;
-    }
-
-    .book-image-fallback::before,
-    .book-image-fallback::after {
-      content: "";
-      position: absolute;
-      top: 5.5%;
-      bottom: 5.5%;
-      width: 38%;
-      border-radius: 3px 10px 12px 4px;
-      background:
-        linear-gradient(
-          135deg,
-          rgba(255, 252, 245, 0.95) 0%,
-          var(--paper-cream) 22%,
-          var(--paper-cream-mid) 55%,
-          #e8dcc4 100%
-        ),
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 1.05em,
-          rgba(139, 90, 43, 0.07) 1.05em,
-          rgba(139, 90, 43, 0.07) 1.08em
-        );
-      box-shadow:
-        var(--page-inset),
-        0 8px 24px rgba(0, 0, 0, 0.35),
-        0 2px 6px rgba(0, 0, 0, 0.2),
-        inset -1px 0 0 rgba(180, 140, 90, 0.2);
-      z-index: 1;
-    }
-
-    .book-image-fallback::before {
-      left: 8%;
-      transform: rotate(-0.4deg);
-    }
-
-    .book-image-fallback::after {
-      right: 8%;
-      transform: rotate(0.45deg);
-      border-radius: 10px 3px 4px 12px;
-      box-shadow:
-        var(--page-inset),
-        0 8px 24px rgba(0, 0, 0, 0.35),
-        0 2px 6px rgba(0, 0, 0, 0.2),
-        inset 1px 0 0 rgba(180, 140, 90, 0.18);
-    }
-
-    .book-image-wrap.image-error .book-image {
-      display: none;
-    }
-
-    .book-image-wrap.image-error .book-image-fallback {
-      display: block;
-    }
-
-    /* Врезки: больше рабочей зоны, выше по центру разворота */
-    .book-left {
-      position: absolute;
-      z-index: 3;
-      left: 31.2%;
-      top: 27.5%;
-      width: 17.8%;
-      height: 46%;
-      min-height: 180px;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .book-right {
-      position: absolute;
-      z-index: 3;
-      left: 50.2%;
-      top: 27.5%;
-      width: 18.2%;
-      height: 46%;
-      min-height: 180px;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .book-page-surface {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-      padding: clamp(4px, 0.55vw, 10px) clamp(3px, 0.45vw, 8px);
-      border-radius: 5px;
-      background:
-        linear-gradient(165deg, rgba(255, 255, 255, 0.22) 0%, transparent 42%),
-        linear-gradient(180deg, rgba(252, 246, 232, 0.55) 0%, rgba(240, 228, 208, 0.35) 100%),
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 1.12em,
-          rgba(120, 82, 48, 0.07) 1.12em,
-          rgba(120, 82, 48, 0.07) 1.15em
-        );
-      box-shadow:
-        var(--page-inset),
-        0 3px 14px rgba(40, 22, 10, 0.18),
-        inset 0 0 0 1px rgba(110, 68, 34, 0.1);
-      border: 1px solid rgba(90, 47, 23, 0.14);
-    }
-
-    .book-page-surface--right {
-      background:
-        linear-gradient(195deg, rgba(255, 255, 255, 0.18) 0%, transparent 38%),
-        linear-gradient(180deg, rgba(250, 243, 228, 0.5) 0%, rgba(235, 223, 198, 0.38) 100%),
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 1.12em,
-          rgba(120, 82, 48, 0.065) 1.12em,
-          rgba(120, 82, 48, 0.065) 1.15em
-        );
-    }
-
-    .handwriting {
-      font-family: "Marck Script", cursive;
-    }
-
-    .paper-label {
-      display: block;
-      margin: 0 0 3px;
-      font-size: clamp(10px, 0.88vw, 13px);
-      line-height: 1.15;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: rgba(72, 38, 18, 0.72);
-      font-family: "Cormorant Garamond", serif;
-      font-weight: 600;
-    }
-
-    .paper-input,
-    .paper-textarea {
-      width: 100%;
-      border: none;
-      outline: none;
-      background: rgba(255, 252, 245, 0.22);
-      color: var(--paper-ink);
-      caret-color: #6a351a;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
-      font-family: "Marck Script", cursive;
-      transition: box-shadow 0.2s ease, background 0.2s ease;
-      border-radius: 4px;
-      padding: 2px 4px;
-      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35);
-    }
-
-    .paper-input::placeholder,
-    .paper-textarea::placeholder {
-      color: rgba(106, 53, 26, 0.32);
-    }
-
-    .paper-input[aria-invalid="true"],
-    .paper-textarea[aria-invalid="true"] {
-      box-shadow:
-        inset 0 0 0 1px rgba(180, 60, 60, 0.45),
-        inset 0 1px 2px rgba(255, 255, 255, 0.25);
-    }
-
-    .paper-input {
-      font-size: clamp(20px, 1.65vw, 32px);
-      line-height: 1.12;
-      margin-top: 0;
-      flex-shrink: 0;
-      border-bottom: 1px solid rgba(90, 47, 23, 0.18);
-      border-radius: 4px 4px 0 0;
-      box-shadow: none;
-      background: transparent;
-      padding: 1px 2px 4px;
-    }
-
-    .paper-textarea {
-      margin-top: 4px;
-      flex: 1;
-      min-height: 72px;
-      resize: none;
-      font-size: clamp(16px, 1.35vw, 26px);
-      line-height: 1.2;
-      border: 1px solid rgba(90, 47, 23, 0.12);
-      background: rgba(255, 250, 240, 0.35);
-    }
-
-    .actions-row {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      margin-top: auto;
-      padding-top: clamp(4px, 0.5vw, 8px);
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .book-btn {
-      margin-top: 0;
-      padding: 7px 18px;
-      font-size: clamp(15px, 1.1vw, 18px);
-      color: rgba(72, 38, 18, 0.92);
-      border: 1px solid rgba(94, 52, 25, 0.22);
-      background: linear-gradient(180deg, rgba(255, 248, 232, 0.85), rgba(230, 212, 186, 0.55));
-      box-shadow: 0 2px 6px rgba(40, 22, 10, 0.15);
-    }
-
-    .book-btn:hover:not(:disabled) {
-      color: rgba(50, 26, 12, 0.98);
-      background: linear-gradient(180deg, rgba(255, 252, 245, 0.95), rgba(238, 224, 200, 0.7));
-    }
-
-    .form-helper {
-      margin-top: 4px;
-      font-size: clamp(11px, 0.85vw, 14px);
-      line-height: 1.25;
-      color: rgba(72, 38, 18, 0.88);
-    }
-
-    /* =============================================================================
-       СЛОВАРЬ И ПАГИНАЦИЯ
-       ============================================================================= */
-    .dictionary-page {
-      flex: 1;
-      min-height: 0;
-      overflow-x: hidden;
-      overflow-y: auto;
-      transform-style: preserve-3d;
-      padding: 1px 2px 4px 0;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(90, 47, 23, 0.35) rgba(255, 248, 238, 0.3);
-    }
-
-    .dictionary-page::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    .dictionary-page::-webkit-scrollbar-thumb {
-      background: rgba(90, 47, 23, 0.35);
-      border-radius: 4px;
-    }
-
-    .dictionary-page.turn-next {
-      animation: turnNext var(--dur-page-turn) cubic-bezier(0.22, 0.61, 0.36, 1);
-    }
-
-    .dictionary-page.turn-prev {
-      animation: turnPrev var(--dur-page-turn) cubic-bezier(0.22, 0.61, 0.36, 1);
-    }
-
-    @keyframes turnNext {
-      0% {
-        transform: perspective(1200px) rotateY(0deg);
-        opacity: 1;
-      }
-      42% {
-        transform: perspective(1200px) rotateY(-88deg);
-        opacity: 0.1;
-      }
-      58% {
-        transform: perspective(1200px) rotateY(88deg);
-        opacity: 0.08;
-      }
-      100% {
-        transform: perspective(1200px) rotateY(0deg);
-        opacity: 1;
-      }
-    }
-
-    @keyframes turnPrev {
-      0% {
-        transform: perspective(1200px) rotateY(0deg);
-        opacity: 1;
-      }
-      42% {
-        transform: perspective(1200px) rotateY(88deg);
-        opacity: 0.1;
-      }
-      58% {
-        transform: perspective(1200px) rotateY(-88deg);
-        opacity: 0.08;
-      }
-      100% {
-        transform: perspective(1200px) rotateY(0deg);
-        opacity: 1;
-      }
-    }
-
-    .word-line {
-      color: var(--paper-ink);
-      font-family: "Caveat", cursive;
-      font-size: clamp(17px, 1.35vw, 28px);
-      line-height: 1.22;
-      margin: 0 0 7px;
-      padding: 2px 0 5px 6px;
-      border-left: 2px solid rgba(139, 90, 43, 0.22);
-      white-space: pre-wrap;
-      word-break: break-word;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
-    }
-
-    .word-line.typing::after {
-      content: "";
-      display: inline-block;
-      width: 2px;
-      height: 0.95em;
-      margin-left: 4px;
-      background: var(--paper-ink);
-      vertical-align: middle;
-      animation: blinkCaret 0.7s step-end infinite;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .word-line.typing::after {
-        animation: none;
-        opacity: 1;
-      }
-    }
-
-    @keyframes blinkCaret {
-      50% {
-        opacity: 0;
-      }
-    }
-
-    .empty-note {
-      margin-top: 4px;
-      color: rgba(72, 38, 18, 0.62);
-      font-size: clamp(16px, 1.35vw, 24px);
-      font-family: "Caveat", cursive;
-      line-height: 1.3;
-      font-style: italic;
-    }
-
-    .page-nav {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: auto;
-      padding-top: clamp(4px, 0.55vw, 8px);
-      flex-shrink: 0;
-    }
-
-    .page-counter {
-      color: rgba(72, 38, 18, 0.88);
-      font-size: clamp(12px, 0.95vw, 15px);
-      font-family: "Cormorant Garamond", serif;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      min-width: 3.2em;
-      text-align: center;
-    }
-
-    .nav-btn {
-      width: clamp(28px, 2.2vw, 36px);
-      height: clamp(28px, 2.2vw, 36px);
-      border: 1px solid rgba(90, 47, 23, 0.28);
-      border-radius: 50%;
-      cursor: pointer;
-      color: rgba(72, 38, 18, 0.95);
-      font-size: 13px;
-      line-height: 1;
-      background: linear-gradient(165deg, rgba(255, 248, 232, 0.9), rgba(210, 188, 155, 0.65));
-      box-shadow: 0 2px 6px rgba(40, 22, 10, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-      transition: background 0.2s ease, transform 0.15s ease;
-    }
-
-    .nav-btn:hover:not(:disabled) {
-      background: linear-gradient(165deg, rgba(255, 252, 245, 0.98), rgba(225, 205, 175, 0.8));
-      transform: scale(1.05);
-    }
-
-    .nav-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* =============================================================================
-       ПОДПИСИ ПОД КНИГОЙ
-       ============================================================================= */
-    .bottom-copyright {
-      position: absolute;
-      bottom: 6.2%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 88%;
-      text-align: center;
-      font-size: clamp(14px, 1.05vw, 22px);
-      line-height: 1.15;
-      color: var(--gold);
-      letter-spacing: 0.2px;
-    }
-
-    .bottom-signature {
-      position: absolute;
-      bottom: 2.1%;
-      left: 50%;
-      transform: translateX(-50%) rotate(-2deg);
-      font-family: "Marck Script", cursive;
-      font-size: clamp(24px, 2vw, 46px);
-      color: #ffd36d;
-      text-shadow: 0 0 10px rgba(255, 184, 54, 0.14);
-      white-space: nowrap;
-      opacity: 0.95;
-    }
-
-    /* =============================================================================
-       ФОКУС (ДОСТУПНОСТЬ)
-       ============================================================================= */
-    .paper-input:focus-visible,
-    .paper-textarea:focus-visible,
-    .ghost-btn:focus-visible,
-    .nav-btn:focus-visible {
-      outline: var(--focus-ring);
-      outline-offset: 2px;
-      border-radius: 10px;
-    }
-
-    .nav-btn:focus-visible {
-      border-radius: 50%;
-    }
-
-    /* =============================================================================
-       АДАПТИВ
-       ============================================================================= */
-    @media (max-width: 1200px) {
-      .book-left {
-        left: 30.8%;
-        top: 27%;
-        width: 18.5%;
-        height: 47%;
-      }
-
-      .book-right {
-        left: 50%;
-        top: 27%;
-        width: 18.8%;
-        height: 47%;
-      }
-    }
-
-    @media (max-width: 900px) {
-      .bottom-copyright {
-        width: 92%;
-      }
-
-      .paper-textarea {
-        min-height: 56px;
-      }
-
-      .book-left {
-        left: 30%;
-        top: 26.5%;
-        width: 19%;
-        height: 48%;
-      }
-
-      .book-right {
-        left: 49.5%;
-        top: 26.5%;
-        width: 19.5%;
-        height: 48%;
-      }
-    }
-
-    @media (max-width: 700px) {
-      .book-scene {
-        width: min(1000px, 100vw);
-      }
-
-      .book-left {
-        left: 28.5%;
-        top: 25.5%;
-        width: 21.5%;
-        height: 50%;
-      }
-
-      .book-right {
-        left: 48.8%;
-        top: 25.5%;
-        width: 22%;
-        height: 50%;
-      }
-
-      .paper-input {
-        font-size: clamp(16px, 2.5vw, 22px);
-      }
-
-      .paper-textarea {
-        font-size: clamp(14px, 2vw, 18px);
-      }
-
-      .word-line {
-        font-size: clamp(14px, 2.1vw, 20px);
-      }
-
-      .bottom-copyright {
-        font-size: clamp(10px, 1.8vw, 14px);
-      }
-
-      .bottom-signature {
-        font-size: clamp(16px, 3vw, 24px);
-      }
-    }
-  </style>
 </head>
 <body>
   <!-- Блок: пропуск к основному содержимому (клавиатура / вспомогательные технологии) -->
@@ -1087,7 +24,8 @@
   <main id="main-content" class="app" tabindex="-1">
     <!--
       Экран 1: обложка и ввод кодового слова.
-      После успешного ввода — анимация обложки и переход к книге.
+      После верного слова (Enter) — свечение книги и стрелка; клик по обложке — только анимация «открытия»,
+      остальной кадр статичен; затем экран разворота (book-open.png и др. по CONFIG).
 
       Оформление картинками (по шагам):
       1) Обложка: images/book-cover 01 .png (в CONFIG — с кодированием пробелов в URL).
@@ -1117,11 +55,12 @@
             decoding="async"
             fetchpriority="high"
           />
+          <div class="cover-book-glow" aria-hidden="true"></div>
           <div class="cover-image-fallback" role="img" aria-label="Декоративная обложка словаря">
             Обложка словаря
           </div>
 
-          <!-- Ввод в верхней зоне кадра + стрелка на книгу; открытие — клик по обложке или Enter -->
+          <!-- Ввод в узкой центральной колонке; после кода — стрелка; открытие — клик по обложке (не по полю) -->
           <div class="cover-overlay">
             <div class="cover-access-float">
               <h1 id="cover-heading" class="visually-hidden">Словарь вайбкодера</h1>
@@ -1134,20 +73,20 @@
                   class="access-input"
                   name="access"
                   type="password"
-                  placeholder="Например: vibecoder"
+                  placeholder="vibecoder"
                   autocomplete="off"
                   aria-describedby="loginMessage accessHint"
                   aria-invalid="false"
                   required
                 />
                 <p id="accessHint" class="visually-hidden">
-                  Введите кодовое слово, затем нажмите на обложку книги внизу или клавишу Enter. Это не защита
-                  данных, а вход в интерфейс.
+                  Введите кодовое слово и нажмите Enter. Затем нажмите на обложку в зоне книги, чтобы открыть
+                  словарь. Это не защита данных, а вход в интерфейс.
                 </p>
               </form>
 
               <p class="cover-tap-hint" aria-hidden="true">
-                <span class="cover-tap-arrow" title="Нажмите на обложку книги">↓</span>
+                <span class="cover-tap-arrow" title="Нажмите на обложку в зоне книги">↓</span>
               </p>
 
               <p id="loginMessage" class="helper-text cover-login-msg" role="status" aria-live="polite"></p>
@@ -1174,7 +113,7 @@
           <img
             id="bookImage"
             class="book-image"
-            src="images/book-open.svg"
+            src="images/book-open.png"
             alt=""
             decoding="async"
             loading="lazy"
@@ -1219,7 +158,7 @@
 
               <div class="actions-row">
                 <button id="saveBtn" class="ghost-btn book-btn" type="submit">
-                  вписать
+                  Вписать
                 </button>
               </div>
 
@@ -1296,6 +235,7 @@
             "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1600&auto=format&fit=crop"
           ],
           bookSources: [
+            "images/book-open.png",
             "images/book-open.svg",
             "images/book.jpg",
             "images/book.png",
@@ -1313,7 +253,9 @@
         isBookInitialized: false,
         coverTransitionTimer: null,
         coverAnimationEndHandler: null,
-        isEnteringBook: false
+        isEnteringBook: false,
+        /** Код верный, ждём клика по обложке для анимации «открытия» */
+        coverAwaitingClick: false
       };
 
       /* --- Ссылки на DOM --- */
@@ -1512,7 +454,7 @@
       /* --- Сообщения и валидация UI --- */
       function setLoginMessage(text, type = "") {
         dom.loginMessage.textContent = text;
-        dom.loginMessage.className = `helper-text ${type}`.trim();
+        dom.loginMessage.className = `helper-text cover-login-msg ${type}`.trim();
       }
 
       function setFormMessage(text, type = "") {
@@ -1533,6 +475,55 @@
         dom.accessWordInput.disabled = disabled;
         dom.accessForm.setAttribute("aria-busy", disabled ? "true" : "false");
         dom.coverImageWrap.setAttribute("aria-busy", disabled ? "true" : "false");
+      }
+
+      function isAccessCodeValid() {
+        const code = normalizeText(dom.accessWordInput.value).toLowerCase();
+        return code === CONFIG.accessCode;
+      }
+
+      function clearCoverReadyUi() {
+        state.coverAwaitingClick = false;
+        dom.coverImageWrap.classList.remove("cover-ready");
+      }
+
+      function prepareCoverReadyUi() {
+        state.coverAwaitingClick = true;
+        dom.coverImageWrap.classList.add("cover-ready");
+        setLoginMessage("Нажмите на обложку в зоне книги", "success");
+      }
+
+      function runCoverOpenAnimationAndGoToBook() {
+        if (state.isEnteringBook) return;
+
+        state.isEnteringBook = true;
+        setAccessControlsDisabled(true);
+        clearCoverReadyUi();
+        storage.setAccessGranted();
+
+        setLoginMessage("", "");
+
+        if (state.coverTransitionTimer) {
+          clearTimeout(state.coverTransitionTimer);
+          state.coverTransitionTimer = null;
+        }
+        clearCoverAnimationListeners();
+
+        const useMotion = !prefersReducedMotion();
+
+        if (!useMotion) {
+          dom.coverImage.classList.remove("opening");
+          goToBook();
+          return;
+        }
+
+        dom.coverImage.classList.remove("opening");
+        void dom.coverImage.offsetWidth;
+        dom.coverImage.classList.add("opening");
+
+        scheduleCoverTransition(() => {
+          goToBook();
+        });
       }
 
       function setButtonLoading(button, isLoading, loadingText = "загрузка...") {
@@ -1583,7 +574,7 @@
           return `Описание должно быть не длиннее ${CONFIG.maxDescriptionLength} символов`;
         }
         if (isDuplicateWord(word)) {
-          return "Такое слово уже есть в словаре";
+          return "Такое слово уже есть";
         }
         return "";
       }
@@ -1663,7 +654,7 @@
         if (wordsForPage.length === 0) {
           const empty = document.createElement("p");
           empty.className = "empty-note";
-          empty.textContent = "Пока здесь пусто... добавьте слово слева.";
+          empty.textContent = "Пока здесь пусто...";
           dom.dictionaryPage.appendChild(empty);
           setDictionaryBusy(false);
           return;
@@ -1749,7 +740,7 @@
         }
 
         resetWordForm();
-        setFormMessage("Слово вписано и сохранено в этом браузере.", "success");
+        setFormMessage("Слово вписано", "success");
 
         state.currentPage = getTotalPages();
         renderCurrentPage({ animateId: newWord.id });
@@ -1785,49 +776,44 @@
         state.isBookInitialized = true;
 
         renderCurrentPage();
-        setFormMessage("Слова сохраняются только в этом браузере на этом устройстве.", "success");
+        setFormMessage("", "");
 
         dom.wordInput.focus();
       }
 
-      function handleEnterBook() {
+      function handleAccessSubmit(e) {
+        e.preventDefault();
         if (state.isEnteringBook) return;
 
-        const code = normalizeText(dom.accessWordInput.value).toLowerCase();
+        if (!isAccessCodeValid()) {
+          setLoginMessage("Неверное кодовое слово", "error");
+          setAccessFieldInvalid(true);
+          clearCoverReadyUi();
+          return;
+        }
 
-        if (code !== CONFIG.accessCode) {
-          setLoginMessage("Неверное кодовое слово. Попробуйте ещё раз.", "error");
+        setAccessFieldInvalid(false);
+        prepareCoverReadyUi();
+      }
+
+      function handleCoverPointerOpen(e) {
+        if (e.target.closest("#accessForm")) return;
+        e.preventDefault();
+        if (state.isEnteringBook) return;
+
+        if (state.coverAwaitingClick) {
+          runCoverOpenAnimationAndGoToBook();
+          return;
+        }
+
+        if (!isAccessCodeValid()) {
+          setLoginMessage("Неверное кодовое слово", "error");
           setAccessFieldInvalid(true);
           return;
         }
 
         setAccessFieldInvalid(false);
-        state.isEnteringBook = true;
-        setAccessControlsDisabled(true);
-        storage.setAccessGranted();
-        setLoginMessage("Книга открывается…", "success");
-
-        if (state.coverTransitionTimer) {
-          clearTimeout(state.coverTransitionTimer);
-          state.coverTransitionTimer = null;
-        }
-        clearCoverAnimationListeners();
-
-        const useMotion = !prefersReducedMotion();
-
-        if (!useMotion) {
-          dom.coverImage.classList.remove("opening");
-          goToBook();
-          return;
-        }
-
-        dom.coverImage.classList.remove("opening");
-        void dom.coverImage.offsetWidth;
-        dom.coverImage.classList.add("opening");
-
-        scheduleCoverTransition(() => {
-          goToBook();
-        });
+        prepareCoverReadyUi();
       }
 
       function bindDecorativeImages() {
@@ -1844,25 +830,17 @@
       }
 
       function bindEvents() {
-        dom.accessForm.addEventListener("submit", (e) => {
-          e.preventDefault();
-          handleEnterBook();
-        });
+        dom.accessForm.addEventListener("submit", handleAccessSubmit);
 
-        dom.coverImageWrap.addEventListener("click", (e) => {
-          if (
-            e.target.closest("#accessWord") ||
-            e.target.closest('label[for="accessWord"]')
-          ) {
-            return;
-          }
-          e.preventDefault();
-          handleEnterBook();
-        });
+        dom.coverImageWrap.addEventListener("click", handleCoverPointerOpen);
 
         dom.accessWordInput.addEventListener("input", () => {
           if (dom.accessWordInput.getAttribute("aria-invalid") === "true") {
             setAccessFieldInvalid(false);
+          }
+          if (state.coverAwaitingClick) {
+            clearCoverReadyUi();
+            setLoginMessage("", "");
           }
         });
 
