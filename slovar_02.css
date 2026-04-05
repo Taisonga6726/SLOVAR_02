@@ -185,13 +185,13 @@ body {
   filter: drop-shadow(0 10px 26px rgba(255, 195, 120, 0.28));
 }
 
-/* Вариант 1: электрический контур книги при наведении */
+/* Вариант 1: электрический контур книги при наведении (отключён в пользу Варианта B) */
 .book-electric-frame {
   position: absolute;
   inset: -2.6%;
   z-index: 2;
   pointer-events: none;
-  opacity: 0;
+  opacity: 0 !important;
   transition: opacity 0.16s ease;
 }
 
@@ -216,15 +216,7 @@ body {
   stroke-dashoffset: 0;
 }
 
-.scene-stage.cover-ready .book-slot--electric-active .book-electric-frame {
-  opacity: 1;
-}
-
-.scene-stage.cover-ready .book-slot--electric-active .book-electric-frame rect {
-  animation:
-    bookElectricRun 0.55s linear infinite,
-    bookElectricFlicker 0.72s ease-in-out infinite;
-}
+/* intentionally disabled */
 
 .scene-stage.scene--book-open .book-electric-frame {
   display: none !important;
@@ -992,29 +984,55 @@ body {
   border-color: rgba(255, 228, 245, 0.96);
   background: linear-gradient(
     145deg,
-    rgba(255, 72, 162, 0.46) 0%,
-    rgba(198, 78, 255, 0.38) 52%,
-    rgba(92, 66, 255, 0.4) 100%
+    rgba(35, 40, 86, 0.58) 0%,
+    rgba(68, 42, 120, 0.52) 52%,
+    rgba(40, 26, 95, 0.56) 100%
   );
   font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
   font-weight: 900;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-size: clamp(16px, 1.65vw, 24px);
+  font-size: clamp(16px, 1.75vw, 25px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   box-shadow:
     inset 0 0 0 1px rgba(255, 243, 250, 0.34),
-    0 0 20px rgba(255, 146, 220, 0.9),
-    0 0 42px rgba(220, 120, 255, 0.74),
-    0 0 70px rgba(130, 96, 255, 0.46);
+    0 0 18px rgba(126, 210, 255, 0.8),
+    0 0 38px rgba(156, 124, 255, 0.78),
+    0 0 62px rgba(223, 100, 255, 0.48);
   text-shadow:
-    0 0 10px rgba(255, 214, 242, 0.92),
-    0 0 22px rgba(255, 142, 214, 0.9),
-    0 0 36px rgba(195, 126, 255, 0.68),
+    0 0 10px rgba(206, 242, 255, 0.9),
+    0 0 22px rgba(170, 150, 255, 0.92),
+    0 0 36px rgba(214, 104, 255, 0.7),
     0 1px 8px rgba(0, 0, 0, 0.88);
 }
 
 .cover-login-msg.error.error-pop.msg-animate {
-  animation: loginErrorPop 0.46s cubic-bezier(0.12, 0.9, 0.22, 1.1) both;
+  animation:
+    loginErrorPop 0.46s cubic-bezier(0.12, 0.9, 0.22, 1.1) both,
+    popNeonShift 1.6s linear infinite;
+}
+
+.cover-login-msg.error.error-pop .login-msg-pop-text {
+  color: transparent;
+  background-image: linear-gradient(90deg, #66e8ff 0%, #8ca0ff 34%, #f05cff 68%, #66e8ff 100%);
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: saturate(1.25) brightness(1.18);
+  text-shadow: none;
+}
+
+.cover-login-msg.error.error-pop .login-msg-emoji {
+  color: #fff8cf;
+  font-size: 1.05em;
+  line-height: 1;
+  text-shadow:
+    0 0 6px rgba(255, 240, 160, 0.95),
+    0 0 16px rgba(255, 210, 95, 0.85),
+    0 0 28px rgba(255, 175, 60, 0.62),
+    0 1px 6px rgba(0, 0, 0, 0.9);
 }
 
 .cover-login-msg.error.error-hard {
@@ -1112,6 +1130,15 @@ body {
   }
 }
 
+@keyframes popNeonShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
 /* =============================================================================
    РАСКРЫТАЯ КНИГА: слой внутри .book-slot (только после входа)
    ============================================================================= */
@@ -1194,6 +1221,24 @@ body {
 
 .scene-stage.scene--step2-visual .book-open-layer:not(.hidden) {
   pointer-events: none;
+}
+
+/* Вариант B: неоновые лучи/искры поверх картинки 2 */
+.book-electric-fx-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.scene-stage.scene--book-open .book-electric-fx-canvas {
+  opacity: 1;
 }
 
 .book-image {

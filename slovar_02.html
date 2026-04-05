@@ -120,6 +120,8 @@
                 <div class="book-image-fallback" aria-hidden="true">
                   <span class="book-fallback-spine" aria-hidden="true"></span>
                 </div>
+                <!-- Вариант B: неоновые лучи/искры на картинке 2 -->
+                <canvas id="bookElectricFxCanvas" class="book-electric-fx-canvas" width="300" height="200" aria-hidden="true"></canvas>
                 <!-- Шаг 2: те же слова/эффекты переносим и на картинку 2 -->
                 <div class="scene-float-words scene-float-words--book" aria-hidden="true">
                   <span class="scene-float-word scene-float-word--magic">MAGIC</span>
@@ -255,6 +257,7 @@
 
       let grainShaderCleanup = null;
       let magicRingsCleanup = null;
+      let bookElectricFxCleanup = null;
 
       /* --- Конфигурация --- */
       const CONFIG = {
@@ -544,7 +547,10 @@
           );
           return;
         }
-        setLoginMessage("😄 СПРОСИТЬ У ТАНИ? 😄", "error error-pop");
+        setLoginMessageHtml(
+          '<span class="login-msg-emoji">😄</span> <span class="login-msg-pop-text">СПРОСИТЬ У ТАНИ?</span> <span class="login-msg-emoji">😄</span>',
+          "error error-pop"
+        );
       }
 
       function setFormMessage(text, type = "") {
@@ -1066,18 +1072,6 @@
         dom.accessForm.addEventListener("submit", handleAccessSubmit);
 
         dom.bookHitZone.addEventListener("click", handleBookOpenClick);
-        dom.bookHitZone.addEventListener("mouseenter", () => {
-          if (dom.bookSlot) dom.bookSlot.classList.add("book-slot--electric-active");
-        });
-        dom.bookHitZone.addEventListener("mouseleave", () => {
-          if (dom.bookSlot) dom.bookSlot.classList.remove("book-slot--electric-active");
-        });
-        dom.bookHitZone.addEventListener("focus", () => {
-          if (dom.bookSlot) dom.bookSlot.classList.add("book-slot--electric-active");
-        });
-        dom.bookHitZone.addEventListener("blur", () => {
-          if (dom.bookSlot) dom.bookSlot.classList.remove("book-slot--electric-active");
-        });
 
         dom.accessWordInput.addEventListener("input", () => {
           if (dom.accessWordInput.getAttribute("aria-invalid") === "true") {
@@ -1544,6 +1538,131 @@ void main() {
         };
       }
 
+      /**
+       * Вариант B: неоновые лучи/искры поверх картинки 2 (центр + зона логотипа AI).
+       * Без React/Three, Canvas2D.
+       */
+      function initBookElectricFxVariantB() {
+        const canvas = document.getElementById("bookElectricFxCanvas");
+        const wrap = dom.bookImageWrap;
+        if (!canvas || !wrap || prefersReducedMotion()) return function noop() {};
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return function noop() {};
+
+        let raf = 0;
+        let dpr = 1;
+        let running = true;
+        const rays = Array.from({ length: 14 }, (_, i) => ({
+          a: i / 13,
+          seed: Math.random() * 1000
+        }));
+        const sparks = Array.from({ length: 12 }, () => ({
+          seed: Math.random() * 1000
+        }));
+
+        function resize() {
+          const rect = wrap.getBoundingClientRect();
+          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          const w = Math.max(1, Math.floor(rect.width * dpr));
+          const h = Math.max(1, Math.floor(rect.height * dpr));
+          canvas.width = w;
+          canvas.height = h;
+          canvas.style.width = `${rect.width}px`;
+          canvas.style.height = `${rect.height}px`;
+        }
+
+        function draw(now) {
+          if (!running) return;
+          raf = requestAnimationFrame(draw);
+
+          const active = dom.sceneStage.classList.contains("scene--book-open");
+          if (!active) {
+            return;
+          }
+
+          const w = canvas.width / dpr;
+          const h = canvas.height / dpr;
+          if (w < 2 || h < 2) return;
+
+          const t = now * 0.001;
+          const cx = w * 0.5;
+          const cy = h * 0.77;
+          const aiX = w * 0.5;
+          const aiY = h * 0.18;
+
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, w, h);
+          ctx.globalCompositeOperation = "lighter";
+
+          // Ядро света в центре книги
+          const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, h * 0.32);
+          core.addColorStop(0, "rgba(255,230,170,0.48)");
+          core.addColorStop(0.26, "rgba(255,166,78,0.25)");
+          core.addColorStop(0.55, "rgba(170,110,255,0.16)");
+          core.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = core;
+          ctx.fillRect(0, 0, w, h);
+
+          // Вертикальные неоновые лучи из центра
+          rays.forEach((r, idx) => {
+            const spread = (r.a - 0.5) * w * 0.36;
+            const jitter = Math.sin(t * 2.5 + r.seed) * w * 0.018;
+            const x1 = cx + spread * 0.1;
+            const y1 = cy - h * 0.015;
+            const x2 = cx + spread + jitter;
+            const y2 = h * (0.24 + 0.3 * (idx % 3) / 3);
+            const glow = 0.52 + 0.48 * Math.sin(t * 5.2 + r.seed * 0.14);
+
+            const g = ctx.createLinearGradient(x1, y1, x2, y2);
+            g.addColorStop(0, `rgba(255,196,96,${0.8 * glow})`);
+            g.addColorStop(0.45, `rgba(120,232,255,${0.62 * glow})`);
+            g.addColorStop(1, "rgba(160,92,255,0)");
+            ctx.strokeStyle = g;
+            ctx.lineWidth = 1.3 + glow * 1.7;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.quadraticCurveTo((x1 + x2) * 0.5 + jitter * 0.4, (y1 + y2) * 0.5 - h * 0.06, x2, y2);
+            ctx.stroke();
+          });
+
+          // Искры вокруг AI-логотипа
+          sparks.forEach((s, i) => {
+            const a = (i / sparks.length) * Math.PI * 2 + t * 0.7;
+            const rr = h * (0.05 + 0.02 * Math.sin(t * 3 + s.seed));
+            const sx = aiX + Math.cos(a) * rr * 1.8;
+            const sy = aiY + Math.sin(a) * rr * 0.9;
+            const len = 8 + 10 * Math.abs(Math.sin(t * 6 + s.seed * 0.17));
+            const ex = sx + Math.cos(a) * len;
+            const ey = sy + Math.sin(a) * len;
+            const alpha = 0.28 + 0.72 * Math.abs(Math.sin(t * 7 + s.seed));
+            ctx.strokeStyle = `rgba(150,240,255,${alpha})`;
+            ctx.lineWidth = 1.1 + alpha * 1.6;
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(ex, ey);
+            ctx.stroke();
+          });
+
+          ctx.globalCompositeOperation = "source-over";
+        }
+
+        resize();
+        window.addEventListener("resize", resize, { passive: true });
+        let ro = null;
+        if (typeof ResizeObserver !== "undefined") {
+          ro = new ResizeObserver(resize);
+          ro.observe(wrap);
+        }
+        raf = requestAnimationFrame(draw);
+
+        return function dispose() {
+          running = false;
+          cancelAnimationFrame(raf);
+          window.removeEventListener("resize", resize);
+          if (ro) ro.disconnect();
+        };
+      }
+
       function initApp() {
         bindEvents();
         bindDecorativeImages();
@@ -1551,6 +1670,7 @@ void main() {
         initCoverFloatWordsSync();
         magicRingsCleanup = initMagicRingsFx();
         grainShaderCleanup = initGrainShaderBackground();
+        bookElectricFxCleanup = initBookElectricFxVariantB();
         // Первый экран всегда статичный: без автоперехода в раскрытую книгу при открытии файла.
         // Переход в книгу только после явного ввода кода и клика по зоне книги.
       }
