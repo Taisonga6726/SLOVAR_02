@@ -37,6 +37,11 @@
           <!-- Вспышка успех/ошибка (ТЗ: div.flash) -->
           <div id="sceneFlash" class="flash" aria-hidden="true"></div>
 
+          <!-- Фон «paper GrainGradient» за картинкой: Canvas 2D, без React (параметры как в промпте) -->
+          <div id="grainShaderBg" class="grain-shader-bg" aria-hidden="true">
+            <canvas id="grainShaderCanvas" width="300" height="200"></canvas>
+          </div>
+
           <!-- Статичный фон сцены (не меняется, не анимируется) -->
           <div id="sceneBgWrap" class="scene-bg-wrap">
             <img
@@ -50,32 +55,26 @@
             <div class="cover-image-fallback scene-bg-fallback" role="img" aria-label="Декоративная обложка словаря">
               Обложка словаря
             </div>
+
+            <!-- Слова привязаны к прямоугольнику картинки (см. syncFloatWordsToCoverImage в скрипте) -->
+            <div id="sceneFloatWords" class="scene-float-words" aria-hidden="true">
+              <span class="scene-float-word scene-float-word--magic">MAGIC</span>
+              <span class="scene-float-word scene-float-word--code">CODE</span>
+              <span class="scene-float-word scene-float-word--vibe">ВАЙБ</span>
+              <span class="scene-float-word scene-float-word--flow">ПОТОК</span>
+              <span class="scene-float-word scene-float-word--sense">СМЫСЛ</span>
+              <span class="scene-float-word scene-float-word--focus">ФОКУС</span>
+              <span class="scene-float-word scene-float-word--idea">ИДЕЯ</span>
+              <span class="scene-float-word scene-float-word--growth">РОСТ</span>
+              <span class="scene-float-word scene-float-word--ai">AI</span>
+              <span class="scene-float-word scene-float-word--neuro scene-float-word--center-x">НЕЙРО</span>
+              <!-- Два акцента по макету: между боковой книгой и центром / между центром и монетами -->
+              <span class="scene-float-word scene-float-word--cta-left">0 → PRO</span>
+              <span class="scene-float-word scene-float-word--cta-right">LEVEL UP</span>
+            </div>
           </div>
           <div class="scene-bottom-mask" aria-hidden="true"></div>
           <div class="scene-signature-erase" aria-hidden="true"></div>
-
-          <div class="ai-logo-fx" aria-hidden="true">
-            <span class="ai-logo-text">AI</span>
-            <span class="ai-logo-rune ai-logo-rune--outer"></span>
-            <span class="ai-logo-rune ai-logo-rune--inner"></span>
-          </div>
-
-          <div class="scene-fashion-tags" aria-hidden="true">
-            <span class="fashion-tag fashion-tag--p1 gradient-animated-text">ВАЙБ</span>
-            <span class="fashion-tag fashion-tag--p2 gradient-animated-text">ПОТОК</span>
-            <span class="fashion-tag fashion-tag--p3 gradient-animated-text">ИДЕЯ</span>
-            <span class="fashion-tag fashion-tag--p4 gradient-animated-text">СМЫСЛ</span>
-            <span class="fashion-tag fashion-tag--p5 gradient-animated-text">ИСКРА</span>
-            <span class="fashion-tag fashion-tag--p6 gradient-animated-text">ФОКУС</span>
-            <span class="fashion-tag fashion-tag--p7 gradient-animated-text">VIBE</span>
-            <span class="fashion-tag fashion-tag--p8 gradient-animated-text">MAGIC</span>
-            <span class="fashion-tag fashion-tag--p9 gradient-animated-text">НЕЙРО</span>
-            <span class="fashion-tag fashion-tag--p10 gradient-animated-text">CODE</span>
-            <span class="fashion-tag fashion-tag--p11 gradient-animated-text">СВЕТ</span>
-            <span class="fashion-tag fashion-tag--p12 gradient-animated-text">AI</span>
-            <span class="fashion-tag fashion-tag--p13 gradient-animated-text">ДРАЙВ</span>
-            <span class="fashion-tag fashion-tag--p14 gradient-animated-text">РОСТ</span>
-          </div>
 
           <!-- ШАГ 2–3: слот книги = зона закрытой книги на обложке; подсветка и клик — только здесь -->
           <div id="bookSlot" class="book-slot">
@@ -230,6 +229,8 @@
       /** ТЗ: счётчик неверных попыток ввода кодового слова */
       let attempts = 0;
 
+      let grainShaderCleanup = null;
+
       /* --- Конфигурация --- */
       const CONFIG = {
         accessCode: "vibecoder",
@@ -356,6 +357,45 @@
           dom.sceneBg.removeEventListener("animationend", state.coverAnimationEndHandler);
           state.coverAnimationEndHandler = null;
         }
+      }
+
+      /**
+       * Совмещает слой плавающих слов с фактическим прямоугольником обложки (object-fit: contain),
+       * чтобы проценты позиций совпадали с макетом на картинке.
+       */
+      function syncFloatWordsToCoverImage() {
+        const wrap = dom.sceneBgWrap;
+        const img = dom.sceneBg;
+        const layer = document.getElementById("sceneFloatWords");
+        if (!wrap || !layer) return;
+        if (!img || wrap.classList.contains("image-error") || !img.naturalWidth) {
+          layer.style.left = "0";
+          layer.style.top = "0";
+          layer.style.width = "100%";
+          layer.style.height = "100%";
+          return;
+        }
+        const wrapRect = wrap.getBoundingClientRect();
+        const imgRect = img.getBoundingClientRect();
+        layer.style.left = `${imgRect.left - wrapRect.left}px`;
+        layer.style.top = `${imgRect.top - wrapRect.top}px`;
+        layer.style.width = `${imgRect.width}px`;
+        layer.style.height = `${imgRect.height}px`;
+      }
+
+      function initCoverFloatWordsSync() {
+        const img = dom.sceneBg;
+        const wrap = dom.sceneBgWrap;
+        if (!img || !wrap || !document.getElementById("sceneFloatWords")) return;
+        const sync = () => {
+          syncFloatWordsToCoverImage();
+        };
+        img.addEventListener("load", sync, { passive: true });
+        window.addEventListener("resize", sync, { passive: true });
+        if (typeof ResizeObserver !== "undefined") {
+          new ResizeObserver(sync).observe(wrap);
+        }
+        sync();
       }
 
       /* --- Нормализация записей в хранилище --- */
@@ -840,6 +880,10 @@
       }
 
       function goToBook() {
+        if (typeof grainShaderCleanup === "function") {
+          grainShaderCleanup();
+          grainShaderCleanup = null;
+        }
         clearCoverAnimationListeners();
         state.isEnteringBook = false;
         setAccessControlsDisabled(false);
@@ -854,6 +898,10 @@
       }
 
       function showBookInstantly() {
+        if (typeof grainShaderCleanup === "function") {
+          grainShaderCleanup();
+          grainShaderCleanup = null;
+        }
         dom.sceneStage.classList.add("scene--book-open");
         dom.bookOpenLayer.classList.remove("hidden");
         dom.bookOpenLayer.removeAttribute("hidden");
@@ -999,10 +1047,119 @@
         dom.nextBtn.addEventListener("click", () => changePage(1));
       }
 
+      /**
+       * Аналог @paper-design/shaders-react GrainGradient: без npm, Canvas 2D.
+       * Параметры как в промпте: чёрный фон, мягкие пятна в углах, HSL-палитра, speed.
+       */
+      function initGrainShaderBackground() {
+        const container = document.getElementById("grainShaderBg");
+        const canvas = document.getElementById("grainShaderCanvas");
+        if (!container || !canvas) return function noop() {};
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          container.setAttribute("hidden", "");
+          return function noop() {};
+        }
+
+        if (prefersReducedMotion()) {
+          if (dom.sceneStage) dom.sceneStage.classList.add("grain-shader-off");
+          container.setAttribute("hidden", "");
+          return function noop() {};
+        }
+
+        const intensity = 0.45;
+        const softness = 0.76;
+        const speed = 1;
+        const colors = [
+          { h: 14, s: 100, l: 57 },
+          { h: 45, s: 100, l: 51 },
+          { h: 340, s: 82, l: 52 }
+        ];
+
+        let dpr = 1;
+        let raf = 0;
+        let running = true;
+
+        function resize() {
+          const rect = container.getBoundingClientRect();
+          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          const cw = Math.max(1, Math.floor(rect.width * dpr));
+          const ch = Math.max(1, Math.floor(rect.height * dpr));
+          canvas.width = cw;
+          canvas.height = ch;
+          canvas.style.width = `${rect.width}px`;
+          canvas.style.height = `${rect.height}px`;
+        }
+
+        function hsla(c, a) {
+          return `hsla(${c.h}, ${c.s}%, ${c.l}%, ${a})`;
+        }
+
+        function drawCorner(cx, cy, r, colorIndex, tOff, wPx, hPx) {
+          const c = colors[colorIndex % colors.length];
+          const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+          const pulse = 0.92 + 0.08 * Math.sin(tOff);
+          g.addColorStop(0, hsla(c, intensity * pulse));
+          g.addColorStop(0.38, hsla(c, intensity * 0.42 * pulse));
+          g.addColorStop(0.72, hsla(c, intensity * 0.12));
+          g.addColorStop(1, "hsla(0, 0%, 0%, 0)");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, wPx, hPx);
+        }
+
+        function frame(now) {
+          if (!running) return;
+          const wPx = canvas.width / dpr;
+          const hPx = canvas.height / dpr;
+          if (wPx < 2 || hPx < 2) {
+            raf = requestAnimationFrame(frame);
+            return;
+          }
+
+          const t = now * 0.00012 * speed;
+          const ox = Math.sin(t * 0.55) * wPx * 0.04;
+          const oy = Math.cos(t * 0.48) * hPx * 0.035;
+          const baseR = Math.min(wPx, hPx) * (0.38 + softness * 0.42);
+
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.globalCompositeOperation = "source-over";
+          ctx.fillStyle = "hsl(0, 0%, 0%)";
+          ctx.fillRect(0, 0, wPx, hPx);
+
+          ctx.globalCompositeOperation = "lighter";
+          drawCorner(-wPx * 0.12 + ox, -hPx * 0.1 + oy, baseR, 0, t, wPx, hPx);
+          drawCorner(wPx * 1.1 + ox, -hPx * 0.12 - oy, baseR * 1.02, 1, t + 1.2, wPx, hPx);
+          drawCorner(wPx * 1.08 - ox, hPx * 1.1 + oy, baseR * 0.98, 2, t + 2.1, wPx, hPx);
+          drawCorner(-wPx * 0.05 - ox, hPx * 1.05 - oy, baseR * 0.95, 0, t + 0.7, wPx, hPx);
+
+          ctx.globalCompositeOperation = "source-over";
+          raf = requestAnimationFrame(frame);
+        }
+
+        resize();
+        window.addEventListener("resize", resize, { passive: true });
+        let ro = null;
+        if (typeof ResizeObserver !== "undefined") {
+          ro = new ResizeObserver(resize);
+          ro.observe(container);
+        }
+        raf = requestAnimationFrame(frame);
+
+        return function dispose() {
+          running = false;
+          cancelAnimationFrame(raf);
+          window.removeEventListener("resize", resize);
+          if (ro) ro.disconnect();
+        };
+      }
+
       function initApp() {
         bindEvents();
         bindDecorativeImages();
         setAccessButtonState("default");
+        initCoverFloatWordsSync();
+        grainShaderCleanup = initGrainShaderBackground();
         // Первый экран всегда статичный: без автоперехода в раскрытую книгу при открытии файла.
         // Переход в книгу только после явного ввода кода и клика по зоне книги.
       }
