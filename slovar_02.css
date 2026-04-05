@@ -1155,56 +1155,33 @@ body {
    ПОДПИСИ ПОД КНИГОЙ (один блок, без наложения строк)
    ============================================================================= */
 .scene-footer {
-  /* Нижние подписи убраны из HTML, чтобы не было дублирования поверх картинки. */
-  display: none !important;
+  display: block !important;
   position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: min(96%, 64rem);
+  inset: 0;
   z-index: 6;
-  flex-direction: row;
-  align-items: flex-end;
-  justify-content: space-between;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 6px 12px 10px;
   pointer-events: none;
-  text-align: left;
-  box-sizing: border-box;
 }
 
 .bottom-copyright {
-  position: static;
-  width: auto;
-  max-width: 58%;
+  position: absolute;
+  left: 50%;
+  bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
   margin: 0;
   padding: 0;
-  font-size: clamp(11px, 1.05vw, 16px);
-  line-height: 1.35;
+  font-size: clamp(11px, 0.95vw, 15px);
+  line-height: 1.2;
   color: rgba(240, 210, 150, 0.92);
   letter-spacing: 0.02em;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
-  white-space: normal;
-  word-wrap: break-word;
-  text-align: right;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.78);
+  white-space: nowrap;
+  text-align: center;
 }
 
 .bottom-signature {
-  position: static;
-  margin: 0;
-  padding: 0;
-  transform: rotate(-1.2deg);
-  font-family: "Marck Script", cursive;
-  font-size: clamp(15px, 1.35vw, 26px);
-  font-weight: 400;
-  color: rgba(255, 215, 160, 0.82);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
-  white-space: nowrap;
-  opacity: 0.9;
-  letter-spacing: 0.02em;
-  text-align: left;
+  display: none !important;
 }
+
 
 /* =============================================================================
    ФОКУС (ДОСТУПНОСТЬ)
@@ -1243,15 +1220,18 @@ body {
 
 @media (max-width: 900px) {
   .scene-footer {
-    width: min(98%, 100%);
-    padding: 5px 8px 8px;
-    gap: 8px;
+    inset: 0;
   }
 
   .bottom-copyright {
-    font-size: clamp(11px, 1.5vw, 15px);
-    max-width: 62%;
+    font-size: clamp(10px, 1.35vw, 13px);
+    bottom: calc(3px + env(safe-area-inset-bottom, 0px));
   }
+
+  .bottom-signature {
+    display: none !important;
+  }
+
 
   .paper-textarea {
     min-height: 52px;
@@ -1300,18 +1280,18 @@ body {
   }
 
   .scene-footer {
-    padding: 4px 6px 6px;
-    gap: 6px;
+    inset: 0;
   }
 
   .bottom-copyright {
-    font-size: clamp(10px, 1.8vw, 13px);
-    max-width: 64%;
+    font-size: clamp(9px, 2.1vw, 12px);
+    bottom: calc(2px + env(safe-area-inset-bottom, 0px));
   }
 
   .bottom-signature {
-    font-size: clamp(14px, 2.8vw, 22px);
+    display: none !important;
   }
+
 
   .scene-stage.scene--book-open .book-slot {
     max-height: min(78vh, 820px);
