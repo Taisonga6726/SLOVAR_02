@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Интерактивная книга-словарь: добавляйте слова и листайте страницы. Данные хранятся в браузере."
+  />
+  <title>Словарь вайбкодера</title>
+
+  <!--
+    Один самодостаточный файл: стили и скрипт внутри, можно открыть локально или вставить в онлайн-редактор.
+    Клиентское «кодовое слово» — не защита, а декоративный доступ (значение задаётся в CONFIG в скрипте).
+  -->
+
+  <style>
+    /* --- Шрифты --- */
+    @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Marck+Script&family=Caveat:wght@400;500;600;700&display=swap");
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-1: #0b0613;
+      --bg-2: #130a22;
+      --gold: #f0d28a;
+      --gold-soft: rgba(240, 210, 138, 0.18);
+      --paper-ink: #5a2f17;
+      --paper-ink-soft: rgba(90, 47, 23, 0.7);
+      --light-text: #f7ead5;
+      --error: #ffb2b2;
+      --success: #d4ffbc;
+      --focus: rgba(240, 210, 138, 0.92);
+      --panel-dark: rgba(23, 10, 37, 0.4);
+      --panel-border: rgba(241, 205, 129, 0.2);
+      /* Длительности под reduced-motion переопределяются ниже */
+      --dur-cover-open: 1.45s;
+      --dur-book-in: 0.9s;
+      --dur-page-turn: 0.85s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :root {
+        --dur-cover-open: 0.01ms;
+        --dur-book-in: 0.01ms;
+        --dur-page-turn: 0.01ms;
+      }
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(116, 52, 185, 0.2), transparent 35%),
+        radial-gradient(circle at bottom, rgba(255, 157, 0, 0.12), transparent 30%),
+        linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Cormorant Garamond", serif;
+      color: var(--light-text);
+      overflow-x: hidden;
+    }
+
+    /* --- Каркас приложения --- */
+    .app {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .screen {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    /* Пропуск к основному содержимому (клавиатура / скринридеры) */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      z-index: 9999;
+      padding: 12px 16px;
+      background: var(--gold);
+      color: var(--bg-1);
+      font-size: 18px;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+
+    .skip-link:focus {
+      left: 12px;
+      top: 12px;
+    }
+
+    /* --- Обложка --- */
+    .cover-stage {
+      width: min(1500px, 98vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .cover-image-wrap {
+      width: min(1500px, 98vw);
+      max-width: 1500px;
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .cover-image {
+      width: 100%;
+      display: block;
+      transform-origin: left center;
+      will-change: transform, opacity;
+      user-select: none;
+      -webkit-user-drag: none;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .cover-image.opening {
+      animation: coverOpen var(--dur-cover-open) cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+
+    .cover-image-fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px;
+      color: rgba(255, 235, 201, 0.8);
+      background:
+        linear-gradient(135deg, rgba(61, 25, 93, 0.65), rgba(19, 10, 34, 0.85)),
+        radial-gradient(circle at center, rgba(240, 210, 138, 0.08), transparent 60%);
+      font-size: clamp(20px, 2vw, 34px);
+    }
+
+    .cover-image-wrap.image-error .cover-image {
+      opacity: 0;
+    }
+
+    .cover-image-wrap.image-error .cover-image-fallback {
+      display: flex;
+    }
+
+    @keyframes coverOpen {
+      0% {
+        transform: perspective(1800px) rotateY(0deg) translateX(0) scale(1);
+        opacity: 1;
+      }
+      40% {
+        transform: perspective(1800px) rotateY(-18deg) translateX(-10px) scale(1.01);
+        opacity: 1;
+      }
+      75% {
+        transform: perspective(1800px) rotateY(-52deg) translateX(-35px) scale(1.03);
+        opacity: 0.75;
+      }
+      100% {
+        transform: perspective(1800px) rotateY(-84deg) translateX(-75px) scale(1.04);
+        opacity: 0;
+      }
+    }
+
+    .access-panel {
+      width: min(460px, 92vw);
+      text-align: center;
+      padding: 0 18px;
+      margin-top: -8px;
+    }
+
+    .access-title {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 2.2vw, 32px);
+      font-weight: 600;
+      color: #f6dfb0;
+    }
+
+    /* Подзаголовок-приглашение под названием */
+    .access-subtitle {
+      margin: -4px 0 10px;
+      font-size: clamp(20px, 1.9vw, 26px);
+      font-weight: 500;
+      color: #f6dfb0;
+    }
+
+    .access-input {
+      width: 100%;
+      height: 50px;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      background: var(--panel-dark);
+      color: #fff6e7;
+      font-size: 20px;
+      text-align: center;
+      outline: none;
+      padding: 0 16px;
+      font-family: inherit;
+    }
+
+    .access-input::placeholder {
+      color: rgba(255, 236, 201, 0.5);
+    }
+
+    /* --- Кнопки и подсказки --- */
+    .ghost-btn {
+      margin-top: 12px;
+      border: 1px solid rgba(245, 212, 141, 0.18);
+      background: rgba(245, 212, 141, 0.05);
+      color: rgba(255, 238, 207, 0.82);
+      border-radius: 999px;
+      padding: 9px 16px;
+      cursor: pointer;
+      font-size: 18px;
+      font-family: "Cormorant Garamond", serif;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .ghost-btn:hover {
+      background: rgba(245, 212, 141, 0.12);
+      color: rgba(255, 241, 219, 0.98);
+    }
+
+    .ghost-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .helper-text {
+      min-height: 24px;
+      margin: 8px 0 0;
+      font-size: 18px;
+    }
+
+    .helper-text.error {
+      color: var(--error);
+    }
+
+    .helper-text.success {
+      color: var(--success);
+    }
+
+    /* --- Книга (сцена + врезки полей) --- */
+    .book-scene {
+      position: relative;
+      width: min(1550px, 99vw);
+      animation: bookFadeIn var(--dur-book-in) ease;
+    }
+
+    @keyframes bookFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .book-image-wrap {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .book-image {
+      width: 100%;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .book-image-fallback {
+      display: none;
+      aspect-ratio: 16 / 10;
+      width: 100%;
+      position: relative;
+      background:
+        linear-gradient(135deg, #6e4a2d 0%, #9b7248 35%, #a87d50 50%, #8c653f 100%);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255, 248, 226, 0.18);
+    }
+
+    .book-image-fallback::before,
+    .book-image-fallback::after {
+      content: "";
+      position: absolute;
+      top: 6%;
+      bottom: 6%;
+      width: 34%;
+      background: linear-gradient(180deg, #f5e9cf, #ead8b5);
+      border-radius: 10px;
+      box-shadow:
+        inset 0 0 0 1px rgba(110, 68, 34, 0.15),
+        inset 0 0 35px rgba(146, 104, 55, 0.08);
+    }
+
+    .book-image-fallback::before {
+      left: 13%;
+    }
+
+    .book-image-fallback::after {
+      right: 13%;
+    }
+
+    .book-image-wrap.image-error .book-image {
+      display: none;
+    }
+
+    .book-image-wrap.image-error .book-image-fallback {
+      display: block;
+    }
+
+    .book-left {
+      position: absolute;
+      left: 33.8%;
+      top: 37.5%;
+      width: 14.8%;
+      height: 19%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .book-right {
+      position: absolute;
+      left: 51.3%;
+      top: 37.3%;
+      width: 15.2%;
+      height: 19.5%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .handwriting {
+      font-family: "Marck Script", cursive;
+    }
+
+    .paper-input,
+    .paper-textarea {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--paper-ink);
+      caret-color: #6a351a;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+      font-family: "Marck Script", cursive;
+    }
+
+    .paper-input::placeholder,
+    .paper-textarea::placeholder {
+      color: rgba(106, 53, 26, 0.3);
+    }
+
+    .paper-input {
+      font-size: clamp(22px, 1.8vw, 34px);
+      line-height: 1.1;
+      margin-top: 0;
+    }
+
+    .paper-textarea {
+      margin-top: 10px;
+      min-height: 120px;
+      resize: none;
+      font-size: clamp(18px, 1.5vw, 29px);
+      line-height: 1.1;
+    }
+
+    .actions-row {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 6px;
+      gap: 8px;
+    }
+
+    .book-btn {
+      margin-top: 0;
+      color: rgba(94, 52, 25, 0.74);
+      border-color: rgba(94, 52, 25, 0.12);
+      background: rgba(255, 248, 238, 0.08);
+    }
+
+    .book-btn:hover {
+      color: rgba(94, 52, 25, 0.95);
+      background: rgba(255, 248, 238, 0.14);
+    }
+
+    .form-helper {
+      margin-top: 6px;
+      font-size: 14px;
+      color: rgba(88, 42, 19, 0.82);
+    }
+
+    /* --- Правая страница: словарь и пагинация --- */
+    .dictionary-page {
+      flex: 1;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .dictionary-page.turn-next {
+      animation: turnNext var(--dur-page-turn) cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .dictionary-page.turn-prev {
+      animation: turnPrev var(--dur-page-turn) cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    @keyframes turnNext {
+      0% {
+        transform: perspective(1200px) rotateY(0deg);
+        opacity: 1;
+      }
+      42% {
+        transform: perspective(1200px) rotateY(-88deg);
+        opacity: 0.1;
+      }
+      58% {
+        transform: perspective(1200px) rotateY(88deg);
+        opacity: 0.08;
+      }
+      100% {
+        transform: perspective(1200px) rotateY(0deg);
+        opacity: 1;
+      }
+    }
+
+    @keyframes turnPrev {
+      0% {
+        transform: perspective(1200px) rotateY(0deg);
+        opacity: 1;
+      }
+      42% {
+        transform: perspective(1200px) rotateY(88deg);
+        opacity: 0.1;
+      }
+      58% {
+        transform: perspective(1200px) rotateY(-88deg);
+        opacity: 0.08;
+      }
+      100% {
+        transform: perspective(1200px) rotateY(0deg);
+        opacity: 1;
+      }
+    }
+
+    .word-line {
+      color: var(--paper-ink);
+      font-family: "Caveat", cursive;
+      font-size: clamp(20px, 1.5vw, 30px);
+      line-height: 1.02;
+      margin: 0 0 6px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .word-line.typing::after {
+      content: "";
+      display: inline-block;
+      width: 2px;
+      height: 0.95em;
+      margin-left: 4px;
+      background: var(--paper-ink);
+      vertical-align: middle;
+      animation: blinkCaret 0.7s step-end infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .word-line.typing::after {
+        animation: none;
+        opacity: 1;
+      }
+    }
+
+    @keyframes blinkCaret {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .empty-note {
+      margin-top: 10px;
+      color: rgba(88, 42, 19, 0.56);
+      font-size: clamp(22px, 1.6vw, 28px);
+      font-family: "Caveat", cursive;
+    }
+
+    .page-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .page-counter {
+      color: rgba(88, 42, 19, 0.8);
+      font-size: 16px;
+    }
+
+    .nav-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(90, 47, 23, 0.12);
+      border-radius: 50%;
+      cursor: pointer;
+      color: rgba(255, 242, 219, 0.92);
+      font-size: 14px;
+      background: rgba(90, 47, 23, 0.62);
+      transition: background 0.25s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: rgba(90, 47, 23, 0.8);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* --- Подписи под книгой --- */
+    .bottom-copyright {
+      position: absolute;
+      bottom: 6.2%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 88%;
+      text-align: center;
+      font-size: clamp(14px, 1.05vw, 22px);
+      line-height: 1.15;
+      color: var(--gold);
+      letter-spacing: 0.2px;
+    }
+
+    .bottom-signature {
+      position: absolute;
+      bottom: 2.1%;
+      left: 50%;
+      transform: translateX(-50%) rotate(-2deg);
+      font-family: "Marck Script", cursive;
+      font-size: clamp(24px, 2vw, 46px);
+      color: #ffd36d;
+      text-shadow: 0 0 10px rgba(255, 184, 54, 0.14);
+      white-space: nowrap;
+      opacity: 0.95;
+    }
+
+    /* --- Фокус для клавиатуры --- */
+    .access-input:focus-visible,
+    .paper-input:focus-visible,
+    .paper-textarea:focus-visible,
+    .ghost-btn:focus-visible,
+    .nav-btn:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+      border-radius: 10px;
+    }
+
+    /* --- Адаптив --- */
+    @media (max-width: 1200px) {
+      .book-left {
+        left: 33.3%;
+        top: 37.2%;
+        width: 15.5%;
+        height: 20%;
+      }
+
+      .book-right {
+        left: 51.1%;
+        top: 37%;
+        width: 15.8%;
+        height: 20%;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .bottom-copyright {
+        width: 92%;
+      }
+
+      .paper-textarea {
+        min-height: 80px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .book-scene {
+        width: min(1000px, 100vw);
+      }
+
+      .book-left {
+        left: 31.8%;
+        top: 35.2%;
+        width: 17%;
+        height: 23%;
+      }
+
+      .book-right {
+        left: 50.9%;
+        top: 35.1%;
+        width: 17.2%;
+        height: 23%;
+      }
+
+      .paper-input {
+        font-size: clamp(18px, 2.7vw, 24px);
+      }
+
+      .paper-textarea {
+        font-size: clamp(15px, 2.2vw, 20px);
+      }
+
+      .word-line {
+        font-size: clamp(16px, 2.4vw, 22px);
+      }
+
+      .bottom-copyright {
+        font-size: clamp(10px, 1.8vw, 14px);
+      }
+
+      .bottom-signature {
+        font-size: clamp(16px, 3vw, 24px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Ссылка «Перейти к содержимому» — первый фокус с Tab -->
+  <a class="skip-link" href="#main-content">Перейти к содержимому</a>
+
+  <main id="main-content" class="app" tabindex="-1">
+    <!--
+      Блок 1: экран обложки и ввода кодового слова.
+      После успешного ввода — анимация обложки и переход к книге.
+    -->
+    <section
+      id="coverScreen"
+      class="screen cover-screen"
+      aria-labelledby="cover-heading"
+    >
+      <div class="cover-stage">
+        <div id="coverImageWrap" class="cover-image-wrap">
+          <img
+            id="coverImage"
+            class="cover-image"
+            src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1600&auto=format&fit=crop"
+            alt=""
+            decoding="async"
+            fetchpriority="high"
+          />
+          <div class="cover-image-fallback" role="img" aria-label="Обложка словаря">
+            Обложка словаря
+          </div>
+        </div>
+
+        <div class="access-panel">
+          <h1 id="cover-heading" class="access-title">Словарь вайбкодера</h1>
+          <p id="cover-subtitle" class="access-subtitle">Введите кодовое слово</p>
+
+          <form id="accessForm" novalidate>
+            <label class="visually-hidden" for="accessWord">Кодовое слово</label>
+            <input
+              id="accessWord"
+              class="access-input"
+              name="access"
+              type="password"
+              placeholder="vibecoder"
+              autocomplete="off"
+              aria-describedby="loginMessage"
+              required
+            />
+
+            <button id="enterBtn" class="ghost-btn" type="submit">
+              открыть книгу
+            </button>
+          </form>
+
+          <p id="loginMessage" class="helper-text" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!--
+      Блок 2: открытая книга.
+      Слева — форма новой записи, справа — словарь с пагинацией.
+    -->
+    <section
+      id="bookScreen"
+      class="screen book-screen hidden"
+      aria-labelledby="book-heading"
+      hidden
+    >
+      <h2 id="book-heading" class="visually-hidden">Словарь: добавление слов и список</h2>
+
+      <div class="book-scene">
+        <div id="bookImageWrap" class="book-image-wrap">
+          <img
+            id="bookImage"
+            class="book-image"
+            src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1600&auto=format&fit=crop"
+            alt=""
+            decoding="async"
+            fetchpriority="low"
+          />
+          <div class="book-image-fallback" aria-hidden="true"></div>
+
+          <!-- Левая страница: поля и кнопка отправки -->
+          <form id="wordForm" class="book-left" novalidate aria-describedby="formMessage">
+            <label class="visually-hidden" for="wordInput">Слово</label>
+            <input
+              id="wordInput"
+              class="paper-input handwriting"
+              name="word"
+              type="text"
+              maxlength="30"
+              placeholder="Слово"
+              autocomplete="off"
+              required
+            />
+
+            <label class="visually-hidden" for="descriptionInput">Краткое описание</label>
+            <textarea
+              id="descriptionInput"
+              class="paper-textarea handwriting"
+              name="description"
+              maxlength="150"
+              placeholder="Краткое описание"
+              required
+            ></textarea>
+
+            <div class="actions-row">
+              <button id="saveBtn" class="ghost-btn book-btn" type="submit">
+                вписать
+              </button>
+            </div>
+
+            <p id="formMessage" class="helper-text form-helper" role="status" aria-live="polite"></p>
+          </form>
+
+          <!-- Правая страница: вывод слов и навигация по страницам -->
+          <div class="book-right">
+            <div
+              id="dictionaryPage"
+              class="dictionary-page"
+              role="region"
+              aria-label="Текущая страница словаря"
+              aria-live="polite"
+            ></div>
+
+            <nav class="page-nav" aria-label="Страницы словаря">
+              <button id="prevBtn" class="nav-btn" type="button" aria-label="Предыдущая страница">
+                <span aria-hidden="true">◀</span>
+              </button>
+              <span id="pageCounter" class="page-counter" aria-live="polite">1 / 1</span>
+              <button id="nextBtn" class="nav-btn" type="button" aria-label="Следующая страница">
+                <span aria-hidden="true">▶</span>
+              </button>
+            </nav>
+          </div>
+
+          <div class="bottom-copyright">
+            © 2026 Автор идеи ТАНЯ ГАЙДУК — ученица 5 курса школы SMM Ксении Барановой
+          </div>
+
+          <div class="bottom-signature" aria-hidden="true">
+            Tanya Gaiduk
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /**
+     * Словарь вайбкодера — логика в одном модуле.
+     * Порядок: CONFIG → state → DOM → storage → render → обработчики.
+     */
+    (() => {
+      "use strict";
+
+      const CONFIG = {
+        accessCode: "vibecoder",
+        storageKey: "vibe_dictionary_words",
+        accessStorageKey: "vibe_dictionary_access",
+        /** Версия формата JSON в localStorage (для возможных миграций) */
+        storageFormatVersion: 1,
+        wordsPerPage: 8,
+        /* Совпадает с длительностью keyframes coverOpen (1.45s) */
+        coverAnimationMs: 1450,
+        typingSpeed: 15,
+        maxWordLength: 30,
+        maxDescriptionLength: 150
+      };
+
+      const state = {
+        words: [],
+        currentPage: 1,
+        typingTimer: null,
+        isBookInitialized: false,
+        /** Таймер перехода с обложки (на случай повторного входа до срабатывания) */
+        coverTransitionTimer: null
+      };
+
+      const el = {
+        coverScreen: document.getElementById("coverScreen"),
+        bookScreen: document.getElementById("bookScreen"),
+        coverImageWrap: document.getElementById("coverImageWrap"),
+        coverImage: document.getElementById("coverImage"),
+        bookImageWrap: document.getElementById("bookImageWrap"),
+        bookImage: document.getElementById("bookImage"),
+        accessForm: document.getElementById("accessForm"),
+        accessWordInput: document.getElementById("accessWord"),
+        enterBtn: document.getElementById("enterBtn"),
+        loginMessage: document.getElementById("loginMessage"),
+        wordForm: document.getElementById("wordForm"),
+        wordInput: document.getElementById("wordInput"),
+        descriptionInput: document.getElementById("descriptionInput"),
+        saveBtn: document.getElementById("saveBtn"),
+        formMessage: document.getElementById("formMessage"),
+        dictionaryPage: document.getElementById("dictionaryPage"),
+        pageCounter: document.getElementById("pageCounter"),
+        prevBtn: document.getElementById("prevBtn"),
+        nextBtn: document.getElementById("nextBtn")
+      };
+
+      const storage = {
+        /**
+         * Читает слова: поддерживается старый формат (массив) и новый { v, words }.
+         */
+        loadWords() {
+          try {
+            const raw = localStorage.getItem(CONFIG.storageKey);
+            if (!raw) return [];
+
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              return parsed.map(normalizeStoredWord).filter(Boolean);
+            }
+            if (parsed && typeof parsed === "object" && Array.isArray(parsed.words)) {
+              return parsed.words.map(normalizeStoredWord).filter(Boolean);
+            }
+            return [];
+          } catch (e) {
+            console.error("Словарь: ошибка чтения localStorage", e);
+            return [];
+          }
+        },
+
+        /**
+         * Сохраняет массив с метаданными версии формата.
+         */
+        saveWords(words) {
+          try {
+            const payload = {
+              v: CONFIG.storageFormatVersion,
+              words
+            };
+            localStorage.setItem(CONFIG.storageKey, JSON.stringify(payload));
+            return true;
+          } catch (e) {
+            console.error("Словарь: ошибка записи localStorage", e);
+            return false;
+          }
+        },
+
+        setAccessGranted() {
+          try {
+            localStorage.setItem(CONFIG.accessStorageKey, "granted");
+            return true;
+          } catch (e) {
+            console.error("Доступ: ошибка записи localStorage", e);
+            return false;
+          }
+        },
+
+        isAccessGranted() {
+          try {
+            return localStorage.getItem(CONFIG.accessStorageKey) === "granted";
+          } catch {
+            return false;
+          }
+        }
+      };
+
+      /**
+       * Поддержка старого формата (массив) и нового ({ v, words }).
+       */
+      function normalizeStoredWord(raw) {
+        if (!raw || typeof raw !== "object") return null;
+        const word = typeof raw.word === "string" ? raw.word.trim() : "";
+        const description =
+          typeof raw.description === "string" ? raw.description.trim() : "";
+        let id = typeof raw.id === "string" ? raw.id : "";
+        if (!id) id = createId();
+
+        if (!word || !description) return null;
+
+        return {
+          id,
+          word: word.slice(0, CONFIG.maxWordLength),
+          description: description.slice(0, CONFIG.maxDescriptionLength),
+          createdAt:
+            typeof raw.createdAt === "string" ? raw.createdAt : new Date().toISOString()
+        };
+      }
+
+      document.addEventListener("DOMContentLoaded", initApp);
+
+      function initApp() {
+        bindEvents();
+        bindImageFallbacks();
+
+        if (storage.isAccessGranted()) {
+          showBookInstantly();
+        }
+      }
+
+      function bindEvents() {
+        el.accessForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          handleEnterBook();
+        });
+
+        el.wordForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          handleAddWord();
+        });
+
+        el.wordInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            el.descriptionInput.focus();
+          }
+        });
+
+        el.descriptionInput.addEventListener("keydown", (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+            e.preventDefault();
+            handleAddWord();
+          }
+        });
+
+        el.prevBtn.addEventListener("click", () => changePage(-1));
+        el.nextBtn.addEventListener("click", () => changePage(1));
+      }
+
+      function bindImageFallbacks() {
+        el.coverImage.addEventListener("error", () => {
+          el.coverImageWrap.classList.add("image-error");
+        });
+        el.bookImage.addEventListener("error", () => {
+          el.bookImageWrap.classList.add("image-error");
+        });
+      }
+
+      function prefersReducedMotion() {
+        return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      }
+
+      function handleEnterBook() {
+        const code = normalizeText(el.accessWordInput.value).toLowerCase();
+
+        if (code !== CONFIG.accessCode) {
+          setLoginMessage("Неверное кодовое слово", "error");
+          return;
+        }
+
+        setAccessControlsDisabled(true);
+        storage.setAccessGranted();
+        setLoginMessage("Книга открывается...", "success");
+
+        if (state.coverTransitionTimer) {
+          clearTimeout(state.coverTransitionTimer);
+          state.coverTransitionTimer = null;
+        }
+
+        const delay = prefersReducedMotion() ? 0 : CONFIG.coverAnimationMs;
+
+        if (delay === 0) {
+          el.coverImage.classList.remove("opening");
+          goToBook();
+          return;
+        }
+
+        el.coverImage.classList.remove("opening");
+        void el.coverImage.offsetWidth;
+        el.coverImage.classList.add("opening");
+
+        state.coverTransitionTimer = window.setTimeout(() => {
+          state.coverTransitionTimer = null;
+          goToBook();
+        }, delay);
+      }
+
+      function goToBook() {
+        el.coverScreen.classList.add("hidden");
+        el.coverScreen.setAttribute("hidden", "");
+        el.bookScreen.classList.remove("hidden");
+        el.bookScreen.removeAttribute("hidden");
+        initBook();
+      }
+
+      function showBookInstantly() {
+        el.coverScreen.classList.add("hidden");
+        el.coverScreen.setAttribute("hidden", "");
+        el.bookScreen.classList.remove("hidden");
+        el.bookScreen.removeAttribute("hidden");
+        initBook();
+      }
+
+      function initBook() {
+        if (state.isBookInitialized) return;
+
+        state.words = storage.loadWords();
+        state.currentPage = getTotalPages();
+        state.isBookInitialized = true;
+
+        renderCurrentPage();
+        setFormMessage("Слова сохраняются в этом браузере.", "success");
+
+        el.wordInput.focus();
+      }
+
+      function handleAddWord() {
+        const word = normalizeText(el.wordInput.value);
+        const description = normalizeText(el.descriptionInput.value);
+
+        const validationError = validateWordForm(word, description);
+        if (validationError) {
+          setFormMessage(validationError, "error");
+          return;
+        }
+
+        setButtonLoading(el.saveBtn, true, "пишем...");
+
+        const newWord = createWordEntry(word, description);
+        state.words.push(newWord);
+
+        if (!storage.saveWords(state.words)) {
+          state.words.pop();
+          setButtonLoading(el.saveBtn, false);
+          setFormMessage("Не удалось сохранить слово (нет места или доступ к хранилищу запрещён)", "error");
+          return;
+        }
+
+        resetWordForm();
+        setFormMessage("Слово вписано", "success");
+
+        state.currentPage = getTotalPages();
+        renderCurrentPage({ animateId: newWord.id });
+
+        setButtonLoading(el.saveBtn, false);
+      }
+
+      function validateWordForm(word, description) {
+        if (!word || !description) {
+          return "Введите слово и описание";
+        }
+        if (word.length > CONFIG.maxWordLength) {
+          return `Слово должно быть не длиннее ${CONFIG.maxWordLength} символов`;
+        }
+        if (description.length > CONFIG.maxDescriptionLength) {
+          return `Описание должно быть не длиннее ${CONFIG.maxDescriptionLength} символов`;
+        }
+        if (isDuplicateWord(word)) {
+          return "Такое слово уже есть";
+        }
+        return "";
+      }
+
+      function isDuplicateWord(word) {
+        const normalized = word.trim().toLowerCase();
+        return state.words.some((item) => item.word.trim().toLowerCase() === normalized);
+      }
+
+      function createWordEntry(word, description) {
+        return {
+          id: createId(),
+          word,
+          description,
+          createdAt: new Date().toISOString()
+        };
+      }
+
+      function createId() {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
+          return window.crypto.randomUUID();
+        }
+        return `word_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+      }
+
+      function getTotalPages() {
+        return Math.max(1, Math.ceil(state.words.length / CONFIG.wordsPerPage));
+      }
+
+      function changePage(step) {
+        const nextPage = state.currentPage + step;
+        const totalPages = getTotalPages();
+
+        if (nextPage < 1 || nextPage > totalPages) return;
+
+        state.currentPage = nextPage;
+
+        renderCurrentPage({
+          turnDirection: step > 0 ? "next" : "prev"
+        });
+      }
+
+      /**
+       * @param {object} opts
+       * @param {string|null} [opts.animateId] — id новой записи для анимации печати
+       * @param {'none'|'next'|'prev'} [opts.turnDirection]
+       */
+      function renderCurrentPage({ animateId = null, turnDirection = "none" } = {}) {
+        clearTypingTimer();
+
+        const totalPages = getTotalPages();
+        const startIndex = (state.currentPage - 1) * CONFIG.wordsPerPage;
+        const endIndex = startIndex + CONFIG.wordsPerPage;
+        const wordsForPage = state.words.slice(startIndex, endIndex);
+
+        updatePagination(totalPages);
+        playPageAnimation(turnDirection);
+        el.dictionaryPage.innerHTML = "";
+
+        if (wordsForPage.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "empty-note";
+          empty.textContent = "Пока здесь пусто...";
+          el.dictionaryPage.appendChild(empty);
+          return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        wordsForPage.forEach((item, index) => {
+          const line = document.createElement("div");
+          line.className = "word-line";
+
+          const text = `${startIndex + index + 1}. ${item.word} — ${item.description}`;
+
+          if (item.id === animateId) {
+            line.classList.add("typing");
+            fragment.appendChild(line);
+            el.dictionaryPage.appendChild(fragment);
+            const typingMs = prefersReducedMotion() ? 0 : CONFIG.typingSpeed;
+            if (typingMs === 0) {
+              line.textContent = text;
+              line.classList.remove("typing");
+            } else {
+              runTypeWriter(line, text, typingMs);
+            }
+            return;
+          }
+
+          line.textContent = text;
+          fragment.appendChild(line);
+        });
+
+        if (fragment.childNodes.length > 0) {
+          el.dictionaryPage.appendChild(fragment);
+        }
+      }
+
+      function updatePagination(totalPages) {
+        el.pageCounter.textContent = `${state.currentPage} / ${totalPages}`;
+        el.prevBtn.disabled = state.currentPage === 1;
+        el.nextBtn.disabled = state.currentPage === totalPages;
+      }
+
+      function playPageAnimation(direction) {
+        el.dictionaryPage.classList.remove("turn-next", "turn-prev");
+
+        if (direction === "none" || prefersReducedMotion()) {
+          return;
+        }
+
+        void el.dictionaryPage.offsetWidth;
+
+        if (direction === "next") {
+          el.dictionaryPage.classList.add("turn-next");
+        } else if (direction === "prev") {
+          el.dictionaryPage.classList.add("turn-prev");
+        }
+      }
+
+      function runTypeWriter(element, text, speed) {
+        let index = 0;
+        element.textContent = "";
+
+        state.typingTimer = window.setInterval(() => {
+          if (index >= text.length) {
+            clearTypingTimer();
+            element.classList.remove("typing");
+            return;
+          }
+          element.textContent += text.charAt(index);
+          index += 1;
+        }, speed);
+      }
+
+      function clearTypingTimer() {
+        if (state.typingTimer) {
+          clearInterval(state.typingTimer);
+          state.typingTimer = null;
+        }
+      }
+
+      function resetWordForm() {
+        el.wordInput.value = "";
+        el.descriptionInput.value = "";
+        el.wordInput.focus();
+      }
+
+      function setAccessControlsDisabled(disabled) {
+        el.enterBtn.disabled = disabled;
+        el.accessWordInput.disabled = disabled;
+      }
+
+      function setButtonLoading(button, isLoading, loadingText = "загрузка...") {
+        if (isLoading) {
+          button.disabled = true;
+          button.dataset.originalText = button.textContent;
+          button.textContent = loadingText;
+          return;
+        }
+        button.disabled = false;
+        button.textContent = button.dataset.originalText || button.textContent;
+        delete button.dataset.originalText;
+      }
+
+      function setLoginMessage(text, type = "") {
+        el.loginMessage.textContent = text;
+        el.loginMessage.className = `helper-text ${type}`.trim();
+      }
+
+      function setFormMessage(text, type = "") {
+        el.formMessage.textContent = text;
+        el.formMessage.className = `helper-text form-helper ${type}`.trim();
+      }
+
+      function normalizeText(value) {
+        return String(value).trim().replace(/\s+/g, " ");
+      }
+    })();
+  </script>
+</body>
+</html>
