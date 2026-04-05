@@ -15,8 +15,8 @@
 }
 
 :root {
-  --bg-1: #1c0246;
-  --bg-2: #1a033f;
+  --bg-1: #25045a;
+  --bg-2: #25045a;
   --gold: #f0d28a;
   --gold-soft: rgba(240, 210, 138, 0.18);
   --paper-ink: #5a2f17;
@@ -37,7 +37,7 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --book-drop:
     0 32px 64px rgba(0, 0, 0, 0.62),
-    0 14px 28px rgba(0, 0, 0, 0.4),
+    0 14px 28px rgba(0, 0, 0, 0.295),
     0 0 1px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --page-inset: inset 0 2px 5px rgba(255, 255, 255, 0.5), inset 0 -4px 14px rgba(74, 42, 18, 0.14);
@@ -265,6 +265,104 @@ body {
 .scene-stage .access-input {
   cursor: text;
   pointer-events: auto;
+}
+
+/* Вариант C: hover-эффект по AI логотипу */
+.ai-logo-hotspot {
+  display: none !important;
+  position: absolute;
+  left: 50%;
+  top: 13%;
+  width: min(27vw, 360px);
+  height: min(19vh, 190px);
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  border-radius: 14px;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.ai-logo-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(122, 245, 255, 0.22) 0%,
+    rgba(186, 102, 255, 0.16) 38%,
+    rgba(255, 116, 210, 0.1) 62%,
+    transparent 76%
+  );
+  transition: opacity 0.15s ease;
+}
+
+.ai-logo-hotspot::after {
+  display: none;
+}
+
+.ai-logo-c-spark {
+  position: absolute;
+  width: 2px;
+  height: 18px;
+  border-radius: 2px;
+  opacity: 0;
+  background: linear-gradient(180deg, rgba(120, 235, 255, 0.96), rgba(255, 104, 220, 0.78));
+  box-shadow:
+    0 0 8px rgba(120, 245, 255, 0.9),
+    0 0 16px rgba(196, 100, 255, 0.72);
+  transform-origin: center center;
+}
+
+.ai-logo-c-spark:nth-child(1) { left: 22%; top: 16%; transform: rotate(-28deg); }
+.ai-logo-c-spark:nth-child(2) { left: 38%; top: 8%; transform: rotate(-12deg); }
+.ai-logo-c-spark:nth-child(3) { left: 56%; top: 10%; transform: rotate(10deg); }
+.ai-logo-c-spark:nth-child(4) { left: 72%; top: 18%; transform: rotate(26deg); }
+.ai-logo-c-spark:nth-child(5) { left: 30%; top: 58%; transform: rotate(-22deg); }
+.ai-logo-c-spark:nth-child(6) { left: 66%; top: 56%; transform: rotate(18deg); }
+
+.scene-stage.ai-logo-fx-active .ai-logo-hotspot::before {
+  opacity: 1;
+}
+
+.scene-stage.ai-logo-fx-active .ai-logo-hotspot::after {
+  display: none;
+}
+
+.scene-stage.ai-logo-fx-active .ai-logo-c-spark {
+  animation: aiLogoSparkBurstC 0.64s ease-in-out infinite;
+}
+
+.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(2) { animation-delay: -0.16s; }
+.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(3) { animation-delay: -0.28s; }
+.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(4) { animation-delay: -0.35s; }
+.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(5) { animation-delay: -0.22s; }
+.scene-stage.ai-logo-fx-active .ai-logo-c-spark:nth-child(6) { animation-delay: -0.4s; }
+
+.scene-stage.scene--book-open .ai-logo-hotspot {
+  display: none;
+}
+
+@keyframes aiLogoSparkBurstC {
+  0% {
+    opacity: 0;
+    transform: translateY(3px) scaleY(0.7);
+  }
+  28% {
+    opacity: 1;
+    transform: translateY(-3px) scaleY(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scaleY(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-logo-hotspot {
+    display: none;
+  }
 }
 
 /* Кольца курсора (адаптация MagicRings): поверх арта, но без блокировки кликов */
@@ -1239,6 +1337,19 @@ body {
 
 .scene-stage.scene--book-open .book-electric-fx-canvas {
   opacity: 1;
+}
+
+/* D/E/F: индикаторные изменения интенсивности по режимам */
+.scene-stage.book-fx-mode-d .book-electric-fx-canvas {
+  filter: saturate(1.2) brightness(1.18);
+}
+
+.scene-stage.book-fx-mode-e .book-electric-fx-canvas {
+  filter: saturate(1.05) brightness(1.08);
+}
+
+.scene-stage.book-fx-mode-f .book-electric-fx-canvas {
+  filter: saturate(1) brightness(1.02);
 }
 
 .book-image {
