@@ -1154,28 +1154,29 @@ body {
    ПОДПИСИ ПОД КНИГОЙ (один блок, без наложения строк)
    ============================================================================= */
 .scene-footer {
-  /* На изображении уже есть авторские подписи — скрываем дублирующий HTML-оверлей. */
-  display: none !important;
+  /* Подписи включены: порядок задаётся HTML (сначала подпись, затем копирайт). */
+  display: flex !important;
   position: absolute;
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-  width: min(96%, 52rem);
+  width: min(96%, 64rem);
   z-index: 6;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
   justify-content: flex-end;
-  gap: 0.12em;
-  padding: 6px 10px 8px;
+  gap: 12px;
+  padding: 6px 12px 10px;
   pointer-events: none;
-  text-align: center;
+  text-align: left;
   box-sizing: border-box;
 }
 
 .bottom-copyright {
   position: static;
-  width: 100%;
+  width: auto;
+  max-width: 58%;
   margin: 0;
   padding: 0;
   font-size: clamp(11px, 1.05vw, 16px);
@@ -1185,6 +1186,7 @@ body {
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
   white-space: normal;
   word-wrap: break-word;
+  text-align: right;
 }
 
 .bottom-signature {
@@ -1200,6 +1202,7 @@ body {
   white-space: nowrap;
   opacity: 0.9;
   letter-spacing: 0.02em;
+  text-align: left;
 }
 
 /* =============================================================================
@@ -1240,11 +1243,13 @@ body {
 @media (max-width: 900px) {
   .scene-footer {
     width: min(98%, 100%);
-    padding: 5px 8px 7px;
+    padding: 5px 8px 8px;
+    gap: 8px;
   }
 
   .bottom-copyright {
     font-size: clamp(11px, 1.5vw, 15px);
+    max-width: 62%;
   }
 
   .paper-textarea {
@@ -1295,11 +1300,12 @@ body {
 
   .scene-footer {
     padding: 4px 6px 6px;
-    gap: 0.1em;
+    gap: 6px;
   }
 
   .bottom-copyright {
     font-size: clamp(10px, 1.8vw, 13px);
+    max-width: 64%;
   }
 
   .bottom-signature {
