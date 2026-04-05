@@ -290,156 +290,14 @@ body {
   display: flex;
 }
 
-/* Gradient Background FX (vanilla адаптация background-gradient-animation) */
-.gradient-bg-fx {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  overflow: hidden;
-  background: linear-gradient(
-    40deg,
-    var(--gradient-background-start, rgb(108, 0, 162)),
-    var(--gradient-background-end, rgb(0, 17, 82))
-  );
-  opacity: 0.72;
-}
-
-.gradient-bg-fx .gradient-orbs {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  filter: blur(var(--blur-size, 40px));
-}
-
-.gradient-bg-fx .bg-blob,
-.gradient-bg-fx .bg-blob-pointer {
-  position: absolute;
-  width: var(--size, 84%);
-  height: var(--size, 84%);
-  top: calc(50% - var(--size, 84%) / 2);
-  left: calc(50% - var(--size, 84%) / 2);
-  mix-blend-mode: var(--blending-value, hard-light);
-  pointer-events: none;
-}
-
-.gradient-bg-fx .bg-blob--1 {
-  background: radial-gradient(circle at center, rgba(var(--first-color, 18, 113, 255), 0.78) 0, rgba(var(--first-color, 18, 113, 255), 0) 52%) no-repeat;
-  transform-origin: center center;
-  animation: moveVertical calc(30s / var(--drift-speed, 1)) ease infinite;
-}
-
-.gradient-bg-fx .bg-blob--2 {
-  background: radial-gradient(circle at center, rgba(var(--second-color, 221, 74, 255), 0.72) 0, rgba(var(--second-color, 221, 74, 255), 0) 52%) no-repeat;
-  transform-origin: calc(50% - 420px);
-  animation: moveInCircle calc(20s / var(--drift-speed, 1)) reverse infinite;
-}
-
-.gradient-bg-fx .bg-blob--3 {
-  background: radial-gradient(circle at center, rgba(var(--third-color, 100, 220, 255), 0.72) 0, rgba(var(--third-color, 100, 220, 255), 0) 52%) no-repeat;
-  transform-origin: calc(50% + 400px);
-  animation: moveInCircle calc(40s / var(--drift-speed, 1)) linear infinite;
-}
-
-.gradient-bg-fx .bg-blob--4 {
-  background: radial-gradient(circle at center, rgba(var(--fourth-color, 200, 50, 50), 0.62) 0, rgba(var(--fourth-color, 200, 50, 50), 0) 52%) no-repeat;
-  transform-origin: calc(50% - 220px);
-  animation: moveHorizontal calc(40s / var(--drift-speed, 1)) ease infinite;
-}
-
-.gradient-bg-fx .bg-blob--5 {
-  background: radial-gradient(circle at center, rgba(var(--fifth-color, 180, 180, 50), 0.58) 0, rgba(var(--fifth-color, 180, 180, 50), 0) 52%) no-repeat;
-  transform-origin: calc(50% - 800px) calc(50% + 800px);
-  animation: moveInCircle calc(20s / var(--drift-speed, 1)) ease infinite;
-}
-
-.gradient-bg-fx .bg-blob-pointer {
-  width: 100%;
-  height: 100%;
-  top: -50%;
-  left: -50%;
-  background: radial-gradient(circle at center, rgba(var(--pointer-color, 140, 100, 255), 0.62) 0, rgba(var(--pointer-color, 140, 100, 255), 0) 52%) no-repeat;
-}
-
-.scene-stage.scene--book-open .gradient-bg-fx {
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-
-@keyframes moveHorizontal {
-  0% {
-    transform: translateX(-50%) translateY(-10%);
-  }
-  50% {
-    transform: translateX(50%) translateY(10%);
-  }
-  100% {
-    transform: translateX(-50%) translateY(-10%);
-  }
-}
-
-@keyframes moveInCircle {
-  0% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(180deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes moveVertical {
-  0% {
-    transform: translateY(-50%);
-  }
-  50% {
-    transform: translateY(50%);
-  }
-  100% {
-    transform: translateY(-50%);
-  }
-}
-
 /* Маска нижней зоны: приглушает встроенные подписи внизу самой картинки */
 .scene-bottom-mask {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: clamp(72px, 12vh, 148px);
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(7, 3, 14, 0) 0%,
-    rgba(8, 3, 16, 0.78) 42%,
-    rgba(8, 3, 16, 0.99) 100%
-  );
+  display: none;
 }
 
 /* Локальная заплатка фона поверх нижней подписи на исходной картинке */
 .scene-signature-erase {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(14px, 2.1vh, 26px);
-  transform: translateX(-50%);
-  width: clamp(260px, 31vw, 430px);
-  height: clamp(52px, 7.2vh, 86px);
-  z-index: 2;
-  pointer-events: none;
-  border-radius: 8px;
-  background:
-    radial-gradient(circle at 20% 40%, rgba(90, 55, 150, 0.28) 0, transparent 30%),
-    radial-gradient(circle at 72% 34%, rgba(60, 120, 210, 0.24) 0, transparent 34%),
-    radial-gradient(circle at 50% 72%, rgba(120, 70, 180, 0.18) 0, transparent 42%),
-    linear-gradient(180deg, rgba(25, 13, 50, 0.72) 0%, rgba(12, 6, 24, 0.86) 100%);
-  box-shadow:
-    inset 0 0 26px rgba(6, 3, 14, 0.5),
-    0 0 20px rgba(12, 6, 26, 0.25);
+  display: none;
 }
 
 /* Анимация градиентного текста (кнопка + надписи одежды) */
@@ -502,68 +360,116 @@ body {
 }
 
 .fashion-tag--p1 {
-  left: 5.2%;
-  top: 20.5%;
+  left: 11%;
+  top: 9%;
   transform: translate(-50%, -50%);
-  font-size: clamp(13px, 1.02vw, 18px);
+  font-size: clamp(12px, 0.95vw, 17px);
 }
 
 .fashion-tag--p2 {
-  left: 94.8%;
-  top: 20.8%;
+  left: 35%;
+  top: 7.5%;
   transform: translate(-50%, -50%);
-  font-size: clamp(13px, 1vw, 18px);
+  font-size: clamp(12px, 0.92vw, 16px);
   animation-delay: 0.25s;
 }
 
 .fashion-tag--p3 {
-  left: 7%;
-  top: 79%;
+  left: 67%;
+  top: 8.5%;
   transform: translate(-50%, -50%);
-  font-size: clamp(13px, 1vw, 18px);
+  font-size: clamp(12px, 0.92vw, 16px);
   animation-delay: 0.5s;
 }
 
 .fashion-tag--p4 {
-  left: 93%;
-  top: 79%;
+  left: 86%;
+  top: 7.5%;
   transform: translate(-50%, -50%);
-  font-size: clamp(15px, 1.16vw, 20px);
+  font-size: clamp(12px, 0.92vw, 16px);
   animation-delay: 0.15s;
 }
 
 .fashion-tag--p5 {
-  left: 3.5%;
-  top: 50%;
+  left: 6.5%;
+  top: 21%;
   transform: translate(-50%, -50%);
-  font-size: clamp(12px, 0.9vw, 16px);
+  font-size: clamp(12px, 0.9vw, 15px);
   letter-spacing: 0.04em;
   animation-delay: 0.35s;
 }
 
 .fashion-tag--p6 {
-  left: 96.5%;
-  top: 50%;
+  left: 90%;
+  top: 21%;
   transform: translate(-50%, -50%);
-  font-size: clamp(12px, 0.9vw, 16px);
+  font-size: clamp(12px, 0.9vw, 15px);
   animation-delay: 0.7s;
 }
 
 .fashion-tag--p7 {
-  left: 18%;
-  top: 91.8%;
+  left: 6.6%;
+  top: 41.5%;
   transform: translate(-50%, -50%);
-  font-size: clamp(12px, 0.9vw, 16px);
+  font-size: clamp(12px, 0.88vw, 15px);
   animation-delay: 0.9s;
 }
 
 .fashion-tag--p8 {
-  left: 82%;
-  top: 91.8%;
+  left: 90%;
+  top: 52%;
   transform: translate(-50%, -50%);
-  font-size: clamp(12px, 0.9vw, 16px);
+  font-size: clamp(12px, 0.88vw, 15px);
   letter-spacing: 0.05em;
   animation-delay: 1.15s;
+}
+
+.fashion-tag--p9 {
+  left: 30%;
+  top: 60.8%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(12px, 0.9vw, 15px);
+  animation-delay: 0.45s;
+}
+
+.fashion-tag--p10 {
+  left: 68%;
+  top: 60.2%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(12px, 0.9vw, 15px);
+  animation-delay: 0.65s;
+}
+
+.fashion-tag--p11 {
+  left: 6.8%;
+  top: 66.4%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(12px, 0.86vw, 14px);
+  animation-delay: 0.2s;
+}
+
+.fashion-tag--p12 {
+  left: 91%;
+  top: 73%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(12px, 0.86vw, 14px);
+  animation-delay: 1s;
+}
+
+.fashion-tag--p13 {
+  left: 7.2%;
+  top: 77.2%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(12px, 0.86vw, 14px);
+  animation-delay: 0.8s;
+}
+
+.fashion-tag--p14 {
+  left: 30.1%;
+  top: 75.5%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(12px, 0.86vw, 14px);
+  animation-delay: 1.2s;
 }
 
 .scene-stage.scene--book-open .scene-fashion-tags {
