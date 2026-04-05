@@ -165,9 +165,7 @@ body {
   height: 40%;
   z-index: 4;
   pointer-events: none;
-  transition:
-    transform 0.35s ease,
-    filter 0.35s ease;
+  transition: none;
 }
 
 .scene-stage.scene--book-open .book-slot {
@@ -233,7 +231,7 @@ body {
 }
 
 .scene-stage.scene--book-open .magic-rings-fx {
-  opacity: 0;
+  opacity: 0.86;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -288,7 +286,7 @@ body {
 }
 
 .scene-stage.scene--book-open .grain-shader-bg {
-  opacity: 0;
+  opacity: 0.78;
   pointer-events: none;
 }
 
@@ -370,7 +368,7 @@ body {
 }
 
 .scene-stage.scene--book-open .smoke-bg-fx {
-  opacity: 0;
+  opacity: 0.62;
 }
 
 /* Плавающие слова: слой совмещается с картинкой (JS); позиции — % от арта обложки */
@@ -387,7 +385,20 @@ body {
 }
 
 .scene-stage.scene--book-open .scene-bg-wrap .scene-float-words {
+  display: block;
+}
+
+/* При открытии книги не накладываем две картинки: закрытая обложка скрывается сразу */
+.scene-stage.scene--book-open .scene-bg-wrap {
   display: none;
+}
+
+/* Те же слова поверх второй картинки (book-open layer) */
+.book-image-wrap .scene-float-words.scene-float-words--book {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
 }
 
 /* Как @react-bits/GradientText: градиент + первый цвет в конце для плавного цикла; yoyo по оси X */
@@ -947,7 +958,7 @@ body {
   width: 100%;
   height: 100%;
   min-height: 0;
-  animation: bookFadeIn var(--dur-book-in) ease;
+  animation: none;
   filter: drop-shadow(0 26px 56px rgba(0, 0, 0, 0.58)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
 }
 
@@ -986,6 +997,16 @@ body {
 .book-image-wrap .book-left,
 .book-image-wrap .book-right {
   pointer-events: auto;
+}
+
+/* Чистый Шаг 2: только картинка 2 + эффекты, без формы/страниц */
+.scene-stage.scene--step2-visual .book-image-wrap .book-left,
+.scene-stage.scene--step2-visual .book-image-wrap .book-right {
+  display: none !important;
+}
+
+.scene-stage.scene--step2-visual .book-open-layer:not(.hidden) {
+  pointer-events: none;
 }
 
 .book-image {

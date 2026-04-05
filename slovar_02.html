@@ -115,6 +115,21 @@
                 <div class="book-image-fallback" aria-hidden="true">
                   <span class="book-fallback-spine" aria-hidden="true"></span>
                 </div>
+                <!-- Шаг 2: те же слова/эффекты переносим и на картинку 2 -->
+                <div class="scene-float-words scene-float-words--book" aria-hidden="true">
+                  <span class="scene-float-word scene-float-word--magic">MAGIC</span>
+                  <span class="scene-float-word scene-float-word--code">CODE</span>
+                  <span class="scene-float-word scene-float-word--vibe">ВАЙБ</span>
+                  <span class="scene-float-word scene-float-word--flow">ПОТОК</span>
+                  <span class="scene-float-word scene-float-word--sense">СМЫСЛ</span>
+                  <span class="scene-float-word scene-float-word--focus">ФОКУС</span>
+                  <span class="scene-float-word scene-float-word--idea">ИДЕЯ</span>
+                  <span class="scene-float-word scene-float-word--growth">РОСТ</span>
+                  <span class="scene-float-word scene-float-word--ai">AI</span>
+                  <span class="scene-float-word scene-float-word--neuro scene-float-word--center-x">НЕЙРО</span>
+                  <span class="scene-float-word scene-float-word--cta-left">0 → PRO</span>
+                  <span class="scene-float-word scene-float-word--cta-right">LEVEL UP</span>
+                </div>
 
                 <form id="wordForm" class="book-left" novalidate aria-describedby="formMessage formHints">
                   <p id="formHints" class="visually-hidden">
@@ -655,7 +670,7 @@
         setLoginMessage("", "");
         clearCoverAnimationListeners();
 
-        window.setTimeout(goToBook, prefersReducedMotion() ? 0 : 160);
+        window.setTimeout(goToBook, 0);
       }
 
       function setButtonLoading(button, isLoading, loadingText = "загрузка...") {
@@ -884,42 +899,48 @@
         setButtonLoading(dom.saveBtn, false);
       }
 
+      /**
+       * Шаг 2 (визуальный): физически удаляем форму и словарь из DOM.
+       * Оставляем только картинку и все декоративные эффекты.
+       */
+      function pruneBookUiForStep2() {
+        if (!dom.bookImageWrap) return;
+        const left = dom.bookImageWrap.querySelector(".book-left");
+        const right = dom.bookImageWrap.querySelector(".book-right");
+        if (left) left.remove();
+        if (right) right.remove();
+      }
+
       function goToBook() {
-        if (typeof magicRingsCleanup === "function") {
-          magicRingsCleanup();
-          magicRingsCleanup = null;
-        }
-        if (typeof grainShaderCleanup === "function") {
-          grainShaderCleanup();
-          grainShaderCleanup = null;
-        }
         clearCoverAnimationListeners();
         state.isEnteringBook = false;
         setAccessControlsDisabled(false);
 
         dom.sceneStage.classList.add("scene--book-open");
+        dom.sceneStage.classList.add("scene--step2-visual");
         dom.bookOpenLayer.classList.remove("hidden");
         dom.bookOpenLayer.removeAttribute("hidden");
         dom.bookOpenLayer.setAttribute("aria-hidden", "false");
         dom.accessOverlay.setAttribute("hidden", "");
 
+        if (dom.sceneStage.classList.contains("scene--step2-visual")) {
+          pruneBookUiForStep2();
+          return;
+        }
         initBook();
       }
 
       function showBookInstantly() {
-        if (typeof magicRingsCleanup === "function") {
-          magicRingsCleanup();
-          magicRingsCleanup = null;
-        }
-        if (typeof grainShaderCleanup === "function") {
-          grainShaderCleanup();
-          grainShaderCleanup = null;
-        }
         dom.sceneStage.classList.add("scene--book-open");
+        dom.sceneStage.classList.add("scene--step2-visual");
         dom.bookOpenLayer.classList.remove("hidden");
         dom.bookOpenLayer.removeAttribute("hidden");
         dom.bookOpenLayer.setAttribute("aria-hidden", "false");
         dom.accessOverlay.setAttribute("hidden", "");
+        if (dom.sceneStage.classList.contains("scene--step2-visual")) {
+          pruneBookUiForStep2();
+          return;
+        }
         initBook();
       }
 
@@ -933,7 +954,9 @@
         renderCurrentPage();
         setFormMessage("", "");
 
-        dom.wordInput.focus();
+        if (!dom.sceneStage.classList.contains("scene--step2-visual")) {
+          dom.wordInput.focus();
+        }
       }
 
       function handleAccessSubmit(e) {
