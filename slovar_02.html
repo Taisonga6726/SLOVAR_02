@@ -50,9 +50,13 @@
       --dur-book-in: 0.9s;
       --dur-page-turn: 0.85s;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --book-drop: 0 28px 56px rgba(0, 0, 0, 0.58), 0 12px 24px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.07);
-      --page-inset: inset 0 2px 4px rgba(255, 255, 255, 0.45), inset 0 -3px 12px rgba(74, 42, 18, 0.12);
+      --book-drop:
+        0 32px 64px rgba(0, 0, 0, 0.62),
+        0 14px 28px rgba(0, 0, 0, 0.4),
+        0 0 1px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      --page-inset: inset 0 2px 5px rgba(255, 255, 255, 0.5), inset 0 -4px 14px rgba(74, 42, 18, 0.14);
+      --paper-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -73,9 +77,10 @@
       min-height: 100vh;
       min-height: 100dvh;
       background:
-        radial-gradient(circle at top, rgba(116, 52, 185, 0.2), transparent 35%),
-        radial-gradient(circle at bottom, rgba(255, 157, 0, 0.12), transparent 30%),
-        linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+        radial-gradient(ellipse 90% 55% at 50% -8%, rgba(200, 160, 255, 0.14), transparent 52%),
+        radial-gradient(ellipse 70% 45% at 85% 75%, rgba(255, 170, 90, 0.1), transparent 48%),
+        radial-gradient(ellipse 55% 40% at 12% 60%, rgba(116, 52, 185, 0.12), transparent 45%),
+        linear-gradient(168deg, #150a24 0%, var(--bg-2) 42%, var(--bg-1) 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -83,6 +88,7 @@
       color: var(--light-text);
       overflow-x: hidden;
       padding-bottom: var(--safe-bottom);
+      cursor: default;
     }
 
     /* =============================================================================
@@ -155,7 +161,10 @@
       position: relative;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+      box-shadow:
+        0 22px 50px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 220, 160, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
       cursor: pointer;
     }
 
@@ -181,37 +190,47 @@
     }
 
     /*
-      Сетка из трёх рядов: верх пустой (зона AI/неба), центр — только поле и стрелка,
-      низ пустой и растягивается (зона книги). Так UI не перекрывает ключевой арт.
+      Центр кадра между AI и книгой (как на макете): блок по центру по горизонтали,
+      вертикаль — якорь ~40% высоты картинки, без захода на книгу и на фигуры по бокам.
     */
     .cover-overlay {
       position: absolute;
       inset: 0;
       z-index: 2;
-      display: grid;
-      grid-template-rows: minmax(22%, 32%) auto 1fr;
-      grid-template-columns: minmax(0, 1fr);
-      justify-items: center;
-      align-items: center;
-      padding: 0 clamp(10px, 2.8vw, 20px);
+      padding: 0 clamp(12px, 5vw, 48px);
       pointer-events: none;
     }
 
     .cover-access-float {
-      grid-row: 2;
-      grid-column: 1;
-      align-self: center;
-      justify-self: center;
+      position: absolute;
+      left: 50%;
+      top: clamp(37%, 41%, 45%);
+      transform: translate(-50%, -50%);
       pointer-events: auto;
-      width: min(420px, 92vw);
+      width: min(380px, 76vw);
       max-width: 100%;
-      padding: 0;
+      padding: clamp(14px, 2.5vw, 22px) clamp(16px, 3vw, 26px);
       text-align: center;
-      background: none;
-      border: none;
-      box-shadow: none;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
+      background:
+        radial-gradient(ellipse 120% 80% at 50% 0%, rgba(80, 45, 28, 0.35), transparent 55%),
+        linear-gradient(168deg, #1c0f18 0%, #120a14 48%, #0c060e 100%);
+      border: 1px solid rgba(200, 165, 110, 0.35);
+      border-radius: 10px;
+      box-shadow:
+        0 14px 36px rgba(0, 0, 0, 0.55),
+        inset 0 2px 0 rgba(255, 235, 200, 0.1),
+        inset 0 -3px 12px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(0, 0, 0, 0.35);
+    }
+
+    .cover-access-float::before {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: 7px;
+      pointer-events: none;
+      border: 1px solid rgba(240, 210, 150, 0.12);
+      opacity: 0.85;
     }
 
     .cover-tap-hint {
@@ -234,7 +253,12 @@
 
     @media (max-width: 520px) {
       .cover-overlay {
-        grid-template-rows: minmax(18%, 26%) auto 1fr;
+        padding: 0 clamp(10px, 4vw, 24px);
+      }
+
+      .cover-access-float {
+        top: clamp(35%, 40%, 46%);
+        width: min(340px, 80vw);
       }
     }
 
@@ -303,8 +327,9 @@
     }
 
     .cover-screen .access-subtitle {
-      margin: 0 0 14px;
-      font-size: clamp(24px, 3.2vw, 36px);
+      margin: 0 auto 14px;
+      max-width: 22ch;
+      font-size: clamp(22px, 2.85vw, 32px);
       font-weight: 700;
       letter-spacing: 0.03em;
       line-height: 1.2;
