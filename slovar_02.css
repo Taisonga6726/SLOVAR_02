@@ -436,9 +436,9 @@ body {
   border-radius: 999px;
   border: 1px solid rgba(160, 220, 255, 0.45);
   background: linear-gradient(165deg, rgba(12, 6, 28, 0.94) 0%, rgba(22, 10, 42, 0.92) 50%, rgba(8, 4, 20, 0.96) 100%);
-  color: #f8fbff;
+  color: #fff9ef;
   font-size: clamp(16px, 1.65vw, 20px);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-align: center;
   outline: none;
@@ -518,9 +518,17 @@ body {
 }
 
 .cover-login-msg {
+  display: inline-block;
+  min-width: min(88vw, 360px);
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 223, 164, 0.26);
+  background: rgba(11, 6, 26, 0.62);
   font-size: clamp(14px, 1.3vw, 18px);
+  font-weight: 700;
   text-align: center;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  color: #fff4dc;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.95);
 }
 
 .cover-login-msg.success {
@@ -547,7 +555,7 @@ body {
 }
 
 .helper-text.error {
-  color: var(--error);
+  color: #ffd2d2;
 }
 
 .helper-text.success {
@@ -937,6 +945,20 @@ body {
   color: rgba(72, 38, 18, 0.88);
 }
 
+.right-input-area {
+  margin-bottom: 8px;
+}
+
+.right-input-area .paper-label {
+  margin-bottom: 6px;
+}
+
+.right-input-area .paper-textarea {
+  min-height: clamp(72px, 10vh, 120px);
+  margin-top: 0;
+  background: rgba(255, 252, 245, 0.28);
+}
+
 /* =============================================================================
    СЛОВАРЬ И ПАГИНАЦИЯ
    ============================================================================= */
@@ -1116,6 +1138,8 @@ body {
    ПОДПИСИ ПОД КНИГОЙ (один блок, без наложения строк)
    ============================================================================= */
 .scene-footer {
+  /* На изображении уже есть авторские подписи — скрываем дублирующий HTML-оверлей. */
+  display: none !important;
   position: absolute;
   left: 50%;
   bottom: 0;
@@ -1471,13 +1495,14 @@ body {
         rgba(240, 200, 120, 0.22) 0%,
         rgba(120, 60, 140, 0.25) 100%
       );
-      color: #fff6e6;
+      color: #fffef8;
       font-family: inherit;
       font-size: clamp(15px, 1.5vw, 18px);
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.08em;
       cursor: pointer;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 240, 210, 0.18) inset;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
@@ -1536,6 +1561,17 @@ body {
       animation: flashError 0.65s ease forwards;
     }
 
+    .flash--open-pulse {
+      background: radial-gradient(
+        ellipse 140% 120% at 50% 52%,
+        rgba(255, 250, 210, 0.9) 0%,
+        rgba(255, 205, 120, 0.5) 28%,
+        rgba(180, 110, 255, 0.25) 52%,
+        transparent 74%
+      );
+      animation: flashOpen 0.72s ease forwards;
+    }
+
     @keyframes flashSuccess {
       0% {
         opacity: 0;
@@ -1554,6 +1590,21 @@ body {
       }
       18% {
         opacity: 0.5;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes flashOpen {
+      0% {
+        opacity: 0;
+      }
+      18% {
+        opacity: 0.95;
+      }
+      46% {
+        opacity: 0.55;
       }
       100% {
         opacity: 0;
@@ -1644,6 +1695,7 @@ body {
     @media (prefers-reduced-motion: reduce) {
       .flash--success-pulse,
       .flash--error-pulse,
+      .flash--open-pulse,
       .light-burst.is-animating,
       .book-image-wrap.page-turn-fx,
       .cover-access-float.access-shake {

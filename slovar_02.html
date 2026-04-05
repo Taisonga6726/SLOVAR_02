@@ -106,18 +106,6 @@
                     required
                   />
 
-                  <label class="paper-label" for="descriptionInput">Краткое описание</label>
-                  <textarea
-                    id="descriptionInput"
-                    class="paper-textarea handwriting"
-                    name="description"
-                    maxlength="150"
-                    placeholder="Краткое описание"
-                    aria-invalid="false"
-                    aria-required="true"
-                    required
-                  ></textarea>
-
                   <div class="actions-row">
                     <button id="saveBtn" class="ghost-btn book-btn" type="submit">
                       Вписать
@@ -128,6 +116,20 @@
                 </form>
 
                 <div class="book-right">
+                  <div class="right-input-area">
+                    <label class="paper-label" for="descriptionInput">Описание (рукописный ввод)</label>
+                    <textarea
+                      id="descriptionInput"
+                      class="paper-textarea handwriting"
+                      name="description"
+                      form="wordForm"
+                      maxlength="150"
+                      placeholder="Пишите от руки..."
+                      aria-invalid="false"
+                      aria-required="true"
+                      required
+                    ></textarea>
+                  </div>
                   <div
                     id="dictionaryPage"
                     class="dictionary-page"
@@ -452,12 +454,18 @@
       function triggerSceneFlash(kind) {
         const el = dom.sceneFlash;
         if (!el) return;
-        el.classList.remove("flash--success-pulse", "flash--error-pulse");
+        el.classList.remove("flash--success-pulse", "flash--error-pulse", "flash--open-pulse");
         void el.offsetWidth;
-        el.classList.add(kind === "success" ? "flash--success-pulse" : "flash--error-pulse");
+        if (kind === "open") {
+          el.classList.add("flash--open-pulse");
+        } else if (kind === "success") {
+          el.classList.add("flash--success-pulse");
+        } else {
+          el.classList.add("flash--error-pulse");
+        }
         const onEnd = () => {
           el.removeEventListener("animationend", onEnd);
-          el.classList.remove("flash--success-pulse", "flash--error-pulse");
+          el.classList.remove("flash--success-pulse", "flash--error-pulse", "flash--open-pulse");
         };
         el.addEventListener("animationend", onEnd, { once: true });
       }
@@ -571,11 +579,12 @@
         setAccessControlsDisabled(true);
         clearCoverReadyUi();
         storage.setAccessGranted();
+        triggerSceneFlash("open");
 
         setLoginMessage("", "");
         clearCoverAnimationListeners();
 
-        goToBook();
+        window.setTimeout(goToBook, prefersReducedMotion() ? 0 : 160);
       }
 
       function setButtonLoading(button, isLoading, loadingText = "загрузка...") {
