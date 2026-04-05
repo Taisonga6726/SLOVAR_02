@@ -214,6 +214,84 @@ body {
   pointer-events: auto;
 }
 
+/* Кольца курсора (адаптация MagicRings): поверх арта, но без блокировки кликов */
+.magic-rings-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.86;
+  transition: opacity 0.35s ease;
+}
+
+.magic-rings-fx canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  mix-blend-mode: screen;
+}
+
+.scene-stage.scene--book-open .magic-rings-fx {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .magic-rings-fx {
+    display: none;
+  }
+}
+
+/* За PNG: аналог Paper GrainGradient (Canvas в HTML), поля при contain — через прозрачный wrap */
+.grain-shader-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.78;
+  transition: opacity 0.45s ease;
+}
+
+.grain-shader-bg canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Как в demo.tsx: bg-black/20 поверх шейдера */
+.grain-shader-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+/* Убирает заметные вертикальные полосы по краям при object-fit: contain */
+.grain-shader-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 2, 18, 0.92) 0%,
+      rgba(7, 2, 18, 0.76) 9%,
+      rgba(7, 2, 18, 0.25) 20%,
+      rgba(7, 2, 18, 0.08) 50%,
+      rgba(7, 2, 18, 0.25) 80%,
+      rgba(7, 2, 18, 0.76) 91%,
+      rgba(7, 2, 18, 0.92) 100%
+    );
+  pointer-events: none;
+}
+
+.scene-stage.scene--book-open .grain-shader-bg {
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Один слой фона обложки: без второго «экрана» под картинкой */
 .scene-bg-wrap {
   position: absolute;
@@ -224,6 +302,14 @@ body {
   min-height: 100%;
   overflow: hidden;
   pointer-events: none;
+  background-color: transparent;
+}
+
+.scene-stage.grain-shader-off .scene-bg-wrap {
+  background-color: var(--bg-1);
+}
+
+.scene-bg-wrap.image-error {
   background-color: var(--bg-1);
 }
 
@@ -708,10 +794,11 @@ body {
   backdrop-filter: blur(4px) saturate(1.15);
 }
 
+/* Плейсхолдер не используется (без подсказки с кодом); если появится — почти незаметен */
 .cover-screen .access-input::placeholder {
-  color: rgba(200, 230, 255, 0.4);
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  color: rgba(230, 240, 255, 0.14);
+  font-weight: 400;
+  letter-spacing: 0.06em;
 }
 
 .cover-screen .access-input:hover:not(:disabled) {
@@ -744,7 +831,7 @@ body {
 }
 
 .access-input::placeholder {
-  color: rgba(255, 236, 201, 0.5);
+  color: rgba(255, 236, 201, 0.18);
 }
 
 .access-input[aria-invalid="true"] {
