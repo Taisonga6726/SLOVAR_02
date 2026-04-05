@@ -180,23 +180,31 @@
       pointer-events: auto;
     }
 
-    /* Форма в верхней части кадра — книга на арте остаётся видимой */
+    /*
+      Сетка из трёх рядов: верх пустой (зона AI/неба), центр — только поле и стрелка,
+      низ пустой и растягивается (зона книги). Так UI не перекрывает ключевой арт.
+    */
     .cover-overlay {
       position: absolute;
       inset: 0;
       z-index: 2;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: clamp(20px, 5.5vmin, 56px) clamp(12px, 3vw, 24px) 0;
+      display: grid;
+      grid-template-rows: minmax(22%, 32%) auto 1fr;
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      align-items: center;
+      padding: 0 clamp(10px, 2.8vw, 20px);
       pointer-events: none;
     }
 
     .cover-access-float {
+      grid-row: 2;
+      grid-column: 1;
+      align-self: center;
+      justify-self: center;
       pointer-events: auto;
-      width: min(360px, 90%);
+      width: min(420px, 92vw);
       max-width: 100%;
-      margin: 0 auto;
       padding: 0;
       text-align: center;
       background: none;
@@ -207,20 +215,27 @@
     }
 
     .cover-tap-hint {
-      margin: clamp(10px, 1.8vw, 18px) 0 0;
+      margin: clamp(6px, 1.2vmin, 12px) 0 0;
       display: flex;
       justify-content: center;
       align-items: center;
+      line-height: 1;
     }
 
     .cover-tap-arrow {
       display: block;
-      font-size: clamp(36px, 5.5vw, 52px);
+      font-size: clamp(28px, 4.2vw, 42px);
       line-height: 1;
       color: #ffd56a;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))
         drop-shadow(0 0 10px rgba(255, 190, 80, 0.65));
       animation: coverArrowNudge 1.6s ease-in-out infinite;
+    }
+
+    @media (max-width: 520px) {
+      .cover-overlay {
+        grid-template-rows: minmax(18%, 26%) auto 1fr;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -288,13 +303,17 @@
     }
 
     .cover-screen .access-subtitle {
-      margin: 0 0 10px;
-      font-size: clamp(17px, 1.6vw, 22px);
-      font-weight: 600;
-      color: #f6dfb0;
+      margin: 0 0 14px;
+      font-size: clamp(24px, 3.2vw, 36px);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      line-height: 1.2;
+      color: #ffecc8;
       text-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.85),
-        0 0 20px rgba(120, 60, 180, 0.35);
+        0 0 10px rgba(255, 210, 120, 0.95),
+        0 0 28px rgba(255, 170, 60, 0.65),
+        0 0 48px rgba(180, 100, 255, 0.45),
+        0 2px 6px rgba(0, 0, 0, 0.9);
     }
 
     .field-label {
@@ -306,20 +325,71 @@
       text-align: left;
     }
 
+    /* Узкое «окно» под одно слово, в стиле неон / золото / артефакт */
     .cover-screen .access-input {
-      width: 100%;
-      height: 48px;
-      border: 1px solid rgba(241, 205, 129, 0.35);
-      border-radius: 12px;
-      background: rgba(23, 10, 37, 0.55);
-      color: #fff6e7;
-      font-size: clamp(17px, 1.5vw, 20px);
+      display: block;
+      width: 11.5em;
+      max-width: min(11.5em, 78vw);
+      min-width: 9em;
+      height: 46px;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 999px;
+      border: 1px solid rgba(200, 160, 255, 0.45);
+      background: linear-gradient(165deg, rgba(14, 8, 32, 0.96) 0%, rgba(32, 14, 52, 0.94) 50%, rgba(10, 6, 24, 0.98) 100%);
+      color: #fff8e8;
+      font-size: clamp(18px, 1.85vw, 22px);
+      font-weight: 600;
+      letter-spacing: 0.08em;
       text-align: center;
       outline: none;
-      padding: 0 14px;
+      padding: 0 18px;
       font-family: inherit;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+      transition:
+        box-shadow 0.28s ease,
+        border-color 0.28s ease,
+        transform 0.2s ease;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 0 1px rgba(255, 200, 100, 0.15),
+        0 0 22px rgba(168, 85, 255, 0.42),
+        0 0 38px rgba(255, 160, 50, 0.22),
+        0 4px 18px rgba(0, 0, 0, 0.55);
+    }
+
+    .cover-screen .access-input::placeholder {
+      color: rgba(255, 230, 200, 0.42);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    .cover-screen .access-input:hover:not(:disabled) {
+      border-color: rgba(220, 180, 255, 0.55);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 0 0 1px rgba(255, 215, 140, 0.25),
+        0 0 28px rgba(180, 100, 255, 0.5),
+        0 0 44px rgba(255, 180, 80, 0.28),
+        0 4px 20px rgba(0, 0, 0, 0.55);
+    }
+
+    .cover-screen .access-input[aria-invalid="true"] {
+      border-color: rgba(255, 120, 140, 0.75);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 0 24px rgba(255, 80, 100, 0.4),
+        0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .cover-screen .access-input:focus-visible {
+      outline: none;
+      border-color: rgba(255, 230, 180, 0.75);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 0 0 2px rgba(100, 200, 255, 0.35),
+        0 0 36px rgba(168, 85, 255, 0.55),
+        0 0 56px rgba(255, 185, 90, 0.38),
+        0 4px 22px rgba(0, 0, 0, 0.55);
     }
 
     .access-input::placeholder {
@@ -888,7 +958,6 @@
     /* =============================================================================
        ФОКУС (ДОСТУПНОСТЬ)
        ============================================================================= */
-    .access-input:focus-visible,
     .paper-input:focus-visible,
     .paper-textarea:focus-visible,
     .ghost-btn:focus-visible,
