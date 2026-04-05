@@ -146,7 +146,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
       position: relative;
     }
 
@@ -157,6 +156,17 @@
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+    }
+
+    .cover-image-wrap[aria-busy="true"] {
+      cursor: wait;
+      pointer-events: none;
+    }
+
+    .cover-image-wrap .access-input {
+      cursor: text;
+      pointer-events: auto;
     }
 
     .cover-image {
@@ -167,6 +177,79 @@
       user-select: none;
       -webkit-user-drag: none;
       background: rgba(255, 255, 255, 0.04);
+      pointer-events: auto;
+    }
+
+    /* Слой с формой по центру обложки; клики мимо поля проходят к обложке */
+    .cover-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(12px, 3vw, 28px);
+      pointer-events: none;
+    }
+
+    .cover-access-float {
+      pointer-events: auto;
+      width: min(420px, 92%);
+      max-width: 100%;
+      padding: clamp(14px, 2.5vw, 22px) clamp(16px, 3vw, 24px);
+      text-align: center;
+      border-radius: 16px;
+      background: linear-gradient(
+        165deg,
+        rgba(12, 6, 28, 0.72) 0%,
+        rgba(26, 12, 48, 0.58) 100%
+      );
+      border: 1px solid rgba(240, 200, 120, 0.28);
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 230, 180, 0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .cover-tap-hint {
+      margin: 10px 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: clamp(15px, 1.35vw, 19px);
+      font-family: "Cormorant Garamond", serif;
+      font-weight: 500;
+      color: rgba(255, 220, 150, 0.92);
+      text-shadow: 0 0 18px rgba(255, 180, 60, 0.35);
+    }
+
+    .cover-tap-arrow {
+      display: block;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1;
+      color: #ffd56a;
+      filter: drop-shadow(0 0 8px rgba(255, 190, 80, 0.55));
+      animation: coverArrowNudge 1.6s ease-in-out infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cover-tap-arrow {
+        animation: none;
+      }
+    }
+
+    @keyframes coverArrowNudge {
+      0%,
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translateY(6px);
+        opacity: 0.88;
+      }
     }
 
     .cover-image.opening {
@@ -215,33 +298,28 @@
       }
     }
 
-    .access-panel {
-      width: min(460px, 92vw);
-      text-align: center;
-      padding: 0 18px;
-      margin-top: -8px;
-    }
-
     .access-title {
-      margin: 0 0 10px;
-      font-size: clamp(24px, 2.2vw, 32px);
+      margin: 0 0 8px;
+      font-size: clamp(22px, 2vw, 30px);
       font-weight: 600;
       color: #f6dfb0;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
     }
 
     .access-subtitle {
-      margin: -4px 0 10px;
-      font-size: clamp(20px, 1.9vw, 26px);
+      margin: 0 0 12px;
+      font-size: clamp(18px, 1.75vw, 24px);
       font-weight: 500;
       color: #f6dfb0;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
     }
 
     .field-label {
       display: block;
       margin: 0 0 6px;
-      font-size: clamp(16px, 1.4vw, 20px);
+      font-size: clamp(15px, 1.3vw, 18px);
       font-weight: 500;
-      color: rgba(255, 236, 201, 0.72);
+      color: rgba(255, 236, 201, 0.78);
       text-align: left;
     }
 
@@ -282,6 +360,10 @@
       font-size: 18px;
       font-family: "Cormorant Garamond", serif;
       transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .cover-screen .helper-text {
+      margin-top: 8px;
     }
 
     .ghost-btn:hover:not(:disabled) {
@@ -925,10 +1007,10 @@
       После успешного ввода — анимация обложки и переход к книге.
 
       Оформление картинками (по шагам):
-      1) В папке images/ уже есть заготовки: cover.svg (обложка), book-open.svg (разворот).
-      2) Чтобы использовать свои фото — положите рядом cover.jpg и book.jpg (или png/webp)
-         и поменяйте порядок файлов в CONFIG.images внизу страницы (первый существующий подхватится).
-      3) Если локальный файл не найден, подставится следующий в списке, затем резервная ссылка;
+      1) Обложка: images/book-cover 01 .png (в CONFIG — с кодированием пробелов в URL).
+      2) Разворот: book-open.svg / book-open.png и т.д. — см. CONFIG.images.bookSources.
+      3) Свои файлы — положите в images/ и задайте порядок в CONFIG (первый успешно загрузившийся).
+      4) Если локальный файл не найден, подставится следующий в списке, затем резервная ссылка;
          если ничего не загрузилось — показывается графический fallback в разметке.
     -->
     <section
@@ -937,11 +1019,17 @@
       aria-labelledby="cover-heading"
     >
       <div class="cover-stage">
-        <div id="coverImageWrap" class="cover-image-wrap">
+        <div
+          id="coverImageWrap"
+          class="cover-image-wrap"
+          role="group"
+          aria-labelledby="cover-heading"
+          aria-describedby="accessHint"
+        >
           <img
             id="coverImage"
             class="cover-image"
-            src="images/cover.svg"
+            src="images/book-cover%2001%20.png"
             alt=""
             decoding="async"
             fetchpriority="high"
@@ -949,35 +1037,40 @@
           <div class="cover-image-fallback" role="img" aria-label="Декоративная обложка словаря">
             Обложка словаря
           </div>
-        </div>
 
-        <div class="access-panel">
-          <h1 id="cover-heading" class="access-title">Словарь вайбкодера</h1>
-          <p id="cover-subtitle" class="access-subtitle">Введите кодовое слово</p>
+          <!-- Форма входа по центру обложки; открытие — клик по обложке или Enter в поле -->
+          <div class="cover-overlay">
+            <div class="cover-access-float">
+              <h1 id="cover-heading" class="access-title">Словарь вайбкодера</h1>
+              <p id="cover-subtitle" class="access-subtitle">Введите кодовое слово</p>
 
-          <form id="accessForm" novalidate>
-            <label class="field-label" for="accessWord">Кодовое слово</label>
-            <input
-              id="accessWord"
-              class="access-input"
-              name="access"
-              type="password"
-              placeholder="Например: vibecoder"
-              autocomplete="off"
-              aria-describedby="loginMessage accessHint"
-              aria-invalid="false"
-              required
-            />
-            <p id="accessHint" class="visually-hidden">
-              Введите кодовое слово и нажмите «открыть книгу». Это не защита данных, а вход в интерфейс.
-            </p>
+              <form id="accessForm" novalidate>
+                <label class="field-label" for="accessWord">Кодовое слово</label>
+                <input
+                  id="accessWord"
+                  class="access-input"
+                  name="access"
+                  type="password"
+                  placeholder="Например: vibecoder"
+                  autocomplete="off"
+                  aria-describedby="loginMessage accessHint"
+                  aria-invalid="false"
+                  required
+                />
+                <p id="accessHint" class="visually-hidden">
+                  Введите кодовое слово, затем нажмите на обложку книги или клавишу Enter. Это не защита
+                  данных, а вход в интерфейс.
+                </p>
+              </form>
 
-            <button id="enterBtn" class="ghost-btn" type="submit">
-              открыть книгу
-            </button>
-          </form>
+              <p class="cover-tap-hint" id="coverTapHint" aria-hidden="true">
+                <span class="cover-tap-arrow">↓</span>
+                <span>Нажмите на обложку</span>
+              </p>
 
-          <p id="loginMessage" class="helper-text" role="status" aria-live="polite"></p>
+              <p id="loginMessage" class="helper-text" role="status" aria-live="polite"></p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1113,6 +1206,7 @@
          */
         images: {
           coverSources: [
+            "images/book-cover%2001%20.png",
             "images/cover.svg",
             "images/cover.jpg",
             "images/cover.png",
@@ -1150,7 +1244,6 @@
         bookImage: document.getElementById("bookImage"),
         accessForm: document.getElementById("accessForm"),
         accessWordInput: document.getElementById("accessWord"),
-        enterBtn: document.getElementById("enterBtn"),
         loginMessage: document.getElementById("loginMessage"),
         wordForm: document.getElementById("wordForm"),
         wordInput: document.getElementById("wordInput"),
@@ -1355,9 +1448,9 @@
       }
 
       function setAccessControlsDisabled(disabled) {
-        dom.enterBtn.disabled = disabled;
         dom.accessWordInput.disabled = disabled;
         dom.accessForm.setAttribute("aria-busy", disabled ? "true" : "false");
+        dom.coverImageWrap.setAttribute("aria-busy", disabled ? "true" : "false");
       }
 
       function setButtonLoading(button, isLoading, loadingText = "загрузка...") {
@@ -1670,6 +1763,17 @@
 
       function bindEvents() {
         dom.accessForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          handleEnterBook();
+        });
+
+        dom.coverImageWrap.addEventListener("click", (e) => {
+          if (
+            e.target.closest("#accessWord") ||
+            e.target.closest('label[for="accessWord"]')
+          ) {
+            return;
+          }
           e.preventDefault();
           handleEnterBook();
         });
