@@ -51,20 +51,13 @@
               Обложка словаря
             </div>
           </div>
-          <!-- Фоновая анимация Gradient Background (vanilla адаптация) -->
-          <div id="gridScanFx" class="gradient-bg-fx" aria-hidden="true"></div>
           <div class="scene-bottom-mask" aria-hidden="true"></div>
           <div class="scene-signature-erase" aria-hidden="true"></div>
 
           <div class="scene-fashion-tags" aria-hidden="true">
-            <span class="fashion-tag fashion-tag--p1 gradient-animated-text">VIBE</span>
-            <span class="fashion-tag fashion-tag--p2 gradient-animated-text">CODING</span>
-            <span class="fashion-tag fashion-tag--p3 gradient-animated-text">SYNTAX</span>
-            <span class="fashion-tag fashion-tag--p4 gradient-animated-text">AI</span>
-            <span class="fashion-tag fashion-tag--p5 gradient-animated-text">НЕЙРОСЕТИ</span>
-            <span class="fashion-tag fashion-tag--p6 gradient-animated-text">МАГИЯ</span>
-            <span class="fashion-tag fashion-tag--p7 gradient-animated-text">КУРС 2026</span>
-            <span class="fashion-tag fashion-tag--p8 gradient-animated-text">VIBECODER</span>
+            <span class="fashion-tag fashion-tag--left gradient-animated-text">VIBE<br />CODING</span>
+            <span class="fashion-tag fashion-tag--center gradient-animated-text">VIBES &gt;<br />SYNTAX</span>
+            <span class="fashion-tag fashion-tag--right gradient-animated-text">SSM<br />2026</span>
           </div>
 
           <!-- ШАГ 2–3: слот книги = зона закрытой книги на обложке; подсветка и клик — только здесь -->
@@ -252,47 +245,6 @@
             "images/book.webp",
             "https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1600&auto=format&fit=crop"
           ]
-        },
-        gridScan: {
-          /**
-           * Доступные пресеты фона: "magic" | "epic"
-           * Переключение в одну строку: preset: "epic"
-           */
-          preset: "magic",
-          presets: {
-            magic: {
-              gradientBackgroundStart: "rgb(108, 0, 162)",
-              gradientBackgroundEnd: "rgb(0, 17, 82)",
-              firstColor: "18, 113, 255",
-              secondColor: "221, 74, 255",
-              thirdColor: "100, 220, 255",
-              fourthColor: "200, 50, 50",
-              fifthColor: "180, 180, 50",
-              pointerColor: "140, 100, 255",
-              size: "84%",
-              blendingValue: "hard-light",
-              pointerFollow: 20,
-              driftSpeed: 1,
-              blurPx: 42,
-              pointerOpacity: 0.66
-            },
-            epic: {
-              gradientBackgroundStart: "rgb(86, 0, 152)",
-              gradientBackgroundEnd: "rgb(8, 8, 58)",
-              firstColor: "32, 130, 255",
-              secondColor: "255, 76, 220",
-              thirdColor: "115, 235, 255",
-              fourthColor: "240, 70, 70",
-              fifthColor: "250, 206, 86",
-              pointerColor: "175, 118, 255",
-              size: "94%",
-              blendingValue: "hard-light",
-              pointerFollow: 14,
-              driftSpeed: 1.22,
-              blurPx: 52,
-              pointerOpacity: 0.78
-            }
-          }
         }
       };
 
@@ -871,7 +823,6 @@
       }
 
       function goToBook() {
-        stopGridScanFx();
         clearCoverAnimationListeners();
         state.isEnteringBook = false;
         setAccessControlsDisabled(false);
@@ -886,7 +837,6 @@
       }
 
       function showBookInstantly() {
-        stopGridScanFx();
         dom.sceneStage.classList.add("scene--book-open");
         dom.bookOpenLayer.classList.remove("hidden");
         dom.bookOpenLayer.removeAttribute("hidden");
@@ -1032,143 +982,10 @@
         dom.nextBtn.addEventListener("click", () => changePage(1));
       }
 
-      /* --- Gradient Background FX: vanilla-адаптация background-gradient-animation --- */
-      let gridScanCleanup = null;
-
-      function stopGridScanFx() {
-        if (!gridScanCleanup) return;
-        const c = gridScanCleanup;
-        if (c.rafId) cancelAnimationFrame(c.rafId);
-        if (c.leaveTimer) clearTimeout(c.leaveTimer);
-        if (c.stageEl) {
-          c.stageEl.removeEventListener("mousemove", c.onMove);
-          c.stageEl.removeEventListener("mouseleave", c.onLeave);
-        }
-        if (c.container) c.container.innerHTML = "";
-        gridScanCleanup = null;
-      }
-
-      function initGridScanFx() {
-        const container = document.getElementById("gridScanFx");
-        const stageEl = dom.sceneStage;
-        if (!container || !stageEl || prefersReducedMotion()) return;
-
-        const presetName = CONFIG.gridScan?.preset || "magic";
-        const preset =
-          (CONFIG.gridScan &&
-            CONFIG.gridScan.presets &&
-            CONFIG.gridScan.presets[presetName]) ||
-          (CONFIG.gridScan && CONFIG.gridScan.presets && CONFIG.gridScan.presets.magic) ||
-          {};
-
-        const gradientBackgroundStart = String(preset.gradientBackgroundStart || "rgb(108, 0, 162)");
-        const gradientBackgroundEnd = String(preset.gradientBackgroundEnd || "rgb(0, 17, 82)");
-        const firstColor = String(preset.firstColor || "18, 113, 255");
-        const secondColor = String(preset.secondColor || "221, 74, 255");
-        const thirdColor = String(preset.thirdColor || "100, 220, 255");
-        const fourthColor = String(preset.fourthColor || "200, 50, 50");
-        const fifthColor = String(preset.fifthColor || "180, 180, 50");
-        const pointerColor = String(preset.pointerColor || "140, 100, 255");
-        const size = String(preset.size || "84%");
-        const blendingValue = String(preset.blendingValue || "hard-light");
-        const pointerFollow = Math.max(8, Number(preset.pointerFollow ?? 20));
-        const pointerOpacity = Math.max(0.2, Math.min(1, Number(preset.pointerOpacity ?? 0.66)));
-        const blurPx = Math.max(16, Number(preset.blurPx ?? 42));
-        const driftSpeed = Math.max(0.5, Number(preset.driftSpeed ?? 1));
-
-        container.style.setProperty("--gradient-background-start", gradientBackgroundStart);
-        container.style.setProperty("--gradient-background-end", gradientBackgroundEnd);
-        container.style.setProperty("--first-color", firstColor);
-        container.style.setProperty("--second-color", secondColor);
-        container.style.setProperty("--third-color", thirdColor);
-        container.style.setProperty("--fourth-color", fourthColor);
-        container.style.setProperty("--fifth-color", fifthColor);
-        container.style.setProperty("--pointer-color", pointerColor);
-        container.style.setProperty("--size", size);
-        container.style.setProperty("--blending-value", blendingValue);
-        container.style.setProperty("--blur-size", `${blurPx}px`);
-        container.style.setProperty("--drift-speed", String(driftSpeed));
-        container.classList.add("is-ready");
-
-        const gradients = document.createElement("div");
-        gradients.className = "gradient-orbs";
-
-        const blob1 = document.createElement("div");
-        blob1.className = "bg-blob bg-blob--1";
-        const blob2 = document.createElement("div");
-        blob2.className = "bg-blob bg-blob--2";
-        const blob3 = document.createElement("div");
-        blob3.className = "bg-blob bg-blob--3";
-        const blob4 = document.createElement("div");
-        blob4.className = "bg-blob bg-blob--4";
-        const blob5 = document.createElement("div");
-        blob5.className = "bg-blob bg-blob--5";
-        const pointer = document.createElement("div");
-        pointer.className = "bg-blob-pointer";
-        pointer.style.opacity = String(pointerOpacity);
-
-        gradients.appendChild(blob1);
-        gradients.appendChild(blob2);
-        gradients.appendChild(blob3);
-        gradients.appendChild(blob4);
-        gradients.appendChild(blob5);
-        gradients.appendChild(pointer);
-        container.appendChild(gradients);
-
-        const state = {
-          container,
-          stageEl,
-          onMove: null,
-          onLeave: null,
-          leaveTimer: null,
-          rafId: 0
-        };
-
-        const pos = { x: 0, y: 0 };
-        const target = { x: 0, y: 0 };
-
-        state.onMove = (e) => {
-          if (state.leaveTimer) {
-            clearTimeout(state.leaveTimer);
-            state.leaveTimer = null;
-          }
-          const rect = stageEl.getBoundingClientRect();
-          target.x = e.clientX - rect.left;
-          target.y = e.clientY - rect.top;
-        };
-
-        state.onLeave = () => {
-          if (state.leaveTimer) clearTimeout(state.leaveTimer);
-          state.leaveTimer = window.setTimeout(() => {
-            target.x = stageEl.clientWidth * 0.5;
-            target.y = stageEl.clientHeight * 0.5;
-            state.leaveTimer = null;
-          }, 180);
-        };
-
-        stageEl.addEventListener("mousemove", state.onMove);
-        stageEl.addEventListener("mouseleave", state.onLeave);
-        target.x = stageEl.clientWidth * 0.5;
-        target.y = stageEl.clientHeight * 0.5;
-        pos.x = target.x;
-        pos.y = target.y;
-
-        function tick() {
-          pos.x += (target.x - pos.x) / pointerFollow;
-          pos.y += (target.y - pos.y) / pointerFollow;
-          pointer.style.transform = `translate(${Math.round(pos.x)}px, ${Math.round(pos.y)}px)`;
-          state.rafId = requestAnimationFrame(tick);
-        }
-
-        state.rafId = requestAnimationFrame(tick);
-        gridScanCleanup = state;
-      }
-
       function initApp() {
         bindEvents();
         bindDecorativeImages();
         setAccessButtonState("default");
-        initGridScanFx();
         // Первый экран всегда статичный: без автоперехода в раскрытую книгу при открытии файла.
         // Переход в книгу только после явного ввода кода и клика по зоне книги.
       }

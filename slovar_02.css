@@ -290,28 +290,118 @@ body {
   display: flex;
 }
 
-/* GridScan background FX (адаптация GridScan-JS-CSS под vanilla canvas) */
-.gridscan-container {
+/* Gradient Background FX (vanilla адаптация background-gradient-animation) */
+.gradient-bg-fx {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
   overflow: hidden;
+  background: linear-gradient(
+    40deg,
+    var(--gradient-background-start, rgb(108, 0, 162)),
+    var(--gradient-background-end, rgb(0, 17, 82))
+  );
+  opacity: 0.72;
 }
 
-.gridscan-container canvas {
+.gradient-bg-fx .gradient-orbs {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  display: block;
-  opacity: 0.52;
-  mix-blend-mode: screen;
-  filter: saturate(1.15) contrast(1.05);
+  filter: blur(var(--blur-size, 40px));
 }
 
-.scene-stage.scene--book-open .gridscan-container {
+.gradient-bg-fx .bg-blob,
+.gradient-bg-fx .bg-blob-pointer {
+  position: absolute;
+  width: var(--size, 84%);
+  height: var(--size, 84%);
+  top: calc(50% - var(--size, 84%) / 2);
+  left: calc(50% - var(--size, 84%) / 2);
+  mix-blend-mode: var(--blending-value, hard-light);
+  pointer-events: none;
+}
+
+.gradient-bg-fx .bg-blob--1 {
+  background: radial-gradient(circle at center, rgba(var(--first-color, 18, 113, 255), 0.78) 0, rgba(var(--first-color, 18, 113, 255), 0) 52%) no-repeat;
+  transform-origin: center center;
+  animation: moveVertical calc(30s / var(--drift-speed, 1)) ease infinite;
+}
+
+.gradient-bg-fx .bg-blob--2 {
+  background: radial-gradient(circle at center, rgba(var(--second-color, 221, 74, 255), 0.72) 0, rgba(var(--second-color, 221, 74, 255), 0) 52%) no-repeat;
+  transform-origin: calc(50% - 420px);
+  animation: moveInCircle calc(20s / var(--drift-speed, 1)) reverse infinite;
+}
+
+.gradient-bg-fx .bg-blob--3 {
+  background: radial-gradient(circle at center, rgba(var(--third-color, 100, 220, 255), 0.72) 0, rgba(var(--third-color, 100, 220, 255), 0) 52%) no-repeat;
+  transform-origin: calc(50% + 400px);
+  animation: moveInCircle calc(40s / var(--drift-speed, 1)) linear infinite;
+}
+
+.gradient-bg-fx .bg-blob--4 {
+  background: radial-gradient(circle at center, rgba(var(--fourth-color, 200, 50, 50), 0.62) 0, rgba(var(--fourth-color, 200, 50, 50), 0) 52%) no-repeat;
+  transform-origin: calc(50% - 220px);
+  animation: moveHorizontal calc(40s / var(--drift-speed, 1)) ease infinite;
+}
+
+.gradient-bg-fx .bg-blob--5 {
+  background: radial-gradient(circle at center, rgba(var(--fifth-color, 180, 180, 50), 0.58) 0, rgba(var(--fifth-color, 180, 180, 50), 0) 52%) no-repeat;
+  transform-origin: calc(50% - 800px) calc(50% + 800px);
+  animation: moveInCircle calc(20s / var(--drift-speed, 1)) ease infinite;
+}
+
+.gradient-bg-fx .bg-blob-pointer {
+  width: 100%;
+  height: 100%;
+  top: -50%;
+  left: -50%;
+  background: radial-gradient(circle at center, rgba(var(--pointer-color, 140, 100, 255), 0.62) 0, rgba(var(--pointer-color, 140, 100, 255), 0) 52%) no-repeat;
+}
+
+.scene-stage.scene--book-open .gradient-bg-fx {
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.35s ease;
+}
+
+@keyframes moveHorizontal {
+  0% {
+    transform: translateX(-50%) translateY(-10%);
+  }
+  50% {
+    transform: translateX(50%) translateY(10%);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-10%);
+  }
+}
+
+@keyframes moveInCircle {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes moveVertical {
+  0% {
+    transform: translateY(-50%);
+  }
+  50% {
+    transform: translateY(50%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
 }
 
 /* Маска нижней зоны: приглушает встроенные подписи внизу самой картинки */
