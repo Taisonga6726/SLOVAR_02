@@ -505,6 +505,20 @@
       function setLoginMessage(text, type = "") {
         dom.loginMessage.textContent = text;
         dom.loginMessage.className = `helper-text cover-login-msg ${type}`.trim();
+        if (type.includes("error")) {
+          // Перезапускаем анимацию появления сообщения на каждую новую ошибку
+          dom.loginMessage.classList.remove("msg-animate");
+          void dom.loginMessage.offsetWidth;
+          dom.loginMessage.classList.add("msg-animate");
+        }
+      }
+
+      function showAccessErrorMessage() {
+        if (attempts >= 3) {
+          setLoginMessage("СПРОСИТЬ У ТАНИ? 😄", "error error-pop");
+          return;
+        }
+        setLoginMessage("Неверное кодовое слово", "error");
       }
 
       function setFormMessage(text, type = "") {
@@ -970,11 +984,7 @@
           clearCoverReadyUi();
           triggerAccessShake();
           triggerSceneFlash("error");
-          if (attempts === 1) {
-            setLoginMessage("Неверное кодовое слово.", "error");
-          } else {
-            setLoginMessage("Неверное кодовое слово.", "error");
-          }
+          showAccessErrorMessage();
           return;
         }
 
@@ -1012,11 +1022,7 @@
           setAccessFieldInvalid(true);
           triggerAccessShake();
           triggerSceneFlash("error");
-          if (attempts === 1) {
-            setLoginMessage("Неверное кодовое слово.", "error");
-          } else {
-            setLoginMessage("Неверное кодовое слово.", "error");
-          }
+          showAccessErrorMessage();
           return;
         }
 

@@ -901,6 +901,47 @@ body {
     0 1px 6px rgba(0, 0, 0, 0.85);
 }
 
+/* Ошибка встроена в сцену как неоновый элемент (без alert) */
+.cover-login-msg.error {
+  color: #ffd4dc;
+  border-color: rgba(255, 110, 145, 0.72);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 48, 94, 0.24) 0%,
+    rgba(178, 40, 72, 0.2) 52%,
+    rgba(122, 20, 44, 0.26) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 170, 188, 0.22),
+    0 0 12px rgba(255, 84, 130, 0.58),
+    0 0 28px rgba(255, 46, 96, 0.34);
+  text-shadow:
+    0 0 8px rgba(255, 90, 140, 0.65),
+    0 1px 6px rgba(0, 0, 0, 0.88);
+}
+
+.cover-login-msg.error.msg-animate {
+  animation: loginErrorIn 0.34s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+}
+
+.cover-login-msg.error.error-pop {
+  color: #ffe7ec;
+  border-color: rgba(255, 132, 162, 0.9);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 210, 225, 0.24),
+    0 0 18px rgba(255, 92, 136, 0.78),
+    0 0 40px rgba(255, 66, 118, 0.52),
+    0 0 64px rgba(255, 48, 104, 0.28);
+  text-shadow:
+    0 0 12px rgba(255, 130, 168, 0.85),
+    0 0 22px rgba(255, 78, 132, 0.55),
+    0 1px 8px rgba(0, 0, 0, 0.9);
+}
+
+.cover-login-msg.error.error-pop.msg-animate {
+  animation: loginErrorPop 0.46s cubic-bezier(0.12, 0.9, 0.22, 1.1) both;
+}
+
 .ghost-btn:hover:not(:disabled) {
   background: rgba(245, 212, 141, 0.12);
   color: rgba(255, 241, 219, 0.98);
@@ -923,6 +964,35 @@ body {
 
 .helper-text.success {
   color: var(--success);
+}
+
+@keyframes loginErrorIn {
+  0% {
+    opacity: 0;
+    transform: translateY(5px) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes loginErrorPop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.84);
+  }
+  46% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* =============================================================================
@@ -1966,12 +2036,35 @@ body {
 
     .flash--error-pulse {
       background: radial-gradient(
-        circle at 50% 45%,
-        rgba(255, 120, 120, 0.5) 0%,
-        rgba(200, 60, 80, 0.14) 42%,
-        transparent 68%
+        ellipse 150% 130% at 50% 46%,
+        rgba(255, 92, 108, 0.96) 0%,
+        rgba(255, 56, 92, 0.56) 22%,
+        rgba(220, 30, 58, 0.28) 44%,
+        rgba(120, 12, 34, 0.14) 62%,
+        transparent 78%
       );
-      animation: flashError 0.65s ease forwards;
+      animation: flashErrorOops 0.58s cubic-bezier(0.2, 0.9, 0.24, 1) forwards;
+    }
+
+    /* "УПСС!" внутри сцены — часть красной вспышки */
+    #sceneFlash.flash--error-pulse::before {
+      content: "УПСС!";
+      position: absolute;
+      left: 50%;
+      top: 42%;
+      transform: translate(-50%, -50%) scale(0.78);
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(26px, 6.8vw, 64px);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #ffe9ee;
+      text-shadow:
+        0 0 12px rgba(255, 120, 150, 0.95),
+        0 0 30px rgba(255, 62, 108, 0.9),
+        0 0 56px rgba(255, 32, 76, 0.75),
+        0 3px 10px rgba(0, 0, 0, 0.85);
+      opacity: 0;
+      animation: flashOopsLabel 0.58s cubic-bezier(0.2, 0.9, 0.24, 1) forwards;
     }
 
     .flash--open-pulse {
@@ -2006,6 +2099,40 @@ body {
       }
       100% {
         opacity: 0;
+      }
+    }
+
+    @keyframes flashErrorOops {
+      0% {
+        opacity: 0;
+        filter: saturate(1.2) brightness(1);
+      }
+      16% {
+        opacity: 0.96;
+        filter: saturate(1.38) brightness(1.25);
+      }
+      46% {
+        opacity: 0.38;
+        filter: saturate(1.2) brightness(1.08);
+      }
+      100% {
+        opacity: 0;
+        filter: saturate(1) brightness(1);
+      }
+    }
+
+    @keyframes flashOopsLabel {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.78);
+      }
+      24% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.14);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.98);
       }
     }
 
