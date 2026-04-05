@@ -253,7 +253,7 @@
 
       /* --- Конфигурация --- */
       const CONFIG = {
-        accessCode: "vibecoder",
+        accessCodes: ["vibecoder", "вайбкодер"],
         storageKey: "vibe_dictionary_words",
         accessStorageKey: "vibe_dictionary_access",
         storageFormatVersion: 1,
@@ -514,11 +514,15 @@
       }
 
       function showAccessErrorMessage() {
-        if (attempts >= 3) {
-          setLoginMessage("СПРОСИТЬ У ТАНИ? 😄", "error error-pop");
+        if (attempts === 1) {
+          setLoginMessage("НЕТ! ОСТАЛОСЬ 2", "error");
           return;
         }
-        setLoginMessage("Неверное кодовое слово", "error");
+        if (attempts === 2) {
+          setLoginMessage("НЕТ! ОСТАЛАСЬ 1", "error");
+          return;
+        }
+        setLoginMessage("😄 Спросить у Тани? 😄", "error error-pop");
       }
 
       function setFormMessage(text, type = "") {
@@ -656,7 +660,7 @@
 
       function isAccessCodeValid() {
         const code = normalizeText(dom.accessWordInput.value).toLowerCase();
-        return code === CONFIG.accessCode;
+        return Array.isArray(CONFIG.accessCodes) && CONFIG.accessCodes.includes(code);
       }
 
       function clearCoverReadyUi() {
