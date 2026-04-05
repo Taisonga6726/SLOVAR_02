@@ -1,4 +1,4 @@
-/* slovar_02.css - project styles */
+/* slovar_02.css — стили страницы «Словарь вайбкодера» */
 
 /* =============================================================================
    ШРИФТЫ
@@ -56,6 +56,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  height: 100%;
 }
 
 body {
@@ -66,9 +67,6 @@ body {
     radial-gradient(ellipse 70% 45% at 85% 75%, rgba(255, 170, 90, 0.1), transparent 48%),
     radial-gradient(ellipse 55% 40% at 12% 60%, rgba(116, 52, 185, 0.12), transparent 45%),
     linear-gradient(168deg, #150a24 0%, var(--bg-2) 42%, var(--bg-1) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-family: "Cormorant Garamond", serif;
   color: var(--light-text);
   overflow-x: hidden;
@@ -83,17 +81,13 @@ body {
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
+  padding: 0;
 }
 
 .screen {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .hidden {
@@ -130,43 +124,85 @@ body {
 }
 
 /* =============================================================================
-   ЭКРАН ОБЛОЖКИ
+   ЭКРАН ОБЛОЖКИ (один корень сцены: #sceneStage.scene-stage)
    ============================================================================= */
-.cover-stage {
-  width: min(1500px, 98vw);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.cover-screen {
   position: relative;
+  overflow: visible;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
 }
 
-.cover-image-wrap {
-  width: min(1500px, 98vw);
-  max-width: 1500px;
+.scene-stage {
+  width: min(100vw, calc(100dvh * 16 / 9));
+  max-width: none;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  max-height: 100dvh;
   position: relative;
-  border-radius: 20px;
-  overflow: hidden;
+  border-radius: 0;
+  overflow: visible;
   box-shadow:
     0 22px 50px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(255, 220, 160, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  cursor: default;
+}
+
+.scene-stage.cover-ready .book-hit-zone {
   cursor: pointer;
 }
 
-.cover-image-wrap.cover-ready {
-  cursor: pointer;
+/* Слот книги: зона закрытой книги на обложке; при открытии — расширяется под разворот */
+.book-slot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: min(52%, 440px);
+  height: 40%;
+  z-index: 4;
+  pointer-events: none;
 }
 
-/* Подсветка зоны книги на картинке (остальной кадр статичен) */
+.scene-stage.scene--book-open .book-slot {
+  left: 50%;
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: min(96%, 1440px);
+  max-width: 96vw;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1600 / 1000;
+  max-height: min(82vh, 920px);
+}
+
+.book-hit-zone {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 1;
+  border-radius: 12px;
+}
+
+.scene-stage.scene--book-open .book-hit-zone {
+  display: none !important;
+}
+
+/* Подсветка зоны книги (внутри слота; остальной кадр статичен) */
 .cover-book-glow {
   display: none;
   position: absolute;
-  z-index: 2;
-  left: 50%;
-  bottom: 6%;
-  width: min(52%, 440px);
-  height: 40%;
-  transform: translateX(-50%);
+  inset: 0;
+  z-index: 0;
   pointer-events: none;
   border-radius: 50%;
   background: radial-gradient(
@@ -179,7 +215,7 @@ body {
   animation: coverBookGlowPulse 2.2s ease-in-out infinite;
 }
 
-.cover-image-wrap.cover-ready .cover-book-glow {
+.scene-stage.cover-ready .cover-book-glow {
   display: block;
 }
 
@@ -192,12 +228,12 @@ body {
   100% {
     opacity: 0.75;
     filter: blur(0px);
-    transform: translateX(-50%) scale(1);
+    transform: scale(1);
   }
   50% {
     opacity: 1;
     filter: blur(1px);
-    transform: translateX(-50%) scale(1.04);
+    transform: scale(1.04);
   }
 }
 
@@ -208,32 +244,42 @@ body {
   }
 }
 
-.cover-image-wrap[aria-busy="true"] {
+.scene-stage[aria-busy="true"] {
   cursor: wait;
   pointer-events: none;
 }
 
-.cover-image-wrap .access-input {
+.scene-stage .access-input {
   cursor: text;
   pointer-events: auto;
 }
 
-/* Статичный фон сцены (book-cover 01.png) — не анимируется */
+/* Один слой фона обложки: без второго «экрана» под картинкой */
 .scene-bg-wrap {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 0;
   width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--bg-1);
 }
 
 .scene-bg {
-  position: relative;
+  position: absolute;
+  left: 0;
+  top: 0;
   z-index: 0;
   width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
   display: block;
   user-select: none;
   -webkit-user-drag: none;
-  background: rgba(255, 255, 255, 0.04);
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .scene-bg-wrap.image-error .scene-bg {
@@ -278,7 +324,7 @@ body {
   line-height: 1;
 }
 
-.cover-image-wrap.cover-ready .cover-tap-hint {
+.scene-stage.cover-ready .cover-tap-hint {
   display: flex;
 }
 
@@ -302,10 +348,9 @@ body {
     width: min(300px, 82vw);
   }
 
-  .cover-book-glow {
+  .scene-stage:not(.scene--book-open) .book-slot {
     width: min(58%, 360px);
     height: 36%;
-    bottom: 5%;
   }
 }
 
@@ -356,9 +401,10 @@ body {
 .cover-screen .access-subtitle {
   margin: 0 auto 16px;
   max-width: 24ch;
-  font-size: clamp(20px, 2.65vw, 30px);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(20px, 2.35vw, 30px);
+  font-weight: 600;
+  letter-spacing: 0.03em;
   line-height: 1.25;
   text-align: center;
   color: #fff0dd;
@@ -509,16 +555,19 @@ body {
 }
 
 /* =============================================================================
-   РАСКРЫТАЯ КНИГА: слой поверх статичного фона (только после входа)
+   РАСКРЫТАЯ КНИГА: слой внутри .book-slot (только после входа)
    ============================================================================= */
 .book-open-layer {
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
+  top: 0;
   bottom: 0;
-  transform: translateX(-50%);
-  width: min(96%, 1480px);
-  max-width: 99vw;
-  z-index: 4;
+  transform: none;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  z-index: 2;
   pointer-events: none;
 }
 
@@ -536,6 +585,8 @@ body {
 .book-scene {
   position: relative;
   width: 100%;
+  height: 100%;
+  min-height: 0;
   animation: bookFadeIn var(--dur-book-in) ease;
   filter: drop-shadow(0 26px 56px rgba(0, 0, 0, 0.58)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
 }
@@ -1062,39 +1113,54 @@ body {
 }
 
 /* =============================================================================
-   ПОДПИСИ ПОД КНИГОЙ
+   ПОДПИСИ ПОД КНИГОЙ (один блок, без наложения строк)
    ============================================================================= */
-    .bottom-copyright {
-      position: absolute;
-      bottom: 5.8%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 96%;
-      z-index: 6;
-      text-align: center;
-      font-size: clamp(12px, 0.98vw, 20px);
-      line-height: 1.25;
-      color: rgba(240, 210, 150, 0.92);
-      letter-spacing: 0.03em;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
-    }
+.scene-footer {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(96%, 52rem);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.12em;
+  padding: 6px 10px 8px;
+  pointer-events: none;
+  text-align: center;
+  box-sizing: border-box;
+}
 
-    .bottom-signature {
-      position: absolute;
-      bottom: 1.8%;
-      left: 50%;
-      transform: translateX(-50%) rotate(-1.5deg);
-      z-index: 6;
-      font-family: "Marck Script", cursive;
-      font-size: clamp(18px, 1.45vw, 34px);
-      font-weight: 400;
-      color: rgba(255, 215, 160, 0.78);
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-      white-space: nowrap;
-      opacity: 0.88;
-      letter-spacing: 0.02em;
-    }
+.bottom-copyright {
+  position: static;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: clamp(11px, 1.05vw, 16px);
+  line-height: 1.35;
+  color: rgba(240, 210, 150, 0.92);
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.bottom-signature {
+  position: static;
+  margin: 0;
+  padding: 0;
+  transform: rotate(-1.2deg);
+  font-family: "Marck Script", cursive;
+  font-size: clamp(15px, 1.35vw, 26px);
+  font-weight: 400;
+  color: rgba(255, 215, 160, 0.82);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  opacity: 0.9;
+  letter-spacing: 0.02em;
+}
 
 /* =============================================================================
    ФОКУС (ДОСТУПНОСТЬ)
@@ -1132,9 +1198,13 @@ body {
 }
 
 @media (max-width: 900px) {
+  .scene-footer {
+    width: min(98%, 100%);
+    padding: 5px 8px 7px;
+  }
+
   .bottom-copyright {
-    width: 94%;
-    font-size: clamp(11px, 1.5vw, 16px);
+    font-size: clamp(11px, 1.5vw, 15px);
   }
 
   .paper-textarea {
@@ -1183,11 +1253,404 @@ body {
     font-size: clamp(14px, 2.1vw, 20px);
   }
 
+  .scene-footer {
+    padding: 4px 6px 6px;
+    gap: 0.1em;
+  }
+
   .bottom-copyright {
-    font-size: clamp(10px, 1.8vw, 14px);
+    font-size: clamp(10px, 1.8vw, 13px);
   }
 
   .bottom-signature {
-    font-size: clamp(16px, 3vw, 24px);
+    font-size: clamp(14px, 2.8vw, 22px);
+  }
+
+  .scene-stage.scene--book-open .book-slot {
+    max-height: min(78vh, 820px);
+    width: min(98%, 100%);
   }
 }
+
+
+    /* Дополнения: словарь в областях страниц book-open.svg */
+
+    /* Контейнер разворота: картинка снизу, контент — поверх страниц */
+    #bookImageWrap.book-ui {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      background: transparent !important;
+      border-radius: 0;
+      overflow: visible;
+      box-shadow: none;
+    }
+
+    #bookImageWrap.book-ui::after {
+      display: none;
+    }
+
+    #bookImageWrap.book-ui > .book-image {
+      position: relative;
+      z-index: 0;
+      display: block;
+      width: 100%;
+      height: auto;
+      vertical-align: top;
+    }
+
+    /*
+      Левая страница: x=80, y=60, w=720, h=880 → ~5%, 6%, 45%, 88%
+      Правая: x=800 → 50%, те же размеры (подгонка под book-open.svg)
+    */
+    #bookImageWrap.book-ui .book-left,
+    #bookImageWrap.book-ui .book-right {
+      position: absolute;
+      z-index: 2;
+      top: 6%;
+      height: 88%;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      min-height: 0;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+
+    #bookImageWrap.book-ui .book-left {
+      left: 5%;
+      width: 45%;
+      padding: 2.5% 3.5% 3% 4.5%;
+      box-sizing: border-box;
+    }
+
+    #bookImageWrap.book-ui .book-right {
+      left: 50%;
+      width: 45%;
+      padding: 2.5% 4.5% 3% 3.5%;
+      box-sizing: border-box;
+    }
+
+    #bookImageWrap.book-ui .paper-label {
+      color: rgba(58, 32, 14, 0.78);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    #bookImageWrap.book-ui .paper-input,
+    #bookImageWrap.book-ui .paper-textarea {
+      background: transparent !important;
+      box-shadow: none !important;
+      border-radius: 0;
+      color: #4a2812;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    #bookImageWrap.book-ui .paper-input {
+      border-bottom: 1px dashed rgba(90, 47, 23, 0.35);
+      padding: 2px 0 6px;
+    }
+
+    #bookImageWrap.book-ui .paper-textarea {
+      border: none;
+      border-left: 1px dashed rgba(90, 47, 23, 0.25);
+      padding: 4px 0 4px 8px;
+      margin-top: 6px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    #bookImageWrap.book-ui .paper-input:focus-visible,
+    #bookImageWrap.book-ui .paper-textarea:focus-visible {
+      outline: none;
+      box-shadow: inset 0 -1px 0 0 rgba(90, 47, 23, 0.45);
+    }
+
+    #bookImageWrap.book-ui .book-btn {
+      background: rgba(120, 72, 40, 0.12) !important;
+      border: 1px solid rgba(90, 47, 23, 0.4);
+      box-shadow: none !important;
+      border-radius: 3px;
+      color: #3d2210;
+    }
+
+    #bookImageWrap.book-ui .book-btn:hover:not(:disabled) {
+      background: rgba(120, 72, 40, 0.2) !important;
+    }
+
+    #bookImageWrap.book-ui .form-helper {
+      color: rgba(58, 32, 14, 0.85);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    #bookImageWrap.book-ui .dictionary-page {
+      background: transparent !important;
+      padding: 0 2px 4px 0;
+    }
+
+    #bookImageWrap.book-ui .word-line {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0;
+      padding: 0 0 0.45em;
+      margin: 0 0 0.35em;
+      transform: none !important;
+      color: #4a2812;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    #bookImageWrap.book-ui .empty-note {
+      background: transparent !important;
+      border: none !important;
+      color: rgba(58, 32, 14, 0.55);
+      padding: 0.5em 0;
+    }
+
+    #bookImageWrap.book-ui .page-nav {
+      margin-top: auto;
+      padding-top: 6px;
+    }
+
+    #bookImageWrap.book-ui .nav-btn {
+      background: rgba(255, 248, 235, 0.2) !important;
+      border: 1px solid rgba(90, 47, 23, 0.35);
+      box-shadow: none !important;
+    }
+
+    @media (max-width: 700px) {
+      #bookImageWrap.book-ui .book-left,
+      #bookImageWrap.book-ui .book-right {
+        padding: 2% 2.5%;
+      }
+    }
+
+    /* ========== ТЗ: заголовок обложки (outline, glow, letter-spacing) ========== */
+    .cover-title-hero {
+      margin: 0 auto 10px;
+      max-width: 18ch;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(28px, 4.2vw, 46px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: 0.03em;
+      text-align: center;
+      color: #fff8e8;
+      -webkit-text-stroke: 0.6px rgba(80, 40, 20, 0.35);
+      text-shadow:
+        0 0 16px rgba(255, 220, 140, 0.65),
+        0 0 30px rgba(180, 100, 255, 0.35),
+        0 3px 12px rgba(0, 0, 0, 0.85);
+    }
+
+    @supports not (-webkit-text-stroke: 1px red) {
+      .cover-title-hero {
+        text-shadow:
+          0 0 1px rgba(40, 20, 10, 0.9),
+          0 0 16px rgba(255, 220, 140, 0.65),
+          0 0 30px rgba(180, 100, 255, 0.35),
+          0 3px 12px rgba(0, 0, 0, 0.85);
+      }
+    }
+
+    .access-actions {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .access-submit-btn {
+      min-height: 44px;
+      padding: 0 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 210, 138, 0.45);
+      background: linear-gradient(
+        165deg,
+        rgba(240, 200, 120, 0.22) 0%,
+        rgba(120, 60, 140, 0.25) 100%
+      );
+      color: #fff6e6;
+      font-family: inherit;
+      font-size: clamp(15px, 1.5vw, 18px);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .access-submit-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(240, 210, 138, 0.2);
+    }
+
+    .access-submit-btn:focus-visible {
+      outline: var(--focus-ring);
+      outline-offset: 3px;
+    }
+
+    .access-submit-btn:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
+    /* ========== ТЗ: div.flash (успех / ошибка) ========== */
+    .flash {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+      border-radius: inherit;
+    }
+
+    #sceneFlash.flash {
+      z-index: 6;
+      border-radius: 0;
+    }
+
+    .flash--book {
+      z-index: 1;
+      border-radius: inherit;
+    }
+
+    .flash--success-pulse {
+      background: radial-gradient(
+        circle at 50% 45%,
+        rgba(120, 255, 160, 0.45) 0%,
+        rgba(80, 200, 120, 0.12) 42%,
+        transparent 68%
+      );
+      animation: flashSuccess 0.65s ease forwards;
+    }
+
+    .flash--error-pulse {
+      background: radial-gradient(
+        circle at 50% 45%,
+        rgba(255, 120, 120, 0.5) 0%,
+        rgba(200, 60, 80, 0.14) 42%,
+        transparent 68%
+      );
+      animation: flashError 0.65s ease forwards;
+    }
+
+    @keyframes flashSuccess {
+      0% {
+        opacity: 0;
+      }
+      22% {
+        opacity: 0.55;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes flashError {
+      0% {
+        opacity: 0;
+      }
+      18% {
+        opacity: 0.5;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* ТЗ: shake при неверном пароле */
+    .cover-access-float.access-shake {
+      animation: accessShake 0.45s ease;
+    }
+
+    @keyframes accessShake {
+      0%,
+      100% {
+        transform: translate(-50%, -50%) translateX(0);
+      }
+      18% {
+        transform: translate(-50%, -50%) translateX(-10px);
+      }
+      36% {
+        transform: translate(-50%, -50%) translateX(9px);
+      }
+      54% {
+        transform: translate(-50%, -50%) translateX(-7px);
+      }
+      72% {
+        transform: translate(-50%, -50%) translateX(5px);
+      }
+    }
+
+    /* ТЗ: Light Burst + crossfade на развороте книги */
+    .light-burst {
+      position: absolute;
+      inset: -8%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      background: radial-gradient(
+        circle at 50% 48%,
+        rgba(255, 248, 220, 0.95) 0%,
+        rgba(255, 210, 140, 0.45) 28%,
+        rgba(200, 120, 255, 0.12) 52%,
+        transparent 72%
+      );
+      filter: blur(14px);
+      transform: scale(0.2);
+      border-radius: 50%;
+    }
+
+    .light-burst.is-animating {
+      animation: lightBurstPop 0.62s cubic-bezier(0.25, 0.9, 0.35, 1) forwards;
+    }
+
+    @keyframes lightBurstPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.15);
+      }
+      35% {
+        opacity: 1;
+        transform: scale(1.15);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(2.1);
+      }
+    }
+
+    .book-image-wrap.page-turn-fx {
+      animation: pageTurnCrossfade 0.62s ease forwards;
+    }
+
+    @keyframes pageTurnCrossfade {
+      0% {
+        filter: brightness(1) blur(0);
+      }
+      35% {
+        filter: brightness(1.38) blur(2px);
+      }
+      65% {
+        filter: brightness(1.15) blur(1.5px);
+      }
+      100% {
+        filter: brightness(1) blur(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .flash--success-pulse,
+      .flash--error-pulse,
+      .light-burst.is-animating,
+      .book-image-wrap.page-turn-fx,
+      .cover-access-float.access-shake {
+        animation: none !important;
+      }
+      .light-burst.is-animating {
+        opacity: 0 !important;
+      }
+    }
+  
