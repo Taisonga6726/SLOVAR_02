@@ -451,6 +451,14 @@
         dom.sceneStage.setAttribute("aria-busy", disabled ? "true" : "false");
       }
 
+      function setAccessButtonState(state = "default") {
+        if (!dom.accessSubmitBtn) return;
+        dom.accessSubmitBtn.classList.remove("state-default", "state-error", "state-success");
+        dom.accessSubmitBtn.classList.add(
+          state === "error" ? "state-error" : state === "success" ? "state-success" : "state-default"
+        );
+      }
+
       function triggerSceneFlash(kind) {
         const el = dom.sceneFlash;
         if (!el) return;
@@ -568,6 +576,7 @@
       function prepareCoverReadyUi() {
         state.coverAwaitingClick = true;
         dom.sceneStage.classList.add("cover-ready");
+        setAccessButtonState("success");
         setLoginMessage("Нажмите на книгу", "success");
       }
 
@@ -855,6 +864,7 @@
 
         if (!isAccessCodeValid()) {
           attempts += 1;
+          setAccessButtonState("error");
           setAccessFieldInvalid(true);
           clearCoverReadyUi();
           triggerAccessShake();
@@ -869,6 +879,7 @@
 
         attempts = 0;
         setAccessFieldInvalid(false);
+        setAccessButtonState("default");
         dom.accessWordInput.disabled = true;
         if (dom.accessSubmitBtn) dom.accessSubmitBtn.disabled = true;
         dom.accessForm.setAttribute("aria-busy", "true");
@@ -896,6 +907,7 @@
 
         if (!isAccessCodeValid()) {
           attempts += 1;
+          setAccessButtonState("error");
           setAccessFieldInvalid(true);
           triggerAccessShake();
           triggerSceneFlash("error");
@@ -926,6 +938,7 @@
           if (dom.accessWordInput.getAttribute("aria-invalid") === "true") {
             setAccessFieldInvalid(false);
           }
+          setAccessButtonState("default");
           if (state.coverAwaitingClick) {
             clearCoverReadyUi();
             setLoginMessage("", "");
@@ -972,6 +985,7 @@
       function initApp() {
         bindEvents();
         bindDecorativeImages();
+        setAccessButtonState("default");
         // Первый экран всегда статичный: без автоперехода в раскрытую книгу при открытии файла.
         // Переход в книгу только после явного ввода кода и клика по зоне книги.
       }
