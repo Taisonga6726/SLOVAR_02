@@ -180,57 +180,46 @@
       pointer-events: auto;
     }
 
-    /* Слой с формой по центру обложки; клики мимо поля проходят к обложке */
+    /* Форма в верхней части кадра — книга на арте остаётся видимой */
     .cover-overlay {
       position: absolute;
       inset: 0;
       z-index: 2;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: clamp(12px, 3vw, 28px);
+      padding: clamp(20px, 5.5vmin, 56px) clamp(12px, 3vw, 24px) 0;
       pointer-events: none;
     }
 
     .cover-access-float {
       pointer-events: auto;
-      width: min(420px, 92%);
+      width: min(360px, 90%);
       max-width: 100%;
-      padding: clamp(14px, 2.5vw, 22px) clamp(16px, 3vw, 24px);
+      margin: 0 auto;
+      padding: 0;
       text-align: center;
-      border-radius: 16px;
-      background: linear-gradient(
-        165deg,
-        rgba(12, 6, 28, 0.72) 0%,
-        rgba(26, 12, 48, 0.58) 100%
-      );
-      border: 1px solid rgba(240, 200, 120, 0.28);
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(255, 230, 180, 0.12);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: none;
+      border: none;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
     .cover-tap-hint {
-      margin: 10px 0 0;
+      margin: clamp(10px, 1.8vw, 18px) 0 0;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      gap: 4px;
-      font-size: clamp(15px, 1.35vw, 19px);
-      font-family: "Cormorant Garamond", serif;
-      font-weight: 500;
-      color: rgba(255, 220, 150, 0.92);
-      text-shadow: 0 0 18px rgba(255, 180, 60, 0.35);
     }
 
     .cover-tap-arrow {
       display: block;
-      font-size: clamp(28px, 4vw, 40px);
+      font-size: clamp(36px, 5.5vw, 52px);
       line-height: 1;
       color: #ffd56a;
-      filter: drop-shadow(0 0 8px rgba(255, 190, 80, 0.55));
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))
+        drop-shadow(0 0 10px rgba(255, 190, 80, 0.65));
       animation: coverArrowNudge 1.6s ease-in-out infinite;
     }
 
@@ -298,20 +287,14 @@
       }
     }
 
-    .access-title {
-      margin: 0 0 8px;
-      font-size: clamp(22px, 2vw, 30px);
+    .cover-screen .access-subtitle {
+      margin: 0 0 10px;
+      font-size: clamp(17px, 1.6vw, 22px);
       font-weight: 600;
       color: #f6dfb0;
-      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
-    }
-
-    .access-subtitle {
-      margin: 0 0 12px;
-      font-size: clamp(18px, 1.75vw, 24px);
-      font-weight: 500;
-      color: #f6dfb0;
-      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+      text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.85),
+        0 0 20px rgba(120, 60, 180, 0.35);
     }
 
     .field-label {
@@ -323,19 +306,20 @@
       text-align: left;
     }
 
-    .access-input {
+    .cover-screen .access-input {
       width: 100%;
-      height: 50px;
-      border: 1px solid var(--panel-border);
+      height: 48px;
+      border: 1px solid rgba(241, 205, 129, 0.35);
       border-radius: 12px;
-      background: var(--panel-dark);
+      background: rgba(23, 10, 37, 0.55);
       color: #fff6e7;
-      font-size: 20px;
+      font-size: clamp(17px, 1.5vw, 20px);
       text-align: center;
       outline: none;
-      padding: 0 16px;
+      padding: 0 14px;
       font-family: inherit;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
     }
 
     .access-input::placeholder {
@@ -364,6 +348,11 @@
 
     .cover-screen .helper-text {
       margin-top: 8px;
+    }
+
+    .cover-login-msg {
+      font-size: clamp(15px, 1.35vw, 18px);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
     }
 
     .ghost-btn:hover:not(:disabled) {
@@ -1038,14 +1027,14 @@
             Обложка словаря
           </div>
 
-          <!-- Форма входа по центру обложки; открытие — клик по обложке или Enter в поле -->
+          <!-- Ввод в верхней зоне кадра + стрелка на книгу; открытие — клик по обложке или Enter -->
           <div class="cover-overlay">
             <div class="cover-access-float">
-              <h1 id="cover-heading" class="access-title">Словарь вайбкодера</h1>
+              <h1 id="cover-heading" class="visually-hidden">Словарь вайбкодера</h1>
               <p id="cover-subtitle" class="access-subtitle">Введите кодовое слово</p>
 
               <form id="accessForm" novalidate>
-                <label class="field-label" for="accessWord">Кодовое слово</label>
+                <label class="visually-hidden" for="accessWord">Кодовое слово</label>
                 <input
                   id="accessWord"
                   class="access-input"
@@ -1058,17 +1047,16 @@
                   required
                 />
                 <p id="accessHint" class="visually-hidden">
-                  Введите кодовое слово, затем нажмите на обложку книги или клавишу Enter. Это не защита
+                  Введите кодовое слово, затем нажмите на обложку книги внизу или клавишу Enter. Это не защита
                   данных, а вход в интерфейс.
                 </p>
               </form>
 
-              <p class="cover-tap-hint" id="coverTapHint" aria-hidden="true">
-                <span class="cover-tap-arrow">↓</span>
-                <span>Нажмите на обложку</span>
+              <p class="cover-tap-hint" aria-hidden="true">
+                <span class="cover-tap-arrow" title="Нажмите на обложку книги">↓</span>
               </p>
 
-              <p id="loginMessage" class="helper-text" role="status" aria-live="polite"></p>
+              <p id="loginMessage" class="helper-text cover-login-msg" role="status" aria-live="polite"></p>
             </div>
           </div>
         </div>
