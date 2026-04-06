@@ -266,6 +266,21 @@
           </div>
 
     </div>
+
+      <footer class="site-footer-signature" aria-label="Авторская подпись">
+        <img
+          class="author-signature-img"
+          src="images/podpi_s.jpg"
+          width="400"
+          height="120"
+          alt="Подпись автора: Tanya Gaiduk"
+          decoding="async"
+          loading="lazy"
+        />
+        <p class="site-footer-copy">
+          © 2026 Автор идеи ТАНЯ ГАЙДУК — ученица 5 курса школы SMM
+        </p>
+      </footer>
     </section>
   </main>
 
@@ -1566,137 +1581,6 @@ void main() {
       }
 
       /**
-       * Неон по контуру: разворот открытой книги (`open`) или центральная книга + боковые блоки на обложке (`cover`).
-       * Доли кадра подогнаны под арт; при смене картинки подправьте числа в ветке layout.
-       */
-      function drawBookPerimeterNeon(ctx, w, h, t, layout) {
-        const pulse = 0.45 + 0.55 * Math.sin(t * 2.1);
-        function neonSegment(x1, y1, x2, y2) {
-          ctx.save();
-          ctx.lineCap = "round";
-          ctx.lineJoin = "round";
-          ctx.shadowBlur = 16 + pulse * 14;
-          ctx.shadowColor = "rgba(100, 240, 255, 0.92)";
-          ctx.strokeStyle = `rgba(170, 255, 255, ${0.48 + pulse * 0.3})`;
-          ctx.lineWidth = 4.2;
-          ctx.beginPath();
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(x2, y2);
-          ctx.stroke();
-          ctx.shadowBlur = 10 + pulse * 8;
-          ctx.shadowColor = "rgba(255, 120, 220, 0.62)";
-          ctx.strokeStyle = `rgba(255, 170, 235, ${0.38 + pulse * 0.25})`;
-          ctx.lineWidth = 2.6;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-          ctx.strokeStyle = `rgba(255, 255, 255, ${0.78 + pulse * 0.12})`;
-          ctx.lineWidth = 1.35;
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        let segs;
-        if (layout === "open") {
-          const bookTop = h * 0.555;
-          const bookBottom = h * 0.905;
-          const leftX = w * 0.068;
-          const spineX = w * 0.5;
-          const rightX = w * 0.932;
-          segs = [
-            [spineX, bookTop, spineX, bookBottom],
-            [leftX, bookBottom, leftX, bookTop],
-            [rightX, bookBottom, rightX, bookTop],
-            [leftX, bookBottom, spineX, bookBottom],
-            [spineX, bookBottom, rightX, bookBottom]
-          ];
-        } else {
-          const bookTop = h * 0.48;
-          const bookBottom = h * 0.88;
-          const leftX = w * 0.26;
-          const spineX = w * 0.5;
-          const rightX = w * 0.74;
-          const cardL = w * 0.065;
-          const cardT = h * 0.54;
-          const cardB = h * 0.805;
-          const cardR = w * 0.21;
-          const promoX = w * 0.93;
-          const promoT = h * 0.54;
-          const promoB = h * 0.79;
-          segs = [
-            [spineX, bookTop, spineX, bookBottom],
-            [leftX, bookBottom, leftX, bookTop],
-            [rightX, bookBottom, rightX, bookTop],
-            [leftX, bookBottom, spineX, bookBottom],
-            [spineX, bookBottom, rightX, bookBottom],
-            [cardL, cardT, cardL, cardB],
-            [cardL, cardB, cardR, cardB],
-            [promoX, promoT, promoX, promoB]
-          ];
-        }
-        segs.forEach(([x1, y1, x2, y2]) => neonSegment(x1, y1, x2, y2));
-      }
-
-      /** Неон контура только на экране обложки (пока книга закрыта). */
-      function initCoverBookPerimeterGlow() {
-        const canvas = document.getElementById("coverBookPerimeterCanvas");
-        const wrap = dom.sceneBgWrap;
-        if (!canvas || !wrap || prefersReducedMotion()) return function noop() {};
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return function noop() {};
-
-        let raf = 0;
-        let dpr = 1;
-        let running = true;
-
-        function resize() {
-          const rect = wrap.getBoundingClientRect();
-          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-          const cw = Math.max(1, Math.floor(rect.width * dpr));
-          const ch = Math.max(1, Math.floor(rect.height * dpr));
-          canvas.width = cw;
-          canvas.height = ch;
-          canvas.style.width = `${rect.width}px`;
-          canvas.style.height = `${rect.height}px`;
-        }
-
-        function draw(now) {
-          if (!running) return;
-          raf = requestAnimationFrame(draw);
-
-          if (dom.sceneStage && dom.sceneStage.classList.contains("scene--book-open")) {
-            return;
-          }
-
-          const lw = canvas.width / dpr;
-          const lh = canvas.height / dpr;
-          if (lw < 2 || lh < 2) return;
-
-          const tt = now * 0.001;
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          ctx.clearRect(0, 0, lw, lh);
-          ctx.globalCompositeOperation = "lighter";
-          drawBookPerimeterNeon(ctx, lw, lh, tt, "cover");
-          ctx.globalCompositeOperation = "source-over";
-        }
-
-        resize();
-        window.addEventListener("resize", resize, { passive: true });
-        let ro = null;
-        if (typeof ResizeObserver !== "undefined") {
-          ro = new ResizeObserver(resize);
-          ro.observe(wrap);
-        }
-        raf = requestAnimationFrame(draw);
-
-        return function dispose() {
-          running = false;
-          cancelAnimationFrame(raf);
-          window.removeEventListener("resize", resize);
-          if (ro) ro.disconnect();
-        };
-      }
-
-      /**
        * Картинка 2: лучи от переплёта (без колец). Основание — «камень на солнце», из него пышный веер лучей вверх.
        */
       function initBookElectricFxVariantsDEF() {
@@ -1709,15 +1593,10 @@ void main() {
         let raf = 0;
         let dpr = 1;
         let running = true;
-        /* Плазменные волнистые нити + искры (эталон: тёплое ядро → маджента/циан) */
-        const rayCount = 32;
-        const emberCount = 48;
+        /* Лучи от верхнего сгиба переплёта (начало свечения); низ страниц свободен под записи слов */
+        const rayCount = 38;
         const rays = Array.from({ length: rayCount }, (_, i) => ({
           a: i / Math.max(1, rayCount - 1),
-          seed: Math.random() * 1000
-        }));
-        const embers = Array.from({ length: emberCount }, (_, i) => ({
-          si: i,
           seed: Math.random() * 1000
         }));
 
@@ -1738,88 +1617,41 @@ void main() {
           dom.sceneStage.classList.add("book-fx-mode-d");
         }
 
-        function drawPlasmaStrands(gemCx, gemCy, w, h, t, layer) {
-          const maxHalf = w * 0.13;
-          const yTop = h * 0.37;
-          const steps = 16;
+        function drawRaysFromGem(gemCx, gemCy, w, h, t, layer) {
+          const maxHalf = w * 0.052;
           rays.forEach((r, idx) => {
-            const dir = (r.a - 0.5) * 2;
-            const seed = r.seed;
-            const phase = layer * 0.4 + idx * 0.04;
-            const glow = 0.5 + 0.5 * Math.sin(t * 3.6 + seed * 0.11 + phase);
-            const fan = Math.abs(dir);
-            const edgeFade = 0.5 + 0.5 * (1 - fan * fan);
+            const phase = layer * 0.52 + idx * 0.03;
+            const u = r.a - 0.5;
+            let spread = u * 2 * maxHalf + Math.sin(t * 1.4 + r.seed * 0.02) * w * 0.003;
+            const jitter = Math.sin(t * 2.4 + r.seed) * w * 0.0045;
+            spread = Math.max(-maxHalf, Math.min(maxHalf, spread));
+            const x1 = gemCx + spread * 0.03;
+            const y1 = gemCy;
+            let x2 = gemCx + spread * 0.92 + jitter + layer * 0.45;
+            x2 = Math.max(gemCx - maxHalf, Math.min(gemCx + maxHalf, x2));
+            const y2 = h * (0.05 + 0.2 * (0.32 + (idx % 7) * 0.09) + layer * 0.018);
+            const glow = 0.52 + 0.48 * Math.sin(t * 4.2 + r.seed * 0.12 + phase);
 
-            let x0 = gemCx + dir * w * 0.01;
-            let y0 = gemCy;
-            let x1 = x0;
-            let y1 = y0;
-
-            ctx.beginPath();
-            ctx.moveTo(x0, y0);
-            for (let s = 1; s <= steps; s += 1) {
-              const f = s / steps;
-              const wobA =
-                Math.sin(f * 7 + t * 2.1 + seed * 0.008) * w * 0.034 * f +
-                Math.sin(f * 13 + t * 3.2 + seed * 0.015) * w * 0.018 * f;
-              const wobB = Math.cos(f * 5.5 + seed * 0.02) * w * 0.009 * Math.sin(f * Math.PI);
-              x1 = gemCx + dir * maxHalf * f * (0.2 + 0.8 * f) + wobA + wobB;
-              y1 = gemCy + (yTop - gemCy) * f;
-              ctx.lineTo(x1, y1);
-            }
-
-            const g = ctx.createLinearGradient(x0, y0, x1, y1);
-            g.addColorStop(0, `rgba(255,255,245,${0.95 * glow * edgeFade})`);
-            g.addColorStop(0.12, `rgba(255,230,140,${0.85 * glow * edgeFade})`);
-            g.addColorStop(0.32, `rgba(255,150,70,${0.72 * glow * edgeFade})`);
-            g.addColorStop(0.52, `rgba(255,90,180,${0.55 * glow * edgeFade})`);
-            g.addColorStop(0.72, `rgba(120,230,255,${0.45 * glow * edgeFade})`);
-            g.addColorStop(1, "rgba(80,60,200,0)");
+            const g = ctx.createLinearGradient(x1, y1, x2, y2);
+            g.addColorStop(0, `rgba(255,214,120,${0.72 * glow})`);
+            g.addColorStop(0.4, `rgba(255,170,90,${0.48 * glow})`);
+            g.addColorStop(0.68, `rgba(140,230,255,${0.42 * glow})`);
+            g.addColorStop(1, "rgba(120,80,200,0)");
 
             ctx.strokeStyle = g;
-            ctx.lineWidth = (layer === 0 ? 2.35 : 1.1) + glow * (layer === 0 ? 1.4 : 0.6);
+            ctx.lineWidth = 1.1 + glow * 1.75 + layer * 0.35;
             ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-            ctx.globalAlpha = layer === 0 ? 0.78 : 0.36;
+            ctx.globalAlpha = layer === 0 ? 0.88 : 0.38;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            const midX = Math.max(
+              gemCx - maxHalf * 1.08,
+              Math.min(gemCx + maxHalf * 1.08, gemCx + spread * 0.22 + jitter * 0.25)
+            );
+            const midY = (y1 + y2) * 0.5 - h * 0.065;
+            ctx.quadraticCurveTo(midX, midY, x2, y2);
             ctx.stroke();
             ctx.globalAlpha = 1;
-          });
-        }
-
-        function drawEmbers(gemCx, gemCy, w, h, t) {
-          const yTop = h * 0.36;
-          embers.forEach((e) => {
-            const c = (t * 0.85 + e.seed * 0.001) % 1;
-            const f = c < 0.7 ? c / 0.7 : 1 - (c - 0.7) / 0.3;
-            if (f <= 0) return;
-            const dir = (e.si / Math.max(1, emberCount - 1)) * 2 - 1;
-            const spread = dir * w * 0.11 * (0.35 + 0.65 * (1 - c));
-            const fx = c * 0.92;
-            const wave = Math.sin(c * 9 + e.seed * 0.1 + t * 2) * w * 0.04 * fx;
-            const px = gemCx + spread + wave + Math.sin(e.seed) * w * 0.015;
-            const py = gemCy + (yTop - gemCy) * fx + Math.cos(e.seed * 0.5) * h * 0.012;
-            const sz = 1.2 + f * 2.8;
-            const hue = e.si % 3;
-            const col =
-              hue === 0
-                ? `rgba(255,200,120,${0.55 * f})`
-                : hue === 1
-                  ? `rgba(255,100,200,${0.45 * f})`
-                  : `rgba(160,240,255,${0.5 * f})`;
-            const mid =
-              hue === 0
-                ? `rgba(255,200,120,${0.24 * f})`
-                : hue === 1
-                  ? `rgba(255,100,200,${0.2 * f})`
-                  : `rgba(160,240,255,${0.22 * f})`;
-            const gg = ctx.createRadialGradient(px, py, 0, px, py, sz * 2.2);
-            gg.addColorStop(0, col);
-            gg.addColorStop(0.52, mid);
-            gg.addColorStop(1, "rgba(40,20,60,0)");
-            ctx.fillStyle = gg;
-            ctx.beginPath();
-            ctx.arc(px, py, sz, 0, Math.PI * 2);
-            ctx.fill();
           });
         }
 
@@ -1849,7 +1681,7 @@ void main() {
             cy,
             h * 0.042
           );
-          body.addColorStop(0, `rgba(255,255,255,${0.96 * twinkle})`);
+          body.addColorStop(0, `rgba(255,255,250,${0.92 * twinkle})`);
           body.addColorStop(0.18, `rgba(255,210,130,${0.85 * pulse})`);
           body.addColorStop(0.45, `rgba(255,140,80,${0.55 * pulse})`);
           body.addColorStop(0.72, `rgba(140,90,220,${0.35 * pulse})`);
@@ -1913,11 +1745,7 @@ void main() {
           ctx.clearRect(0, 0, w, h);
           ctx.globalCompositeOperation = "lighter";
 
-          drawPlasmaStrands(gemCx, gemCy, w, h, t, 1);
-          drawPlasmaStrands(gemCx, gemCy, w, h, t, 0);
-          drawEmbers(gemCx, gemCy, w, h, t);
-
-          drawBookPerimeterNeon(ctx, w, h, t, "open");
+          drawRaysFromGem(gemCx, gemCy, w, h, t, 0);
 
           drawGemstone(gemCx, gemCy, w, h, t);
 
@@ -1948,7 +1776,6 @@ void main() {
         initCoverFloatWordsSync();
         magicRingsCleanup = initMagicRingsFx();
         grainShaderCleanup = initGrainShaderBackground();
-        coverBookPerimeterCleanup = initCoverBookPerimeterGlow();
         bookElectricFxCleanup = initBookElectricFxVariantsDEF();
         // Первый экран всегда статичный: без автоперехода в раскрытую книгу при открытии файла.
         // Переход в книгу только после явного ввода кода и клика по зоне книги.

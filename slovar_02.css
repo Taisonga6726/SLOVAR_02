@@ -513,7 +513,7 @@ body {
   display: flex;
 }
 
-/* Контур центральной книги и боковых блоков на обложке (canvas) */
+/* Неон по контуру только на обложке (картинка 1); при открытии книги слой скрыт вместе с .scene-bg-wrap */
 .cover-book-perimeter-canvas {
   position: absolute;
   left: 0;
