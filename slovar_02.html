@@ -86,6 +86,13 @@
               <span class="scene-float-word scene-float-word--cta-left">0 → PRO</span>
               <span class="scene-float-word scene-float-word--cta-right">LEVEL UP</span>
             </div>
+            <canvas
+              id="coverBookPerimeterCanvas"
+              class="cover-book-perimeter-canvas"
+              width="300"
+              height="200"
+              aria-hidden="true"
+            ></canvas>
           </div>
           <div class="scene-bottom-mask" aria-hidden="true"></div>
           <div class="scene-signature-erase" aria-hidden="true"></div>
@@ -276,6 +283,7 @@
       let grainShaderCleanup = null;
       let magicRingsCleanup = null;
       let bookElectricFxCleanup = null;
+      let coverBookPerimeterCleanup = null;
 
       /* --- Конфигурация --- */
       const CONFIG = {
@@ -1558,6 +1566,137 @@ void main() {
       }
 
       /**
+       * Неон по контуру: разворот открытой книги (`open`) или центральная книга + боковые блоки на обложке (`cover`).
+       * Доли кадра подогнаны под арт; при смене картинки подправьте числа в ветке layout.
+       */
+      function drawBookPerimeterNeon(ctx, w, h, t, layout) {
+        const pulse = 0.45 + 0.55 * Math.sin(t * 2.1);
+        function neonSegment(x1, y1, x2, y2) {
+          ctx.save();
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.shadowBlur = 16 + pulse * 14;
+          ctx.shadowColor = "rgba(100, 240, 255, 0.92)";
+          ctx.strokeStyle = `rgba(170, 255, 255, ${0.48 + pulse * 0.3})`;
+          ctx.lineWidth = 4.2;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+          ctx.shadowBlur = 10 + pulse * 8;
+          ctx.shadowColor = "rgba(255, 120, 220, 0.62)";
+          ctx.strokeStyle = `rgba(255, 170, 235, ${0.38 + pulse * 0.25})`;
+          ctx.lineWidth = 2.6;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.78 + pulse * 0.12})`;
+          ctx.lineWidth = 1.35;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        let segs;
+        if (layout === "open") {
+          const bookTop = h * 0.555;
+          const bookBottom = h * 0.905;
+          const leftX = w * 0.068;
+          const spineX = w * 0.5;
+          const rightX = w * 0.932;
+          segs = [
+            [spineX, bookTop, spineX, bookBottom],
+            [leftX, bookBottom, leftX, bookTop],
+            [rightX, bookBottom, rightX, bookTop],
+            [leftX, bookBottom, spineX, bookBottom],
+            [spineX, bookBottom, rightX, bookBottom]
+          ];
+        } else {
+          const bookTop = h * 0.48;
+          const bookBottom = h * 0.88;
+          const leftX = w * 0.26;
+          const spineX = w * 0.5;
+          const rightX = w * 0.74;
+          const cardL = w * 0.065;
+          const cardT = h * 0.54;
+          const cardB = h * 0.805;
+          const cardR = w * 0.21;
+          const promoX = w * 0.93;
+          const promoT = h * 0.54;
+          const promoB = h * 0.79;
+          segs = [
+            [spineX, bookTop, spineX, bookBottom],
+            [leftX, bookBottom, leftX, bookTop],
+            [rightX, bookBottom, rightX, bookTop],
+            [leftX, bookBottom, spineX, bookBottom],
+            [spineX, bookBottom, rightX, bookBottom],
+            [cardL, cardT, cardL, cardB],
+            [cardL, cardB, cardR, cardB],
+            [promoX, promoT, promoX, promoB]
+          ];
+        }
+        segs.forEach(([x1, y1, x2, y2]) => neonSegment(x1, y1, x2, y2));
+      }
+
+      /** Неон контура только на экране обложки (пока книга закрыта). */
+      function initCoverBookPerimeterGlow() {
+        const canvas = document.getElementById("coverBookPerimeterCanvas");
+        const wrap = dom.sceneBgWrap;
+        if (!canvas || !wrap || prefersReducedMotion()) return function noop() {};
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return function noop() {};
+
+        let raf = 0;
+        let dpr = 1;
+        let running = true;
+
+        function resize() {
+          const rect = wrap.getBoundingClientRect();
+          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          const cw = Math.max(1, Math.floor(rect.width * dpr));
+          const ch = Math.max(1, Math.floor(rect.height * dpr));
+          canvas.width = cw;
+          canvas.height = ch;
+          canvas.style.width = `${rect.width}px`;
+          canvas.style.height = `${rect.height}px`;
+        }
+
+        function draw(now) {
+          if (!running) return;
+          raf = requestAnimationFrame(draw);
+
+          if (dom.sceneStage && dom.sceneStage.classList.contains("scene--book-open")) {
+            return;
+          }
+
+          const lw = canvas.width / dpr;
+          const lh = canvas.height / dpr;
+          if (lw < 2 || lh < 2) return;
+
+          const tt = now * 0.001;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, lw, lh);
+          ctx.globalCompositeOperation = "lighter";
+          drawBookPerimeterNeon(ctx, lw, lh, tt, "cover");
+          ctx.globalCompositeOperation = "source-over";
+        }
+
+        resize();
+        window.addEventListener("resize", resize, { passive: true });
+        let ro = null;
+        if (typeof ResizeObserver !== "undefined") {
+          ro = new ResizeObserver(resize);
+          ro.observe(wrap);
+        }
+        raf = requestAnimationFrame(draw);
+
+        return function dispose() {
+          running = false;
+          cancelAnimationFrame(raf);
+          window.removeEventListener("resize", resize);
+          if (ro) ro.disconnect();
+        };
+      }
+
+      /**
        * Картинка 2: лучи от переплёта (без колец). Основание — «камень на солнце», из него пышный веер лучей вверх.
        */
       function initBookElectricFxVariantsDEF() {
@@ -1685,49 +1824,6 @@ void main() {
         }
 
         /**
-         * Подсветка контура разворота: корешок по центру, внешние вертикали, нижние кромки левой/правой страницы.
-         * Доли кадра подогнаны под типичный book-open; при смене арта подправьте константы.
-         */
-        function drawBookPerimeterGlow(w, h, t) {
-          const pulse = 0.45 + 0.55 * Math.sin(t * 2.1);
-          const bookTop = h * 0.555;
-          const bookBottom = h * 0.905;
-          const leftX = w * 0.068;
-          const spineX = w * 0.5;
-          const rightX = w * 0.932;
-
-          function neonSegment(x1, y1, x2, y2) {
-            ctx.save();
-            ctx.lineCap = "butt";
-            ctx.lineJoin = "miter";
-            ctx.shadowBlur = 10 + pulse * 8;
-            ctx.shadowColor = "rgba(100, 240, 255, 0.85)";
-            ctx.strokeStyle = `rgba(160, 255, 255, ${0.42 + pulse * 0.28})`;
-            ctx.lineWidth = 3.2;
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-            ctx.shadowBlur = 6 + pulse * 4;
-            ctx.shadowColor = "rgba(255, 120, 220, 0.55)";
-            ctx.strokeStyle = `rgba(255, 160, 230, ${0.35 + pulse * 0.22})`;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.72 + pulse * 0.15})`;
-            ctx.lineWidth = 1.15;
-            ctx.stroke();
-            ctx.restore();
-          }
-
-          neonSegment(spineX, bookTop, spineX, bookBottom);
-          neonSegment(leftX, bookBottom, leftX, bookTop);
-          neonSegment(rightX, bookBottom, rightX, bookTop);
-          neonSegment(leftX, bookBottom, spineX, bookBottom);
-          neonSegment(spineX, bookBottom, rightX, bookBottom);
-        }
-
-        /**
          * gemCy — линия верхнего сгиба корешка (где сходятся страницы): начало свечения, не у «НЕЙРО».
          */
         function drawGemstone(gemCx, gemCy, w, h, t) {
@@ -1821,7 +1917,7 @@ void main() {
           drawPlasmaStrands(gemCx, gemCy, w, h, t, 0);
           drawEmbers(gemCx, gemCy, w, h, t);
 
-          drawBookPerimeterGlow(w, h, t);
+          drawBookPerimeterNeon(ctx, w, h, t, "open");
 
           drawGemstone(gemCx, gemCy, w, h, t);
 
@@ -1852,6 +1948,7 @@ void main() {
         initCoverFloatWordsSync();
         magicRingsCleanup = initMagicRingsFx();
         grainShaderCleanup = initGrainShaderBackground();
+        coverBookPerimeterCleanup = initCoverBookPerimeterGlow();
         bookElectricFxCleanup = initBookElectricFxVariantsDEF();
         // Первый экран всегда статичный: без автоперехода в раскрытую книгу при открытии файла.
         // Переход в книгу только после явного ввода кода и клика по зоне книги.

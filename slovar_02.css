@@ -513,6 +513,19 @@ body {
   display: flex;
 }
 
+/* Контур центральной книги и боковых блоков на обложке (canvas) */
+.cover-book-perimeter-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
 /* Неоновый дым фона (WebGL), без видимых «швов» — виньетка + screen */
 .smoke-bg-fx {
   position: absolute;
