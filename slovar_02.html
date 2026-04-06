@@ -1570,8 +1570,8 @@ void main() {
         let raf = 0;
         let dpr = 1;
         let running = true;
-        /* Много лучей в узком столбе над корешком — пышно, но без веера на людей по краям */
-        const rayCount = 52;
+        /* Лучи от верхнего сгиба переплёта (начало свечения); низ страниц свободен под записи слов */
+        const rayCount = 26;
         const rays = Array.from({ length: rayCount }, (_, i) => ({
           a: i / Math.max(1, rayCount - 1),
           seed: Math.random() * 1000
@@ -1610,15 +1610,15 @@ void main() {
             const glow = 0.52 + 0.48 * Math.sin(t * 4.2 + r.seed * 0.12 + phase);
 
             const g = ctx.createLinearGradient(x1, y1, x2, y2);
-            g.addColorStop(0, `rgba(255,214,120,${0.82 * glow})`);
-            g.addColorStop(0.35, `rgba(255,170,90,${0.62 * glow})`);
-            g.addColorStop(0.6, `rgba(140,230,255,${0.58 * glow})`);
+            g.addColorStop(0, `rgba(255,214,120,${0.72 * glow})`);
+            g.addColorStop(0.4, `rgba(255,170,90,${0.48 * glow})`);
+            g.addColorStop(0.68, `rgba(140,230,255,${0.42 * glow})`);
             g.addColorStop(1, "rgba(120,80,200,0)");
 
             ctx.strokeStyle = g;
-            ctx.lineWidth = 2.05 + glow * 3.05 + layer * 0.5;
+            ctx.lineWidth = 1.1 + glow * 1.75 + layer * 0.35;
             ctx.lineCap = "round";
-            ctx.globalAlpha = layer === 0 ? 0.92 : 0.45;
+            ctx.globalAlpha = layer === 0 ? 0.88 : 0.38;
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             const midX = Math.max(
@@ -1632,27 +1632,31 @@ void main() {
           });
         }
 
+        /**
+         * gemCy — линия верхнего сгиба корешка (где сходятся страницы): начало свечения, не у «НЕЙРО».
+         */
         function drawGemstone(gemCx, gemCy, w, h, t) {
           const pulse = 0.55 + 0.45 * Math.sin(t * 1.9);
           const twinkle = 0.4 + 0.6 * Math.sin(t * 3.3 + 0.7);
+          const cy = gemCy + h * 0.015;
 
-          const outer = ctx.createRadialGradient(gemCx, gemCy, 0, gemCx, gemCy, h * 0.11);
-          outer.addColorStop(0, `rgba(255,230,180,${0.38 * pulse})`);
-          outer.addColorStop(0.25, `rgba(255,160,70,${0.28 * pulse})`);
-          outer.addColorStop(0.55, `rgba(180,100,255,${0.16 * pulse})`);
+          const outer = ctx.createRadialGradient(gemCx, cy, 0, gemCx, cy, h * 0.056);
+          outer.addColorStop(0, `rgba(255,230,180,${0.28 * pulse})`);
+          outer.addColorStop(0.25, `rgba(255,160,70,${0.26 * pulse})`);
+          outer.addColorStop(0.55, `rgba(180,100,255,${0.14 * pulse})`);
           outer.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = outer;
           ctx.beginPath();
-          ctx.ellipse(gemCx, gemCy, w * 0.065, h * 0.042, 0, 0, Math.PI * 2);
+          ctx.ellipse(gemCx, cy, w * 0.05, h * 0.022, 0, 0, Math.PI * 2);
           ctx.fill();
 
           const body = ctx.createRadialGradient(
             gemCx - w * 0.012,
-            gemCy - h * 0.01,
+            cy - h * 0.006,
             0,
             gemCx,
-            gemCy,
-            h * 0.052
+            cy,
+            h * 0.042
           );
           body.addColorStop(0, `rgba(255,255,250,${0.92 * twinkle})`);
           body.addColorStop(0.18, `rgba(255,210,130,${0.85 * pulse})`);
@@ -1661,27 +1665,37 @@ void main() {
           body.addColorStop(1, "rgba(40,20,80,0)");
           ctx.fillStyle = body;
           ctx.beginPath();
-          ctx.ellipse(gemCx, gemCy, w * 0.048, h * 0.026, 0, 0, Math.PI * 2);
+          ctx.ellipse(gemCx, cy, w * 0.042, h * 0.018, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          const specX = gemCx - w * 0.022 + Math.sin(t * 2.1) * w * 0.006;
-          const specY = gemCy - h * 0.012 + Math.cos(t * 2.4) * h * 0.004;
-          const spec = ctx.createRadialGradient(specX, specY, 0, specX, specY, h * 0.018);
+          const specX = gemCx - w * 0.02 + Math.sin(t * 2.1) * w * 0.005;
+          const specY = cy - h * 0.008 + Math.cos(t * 2.4) * h * 0.003;
+          const spec = ctx.createRadialGradient(specX, specY, 0, specX, specY, h * 0.016);
           spec.addColorStop(0, `rgba(255,255,255,${0.75 * twinkle})`);
           spec.addColorStop(0.4, "rgba(255,240,200,0.25)");
           spec.addColorStop(1, "rgba(255,200,120,0)");
           ctx.fillStyle = spec;
           ctx.beginPath();
-          ctx.ellipse(specX, specY, w * 0.028, h * 0.011, -0.35, 0, Math.PI * 2);
+          ctx.ellipse(specX, specY, w * 0.026, h * 0.01, -0.35, 0, Math.PI * 2);
           ctx.fill();
 
-          const rim = ctx.createRadialGradient(gemCx, gemCy + h * 0.008, 0, gemCx, gemCy, h * 0.04);
+          const rim = ctx.createRadialGradient(gemCx, gemCy + h * 0.004, 0, gemCx, gemCy, h * 0.03);
           rim.addColorStop(0, "rgba(255,200,100,0)");
-          rim.addColorStop(0.7, `rgba(255,120,60,${0.22 * pulse})`);
+          rim.addColorStop(0.65, `rgba(255,120,60,${0.22 * pulse})`);
           rim.addColorStop(1, "rgba(255,80,40,0)");
           ctx.fillStyle = rim;
           ctx.beginPath();
-          ctx.ellipse(gemCx, gemCy + h * 0.006, w * 0.07, h * 0.022, 0, 0, Math.PI * 2);
+          ctx.ellipse(gemCx, gemCy + h * 0.003, w * 0.044, h * 0.01, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          const spineGlint = ctx.createLinearGradient(gemCx - w * 0.05, gemCy, gemCx + w * 0.05, gemCy);
+          spineGlint.addColorStop(0, "rgba(255,200,140,0)");
+          spineGlint.addColorStop(0.45, `rgba(255,245,220,${0.52 * twinkle})`);
+          spineGlint.addColorStop(0.55, `rgba(255,255,255,${0.62 * twinkle})`);
+          spineGlint.addColorStop(1, "rgba(255,200,140,0)");
+          ctx.fillStyle = spineGlint;
+          ctx.beginPath();
+          ctx.ellipse(gemCx, gemCy, w * 0.04, h * 0.006, 0, 0, Math.PI * 2);
           ctx.fill();
         }
 
@@ -1702,13 +1716,12 @@ void main() {
           setBookFxMode();
 
           const gemCx = w * 0.5;
-          const gemCy = h * 0.805;
+          const gemCy = h * 0.662;
 
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           ctx.clearRect(0, 0, w, h);
           ctx.globalCompositeOperation = "lighter";
 
-          drawRaysFromGem(gemCx, gemCy, w, h, t, 1);
           drawRaysFromGem(gemCx, gemCy, w, h, t, 0);
 
           drawGemstone(gemCx, gemCy, w, h, t);
