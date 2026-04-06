@@ -259,6 +259,21 @@
           </div>
 
     </div>
+
+      <footer class="site-footer-signature" aria-label="Авторская подпись">
+        <img
+          class="author-signature-img"
+          src="images/podpi_s.jpg"
+          width="400"
+          height="120"
+          alt="Подпись автора: Tanya Gaiduk"
+          decoding="async"
+          loading="lazy"
+        />
+        <p class="site-footer-copy">
+          © 2026 Автор идеи ТАНЯ ГАЙДУК — ученица 5 курса школы SMM
+        </p>
+      </footer>
     </section>
   </main>
 
@@ -1276,14 +1291,14 @@
           color: "#fc42ff",
           colorTwo: "#42fcff",
           ringCount: 6,
-          speed: 1,
+          speed: 0.38,
           attenuation: 10,
           lineThickness: 2,
           baseRadius: 0.35,
           radiusStep: 0.1,
-          scaleRate: 0.1,
+          scaleRate: 0.07,
           opacity: 1,
-          noiseAmount: 0.1,
+          noiseAmount: 0.035,
           rotation: 0,
           ringGap: 1.5,
           fadeIn: 0.7,
@@ -1501,9 +1516,9 @@ void main() {
         function draw(now) {
           raf = requestAnimationFrame(draw);
 
-          smoothMouse[0] += (mouse[0] - smoothMouse[0]) * 0.08;
-          smoothMouse[1] += (mouse[1] - smoothMouse[1]) * 0.08;
-          hover += ((isHovered ? 1 : 0) - hover) * 0.08;
+          smoothMouse[0] += (mouse[0] - smoothMouse[0]) * 0.045;
+          smoothMouse[1] += (mouse[1] - smoothMouse[1]) * 0.045;
+          hover += ((isHovered ? 1 : 0) - hover) * 0.05;
           burst *= 0.95;
           if (burst < 0.001) burst = 0;
 
@@ -1571,7 +1586,7 @@ void main() {
         let dpr = 1;
         let running = true;
         /* Лучи от верхнего сгиба переплёта (начало свечения); низ страниц свободен под записи слов */
-        const rayCount = 26;
+        const rayCount = 38;
         const rays = Array.from({ length: rayCount }, (_, i) => ({
           a: i / Math.max(1, rayCount - 1),
           seed: Math.random() * 1000
