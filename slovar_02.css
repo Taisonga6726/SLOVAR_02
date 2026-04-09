@@ -311,13 +311,13 @@ body {
 
 .center-cta-banner--book {
   top: 35%;
-  min-width: min(24vw, 250px);
-  max-width: min(30vw, 310px);
-  min-height: clamp(64px, 7.2vw, 94px);
-  padding: clamp(10px, 1.15vw, 14px) clamp(14px, 1.5vw, 18px);
-  font-size: clamp(20px, 1.95vw, 30px);
+  min-width: min(19vw, 200px);
+  max-width: min(24vw, 245px);
+  min-height: clamp(50px, 5.6vw, 68px);
+  padding: clamp(7px, 0.85vw, 10px) clamp(10px, 1.1vw, 13px);
+  font-size: clamp(12px, 1.15vw, 18px);
   letter-spacing: 0.03em;
-  line-height: 1.18;
+  line-height: 1.15;
   z-index: 4;
   pointer-events: auto;
   cursor: pointer;
@@ -962,10 +962,10 @@ body {
 
   .center-cta-banner--book {
     top: 34%;
-    min-width: 46vw;
-    max-width: 58vw;
-    min-height: clamp(52px, 11vw, 82px);
-    font-size: clamp(15px, 4.1vw, 22px);
+    min-width: 42vw;
+    max-width: 50vw;
+    min-height: clamp(44px, 8.8vw, 60px);
+    font-size: clamp(11px, 2.9vw, 15px);
     line-height: 1.2;
   }
 }
