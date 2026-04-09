@@ -305,7 +305,7 @@ body {
 }
 
 .center-cta-banner--book {
-  top: 22%;
+  top: 46%;
   min-width: min(44vw, 390px);
   max-width: min(58vw, 520px);
   padding: clamp(8px, 1vw, 12px) clamp(14px, 1.7vw, 20px);
@@ -947,7 +947,7 @@ body {
   }
 
   .center-cta-banner--book {
-    top: 21%;
+    top: 44%;
     min-width: 56vw;
     max-width: 74vw;
   }
