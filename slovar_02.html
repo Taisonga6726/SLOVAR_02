@@ -70,22 +70,6 @@
               Обложка словаря
             </div>
 
-            <!-- Слова привязаны к прямоугольнику картинки (см. syncFloatWordsToCoverImage в скрипте) -->
-            <div id="sceneFloatWords" class="scene-float-words" aria-hidden="true">
-              <span class="scene-float-word scene-float-word--magic">MAGIC</span>
-              <span class="scene-float-word scene-float-word--code">CODE</span>
-              <span class="scene-float-word scene-float-word--vibe">ВАЙБ</span>
-              <span class="scene-float-word scene-float-word--flow">ПОТОК</span>
-              <span class="scene-float-word scene-float-word--sense">СМЫСЛ</span>
-              <span class="scene-float-word scene-float-word--focus">ФОКУС</span>
-              <span class="scene-float-word scene-float-word--idea">ИДЕЯ</span>
-              <span class="scene-float-word scene-float-word--growth">РОСТ</span>
-              <span class="scene-float-word scene-float-word--ai">AI</span>
-              <span class="scene-float-word scene-float-word--neuro scene-float-word--center-x">НЕЙРО</span>
-              <!-- Два акцента по макету: между боковой книгой и центром / между центром и монетами -->
-              <span class="scene-float-word scene-float-word--cta-left">0 → PRO</span>
-              <span class="scene-float-word scene-float-word--cta-right">LEVEL UP</span>
-            </div>
             <canvas
               id="coverBookPerimeterCanvas"
               class="cover-book-perimeter-canvas"
@@ -161,22 +145,6 @@
                   <span class="ai-logo-c-spark"></span>
                   <span class="ai-logo-c-spark"></span>
                 </div>
-                <!-- Шаг 2: те же слова/эффекты переносим и на картинку 2 -->
-                <div class="scene-float-words scene-float-words--book" aria-hidden="true">
-                  <span class="scene-float-word scene-float-word--magic">MAGIC</span>
-                  <span class="scene-float-word scene-float-word--code">CODE</span>
-                  <span class="scene-float-word scene-float-word--vibe">ВАЙБ</span>
-                  <span class="scene-float-word scene-float-word--flow">ПОТОК</span>
-                  <span class="scene-float-word scene-float-word--sense">СМЫСЛ</span>
-                  <span class="scene-float-word scene-float-word--focus">ФОКУС</span>
-                  <span class="scene-float-word scene-float-word--idea">ИДЕЯ</span>
-                  <span class="scene-float-word scene-float-word--growth">РОСТ</span>
-                  <span class="scene-float-word scene-float-word--ai">AI</span>
-                  <span class="scene-float-word scene-float-word--neuro scene-float-word--center-x">НЕЙРО</span>
-                  <span class="scene-float-word scene-float-word--cta-left">0 → PRO</span>
-                  <span class="scene-float-word scene-float-word--cta-right">LEVEL UP</span>
-                </div>
-
                 <div id="viewMode" class="book-mode book-mode--view is-active" aria-live="polite">
                   <div class="book-left">
                     <p class="paper-label">Режим книги</p>
@@ -212,10 +180,10 @@
 
                   <form id="wordForm" novalidate aria-describedby="formMessage formHints">
                     <p id="formHints" class="visually-hidden">
-                      Поля «Слово» и «Описание» обязательны. «Редактировать» запускает предпросмотр справа. После «Сохранить» открывается следующая строка; книга остаётся на этой картинке.
+                      Поля «Слово» и «Описание» обязательны. Клик по тексту в списке слева или кнопка «Редактировать»
+                      подставляют сохранённую запись в форму для исправления. Под каждой записью в списке и под строкой
+                      справа — пять положительных реакций (нажатие добавляет голос читателя). Ctrl+Enter сохраняет.
                     </p>
-
-                    <button id="backToViewBtn" class="ghost-btn book-btn" type="button">← Назад в книгу</button>
 
                     <label class="paper-label" for="wordInput">Слово</label>
                     <input
@@ -256,26 +224,18 @@
                     <div id="writingPreview" class="dictionary-page" aria-live="polite"></div>
                   </div>
 
-                  <div class="book-write-bottom" aria-label="Превью анимации и навигация">
-                    <p class="book-anim-preview-hint" id="animPreviewHint">
-                      Временное превью анимации книги — выберите вариант (1–5), затем скажите, какой утвердить.
-                      <span class="book-anim-preview-legend">
-                        1) дыхание · 2) лёгкое качание · 3) перо в превью · 4) мягкий перелист · 5) комбо (1+3+4)
-                      </span>
-                    </p>
-                    <div class="book-anim-preview-row" role="group" aria-labelledby="animPreviewHint">
-                      <button type="button" class="anim-preview-btn" data-anim="0">Выкл.</button>
-                      <button type="button" class="anim-preview-btn" data-anim="1">1</button>
-                      <button type="button" class="anim-preview-btn" data-anim="2">2</button>
-                      <button type="button" class="anim-preview-btn" data-anim="3">3</button>
-                      <button type="button" class="anim-preview-btn" data-anim="4">4</button>
-                      <button type="button" class="anim-preview-btn" data-anim="5">5</button>
-                    </div>
+                  <div class="book-write-bottom" aria-label="Навигация по книге">
                     <div class="book-write-actions-row">
                       <button id="writeNextBtn" type="button" class="ghost-btn book-btn">Далее</button>
                       <button id="closeBookBtn" type="button" class="ghost-btn book-btn">Закрыть книгу</button>
                     </div>
                   </div>
+                </div>
+
+                <!-- Логотип AI над корешком только на картинке формы (forma_cl) -->
+                <div class="book-write-ai-logo" aria-hidden="true">
+                  <span class="book-write-ai-logo__glow" aria-hidden="true"></span>
+                  <span class="book-write-ai-logo__text">AI</span>
                 </div>
               </div>
             </div>
@@ -365,6 +325,14 @@
         typingSpeed: 15,
         maxWordLength: 30,
         maxDescriptionLength: 150,
+        /** 5 положительных реакций «как у других пользователей» (нажатие = +1, хранится в данных) */
+        reactionDefs: [
+          { key: "heart", emoji: "❤️", title: "Сердечко" },
+          { key: "nice", emoji: "👍", title: "Класс" },
+          { key: "smile", emoji: "😊", title: "Радость" },
+          { key: "fire", emoji: "🔥", title: "Огонь" },
+          { key: "star", emoji: "⭐", title: "Звезда" }
+        ],
         /**
          * Цепочка источников для <img>: первый успешно загрузившийся используется.
          * Поставьте свои файлы в images/ и при необходимости переставьте строки (например jpg первым).
@@ -407,8 +375,8 @@
         coverAwaitingClick: false,
         /** Текущий «разворот» правой страницы в writeMode (1..) */
         writeSpreadPage: 1,
-        /** Временное превью анимации книги: 0 = выкл., 1..5 */
-        bookAnimDemo: 0
+        /** Редактирование сохранённой записи (id) или null */
+        editingWordId: null
       };
 
       /* --- Ссылки на DOM --- */
@@ -433,7 +401,6 @@
         descriptionInput: document.getElementById("descriptionInput"),
         saveBtn: document.getElementById("saveBtn"),
         writeBtn: document.getElementById("writeBtn"),
-        backToViewBtn: document.getElementById("backToViewBtn"),
         writeWordList: document.getElementById("writeWordList"),
         writeNextBtn: document.getElementById("writeNextBtn"),
         closeBookBtn: document.getElementById("closeBookBtn"),
@@ -517,43 +484,22 @@
         }
       }
 
-      /**
-       * Совмещает слой плавающих слов с фактическим прямоугольником обложки (object-fit: contain),
-       * чтобы проценты позиций совпадали с макетом на картинке.
-       */
-      function syncFloatWordsToCoverImage() {
-        const wrap = dom.sceneBgWrap;
-        const img = dom.sceneBg;
-        const layer = document.getElementById("sceneFloatWords");
-        if (!wrap || !layer) return;
-        if (!img || wrap.classList.contains("image-error") || !img.naturalWidth) {
-          layer.style.left = "0";
-          layer.style.top = "0";
-          layer.style.width = "100%";
-          layer.style.height = "100%";
-          return;
-        }
-        const wrapRect = wrap.getBoundingClientRect();
-        const imgRect = img.getBoundingClientRect();
-        layer.style.left = `${imgRect.left - wrapRect.left}px`;
-        layer.style.top = `${imgRect.top - wrapRect.top}px`;
-        layer.style.width = `${imgRect.width}px`;
-        layer.style.height = `${imgRect.height}px`;
+      function defaultReactions() {
+        const o = {};
+        CONFIG.reactionDefs.forEach((d) => {
+          o[d.key] = 0;
+        });
+        return o;
       }
 
-      function initCoverFloatWordsSync() {
-        const img = dom.sceneBg;
-        const wrap = dom.sceneBgWrap;
-        if (!img || !wrap || !document.getElementById("sceneFloatWords")) return;
-        const sync = () => {
-          syncFloatWordsToCoverImage();
-        };
-        img.addEventListener("load", sync, { passive: true });
-        window.addEventListener("resize", sync, { passive: true });
-        if (typeof ResizeObserver !== "undefined") {
-          new ResizeObserver(sync).observe(wrap);
-        }
-        sync();
+      function normalizeReactions(raw) {
+        const out = defaultReactions();
+        if (!raw || typeof raw !== "object") return out;
+        CONFIG.reactionDefs.forEach((d) => {
+          const n = raw[d.key];
+          if (Number.isFinite(n)) out[d.key] = Math.max(0, Math.floor(n));
+        });
+        return out;
       }
 
       /* --- Нормализация записей в хранилище --- */
@@ -575,6 +521,7 @@
           text: normalizedText.slice(0, CONFIG.maxWordLength + CONFIG.maxDescriptionLength + 3),
           emoji: emoji.slice(0, 8),
           likes: Math.max(0, Math.floor(likes)),
+          reactions: normalizeReactions(raw.reactions),
           createdAt:
             typeof raw.createdAt === "string" ? raw.createdAt : new Date().toISOString()
         };
@@ -876,9 +823,10 @@
         return Math.max(1, Math.ceil(state.words.length / CONFIG.wordsPerPage));
       }
 
-      function isDuplicateWord(word) {
+      function isDuplicateWord(word, excludeId = null) {
         const normalized = word.trim().toLowerCase();
         return state.words.some((item) => {
+          if (excludeId && item.id === excludeId) return false;
           const itemText = String(item.text || "").toLowerCase();
           const baseWord = itemText.split("—")[0].trim();
           return baseWord === normalized;
@@ -891,11 +839,22 @@
           text: `${word} — ${description}`,
           emoji: emoji || "",
           likes: 0,
+          reactions: defaultReactions(),
           createdAt: new Date().toISOString()
         };
       }
 
-      function validateWordForm(word, description) {
+      function splitSavedText(text) {
+        const s = String(text || "");
+        const i = s.indexOf(" — ");
+        if (i === -1) return { word: s.trim(), description: "" };
+        return {
+          word: s.slice(0, i).trim(),
+          description: s.slice(i + 3).trim()
+        };
+      }
+
+      function validateWordForm(word, description, excludeId = null) {
         if (!word || !description) {
           return "Введите слово и описание";
         }
@@ -905,10 +864,46 @@
         if (description.length > CONFIG.maxDescriptionLength) {
           return `Описание должно быть не длиннее ${CONFIG.maxDescriptionLength} символов`;
         }
-        if (isDuplicateWord(word)) {
+        if (isDuplicateWord(word, excludeId)) {
           return "Такое слово уже есть";
         }
         return "";
+      }
+
+      function renderReactionRow(wordId, reactionsObj) {
+        const row = document.createElement("div");
+        row.className = "word-reactions";
+        row.setAttribute("role", "group");
+        row.setAttribute("aria-label", "Реакции читателей");
+        CONFIG.reactionDefs.forEach((def) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "word-reaction-btn";
+          btn.setAttribute("data-word-id", wordId);
+          btn.setAttribute("data-reaction-key", def.key);
+          btn.title = def.title;
+          const count = reactionsObj && reactionsObj[def.key] != null ? reactionsObj[def.key] : 0;
+          btn.textContent = `${def.emoji} ${count}`;
+          row.appendChild(btn);
+        });
+        return row;
+      }
+
+      function handleReactionClick(wordId, reactionKey) {
+        const item = state.words.find((w) => w.id === wordId);
+        if (!item || !item.reactions || item.reactions[reactionKey] == null) return;
+        item.reactions[reactionKey] += 1;
+        const saved = storage.saveWords(state.words);
+        if (!saved.ok) {
+          item.reactions[reactionKey] -= 1;
+          return;
+        }
+        if (state.bookMode === "write") {
+          renderWriteWordList();
+          renderWriteRightPane();
+        } else {
+          renderCurrentPage();
+        }
       }
 
       /* --- Рендер --- */
@@ -942,24 +937,27 @@
         state.writeSpreadPage = Math.max(1, Math.ceil(Math.max(state.words.length, 1) / cap));
       }
 
-      function setBookAnimDemoVariant(n) {
-        state.bookAnimDemo = Math.max(0, Math.min(5, n | 0));
-        if (!dom.bookImageWrap) return;
-        dom.bookImageWrap.classList.remove(
-          "book-anim-demo--0",
-          "book-anim-demo--1",
-          "book-anim-demo--2",
-          "book-anim-demo--3",
-          "book-anim-demo--4",
-          "book-anim-demo--5"
-        );
-        dom.bookImageWrap.classList.add(`book-anim-demo--${state.bookAnimDemo}`);
-        document.querySelectorAll(".anim-preview-btn").forEach((btn) => {
-          btn.classList.toggle(
-            "is-selected",
-            String(state.bookAnimDemo) === btn.getAttribute("data-anim")
-          );
-        });
+      function startEditWord(id) {
+        const item = state.words.find((w) => w.id === id);
+        if (!item) return;
+        const { word, description } = splitSavedText(item.text);
+        state.editingWordId = id;
+        dom.wordInput.value = word;
+        dom.descriptionInput.value = description;
+        setWordFieldsInvalid(false);
+        const n = state.words.indexOf(item) + 1;
+        setFormMessage(`Редактируете запись №${n}. Сохраните изменения.`, "");
+        renderWriteWordList();
+        renderWriteRightPane();
+        dom.wordInput.focus();
+      }
+
+      function beginEditLastSaved() {
+        if (!state.words.length) {
+          setFormMessage("Пока нет сохранённых слов. Сначала сохраните новую запись.", "error");
+          return;
+        }
+        startEditWord(state.words[state.words.length - 1].id);
       }
 
       function renderWriteWordList() {
@@ -969,7 +967,24 @@
         state.words.forEach((item, i) => {
           const li = document.createElement("li");
           li.className = "write-word-li";
-          li.textContent = `${item.emoji ? `${item.emoji} ` : ""}${item.text}`;
+          if (state.editingWordId === item.id) li.classList.add("is-editing");
+
+          const row = document.createElement("div");
+          row.className = "write-word-li-messenger";
+
+          const textBtn = document.createElement("button");
+          textBtn.type = "button";
+          textBtn.className = "write-word-li-text";
+          textBtn.dataset.id = item.id;
+          textBtn.textContent = `${item.emoji ? `${item.emoji} ` : ""}${item.text}`;
+          textBtn.setAttribute(
+            "aria-label",
+            `Редактировать запись ${i + 1}: ${item.text.slice(0, 80)}`
+          );
+
+          row.appendChild(textBtn);
+          row.appendChild(renderReactionRow(item.id, item.reactions || defaultReactions()));
+          li.appendChild(row);
           list.appendChild(li);
         });
       }
@@ -986,7 +1001,11 @@
         const hasDraft = Boolean(
           normalizeText(word) || normalizeText(description)
         );
-        const nextNum = state.words.length + 1;
+        let draftNum = state.words.length + 1;
+        if (state.editingWordId) {
+          const ei = state.words.findIndex((w) => w.id === state.editingWordId);
+          if (ei >= 0) draftNum = ei + 1;
+        }
 
         dom.writingPreview.innerHTML = "";
         slice.forEach((item, idx) => {
@@ -994,12 +1013,17 @@
           const line = document.createElement("div");
           line.className = "word-line write-right-line";
           line.textContent = `${n}. ${item.emoji ? `${item.emoji} ` : ""}${item.text}`;
-          dom.writingPreview.appendChild(line);
+          const entry = document.createElement("div");
+          entry.className = "write-right-entry";
+          entry.appendChild(line);
+          const react = item.reactions || defaultReactions();
+          entry.appendChild(renderReactionRow(item.id, react));
+          dom.writingPreview.appendChild(entry);
         });
         if (hasDraft) {
           const d = document.createElement("div");
           d.className = "word-line write-right-draft";
-          d.textContent = `${nextNum}. ${draftFull}`;
+          d.textContent = `${draftNum}. ${draftFull}`;
           dom.writingPreview.appendChild(d);
         }
       }
@@ -1030,12 +1054,13 @@
       function closeBookToCover() {
         clearWritingTimer();
         clearTypingTimer();
+        state.editingWordId = null;
         state.bookMode = "view";
         state.writeSpreadPage = 1;
-        state.isBookInitialized = false;
         if (dom.viewMode) dom.viewMode.classList.add("is-active");
         if (dom.writeMode) dom.writeMode.classList.remove("is-active");
         if (dom.bookImage) dom.bookImage.src = CONFIG.images.bookViewSource;
+        if (dom.bookImageWrap) dom.bookImageWrap.classList.remove("book-mode--write-active");
         dom.sceneStage.classList.remove("scene--book-open", "scene--step2-visual");
         if (dom.bookOpenLayer) {
           dom.bookOpenLayer.classList.add("hidden");
@@ -1055,6 +1080,9 @@
         }
         if (dom.writeMode) {
           dom.writeMode.classList.toggle("is-active", state.bookMode === "write");
+        }
+        if (dom.bookImageWrap) {
+          dom.bookImageWrap.classList.toggle("book-mode--write-active", state.bookMode === "write");
         }
 
         if (state.bookMode === "write") {
@@ -1116,29 +1144,6 @@
         }, speed);
       }
 
-      function runWritingPreview(text) {
-        if (!dom.writingPreview) return;
-        clearWritingTimer();
-        dom.writingPreview.textContent = "";
-        if (!text) return;
-
-        const typingMs = prefersReducedMotion() ? 0 : CONFIG.typingSpeed;
-        if (typingMs === 0) {
-          dom.writingPreview.textContent = text;
-          return;
-        }
-
-        let index = 0;
-        state.writingTimer = window.setInterval(() => {
-          if (index >= text.length) {
-            clearWritingTimer();
-            return;
-          }
-          dom.writingPreview.textContent += text.charAt(index);
-          index += 1;
-        }, typingMs);
-      }
-
       function syncLiveWritingPreview() {
         renderWriteRightPane();
       }
@@ -1178,6 +1183,8 @@
         let typingText = null;
 
         wordsForPage.forEach((item, index) => {
+          const wrap = document.createElement("div");
+          wrap.className = "dictionary-entry-wrap";
           const line = document.createElement("div");
           line.className = "word-line";
           const text = `${startIndex + index + 1}. ${item.emoji ? `${item.emoji} ` : ""}${item.text}`;
@@ -1189,7 +1196,9 @@
           } else {
             line.textContent = text;
           }
-          fragment.appendChild(line);
+          wrap.appendChild(line);
+          wrap.appendChild(renderReactionRow(item.id, item.reactions || defaultReactions()));
+          fragment.appendChild(wrap);
         });
 
         dom.dictionaryPage.appendChild(fragment);
@@ -1221,9 +1230,15 @@
       }
 
       function resetWordForm() {
+        state.editingWordId = null;
         dom.wordInput.value = "";
         dom.descriptionInput.value = "";
         setWordFieldsInvalid(false);
+        if (dom.writeWordList) {
+          dom.writeWordList.querySelectorAll(".write-word-li.is-editing").forEach((el) => {
+            el.classList.remove("is-editing");
+          });
+        }
         dom.wordInput.focus();
       }
 
@@ -1234,41 +1249,11 @@
         return { word, description, emoji: "", text };
       }
 
-      function handleWritePreview() {
-        const data = buildWritingText();
-        if (!data.word || !data.description) {
-          setFormMessage("Сначала заполните слово и описание", "error");
-          setWordFieldsInvalid(true);
-          return;
-        }
-        setWordFieldsInvalid(false);
-        setFormMessage("", "");
-        renderWriteRightPane();
-        const draftEl = dom.writingPreview && dom.writingPreview.querySelector(".write-right-draft");
-        if (!draftEl) return;
-        const full = draftEl.textContent;
-        draftEl.textContent = "";
-        const typingMs = prefersReducedMotion() ? 0 : CONFIG.typingSpeed;
-        if (typingMs === 0) {
-          draftEl.textContent = full;
-          return;
-        }
-        let index = 0;
-        clearWritingTimer();
-        state.writingTimer = window.setInterval(() => {
-          if (index >= full.length) {
-            clearWritingTimer();
-            return;
-          }
-          draftEl.textContent += full.charAt(index);
-          index += 1;
-        }, typingMs);
-      }
-
       function handleAddWord() {
         const { word, description, emoji } = buildWritingText();
+        const excludeId = state.editingWordId;
 
-        const validationError = validateWordForm(word, description);
+        const validationError = validateWordForm(word, description, excludeId);
         if (validationError) {
           setFormMessage(validationError, "error");
           setWordFieldsInvalid(true);
@@ -1277,6 +1262,35 @@
 
         setWordFieldsInvalid(false);
         setButtonLoading(dom.saveBtn, true, "пишем...");
+
+        if (state.editingWordId) {
+          const idx = state.words.findIndex((w) => w.id === state.editingWordId);
+          if (idx === -1) {
+            state.editingWordId = null;
+            setButtonLoading(dom.saveBtn, false);
+            setFormMessage("Запись не найдена. Начните снова.", "error");
+            return;
+          }
+          const prev = state.words[idx];
+          state.words[idx] = {
+            ...prev,
+            text: `${word} — ${description}`,
+            emoji: emoji || prev.emoji || ""
+          };
+          const saved = storage.saveWords(state.words);
+          if (!saved.ok) {
+            state.words[idx] = prev;
+            setButtonLoading(dom.saveBtn, false);
+            setFormMessage(saved.message || "Не удалось сохранить изменения.", "error");
+            return;
+          }
+          resetWordForm();
+          setFormMessage("Изменения сохранены", "success");
+          renderWriteWordList();
+          renderWriteRightPane();
+          setButtonLoading(dom.saveBtn, false);
+          return;
+        }
 
         const spreadBefore = state.writeSpreadPage;
         const newWord = createWordEntry(word, description, emoji);
@@ -1327,6 +1341,8 @@
 
         if (dom.sceneStage.classList.contains("scene--step2-visual")) {
           pruneBookUiForStep2();
+          state.words = storage.loadWords();
+          state.isBookInitialized = true;
           return;
         }
         initBook();
@@ -1341,6 +1357,8 @@
         dom.accessOverlay.setAttribute("hidden", "");
         if (dom.sceneStage.classList.contains("scene--step2-visual")) {
           pruneBookUiForStep2();
+          state.words = storage.loadWords();
+          state.isBookInitialized = true;
           return;
         }
         initBook();
@@ -1455,14 +1473,33 @@
         });
 
         if (dom.writeBtn) {
-          dom.writeBtn.addEventListener("click", handleWritePreview);
+          dom.writeBtn.addEventListener("click", beginEditLastSaved);
         }
 
-        if (dom.backToViewBtn) {
-          dom.backToViewBtn.addEventListener("click", () => {
-            switchBookMode("view");
+        if (dom.writeWordList) {
+          dom.writeWordList.addEventListener("click", (e) => {
+            if (e.target.closest(".word-reaction-btn")) return;
+            const tb = e.target.closest(".write-word-li-text");
+            if (!tb || !tb.dataset.id) return;
+            startEditWord(tb.dataset.id);
           });
         }
+
+        function bindReactionClicks(container) {
+          if (!container) return;
+          container.addEventListener("click", (e) => {
+            const btn = e.target.closest(".word-reaction-btn");
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const wid = btn.getAttribute("data-word-id");
+            const key = btn.getAttribute("data-reaction-key");
+            if (wid && key) handleReactionClick(wid, key);
+          });
+        }
+        bindReactionClicks(dom.writingPreview);
+        bindReactionClicks(dom.dictionaryPage);
+        bindReactionClicks(dom.writeWordList);
 
         if (dom.writeNextBtn) {
           dom.writeNextBtn.addEventListener("click", () => {
@@ -1475,13 +1512,6 @@
             closeBookToCover();
           });
         }
-
-        document.querySelectorAll(".anim-preview-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const v = parseInt(btn.getAttribute("data-anim"), 10);
-            setBookAnimDemoVariant(Number.isNaN(v) ? 0 : v);
-          });
-        });
 
         dom.wordInput.addEventListener("keydown", (e) => {
           if (e.key === "Enter") {
@@ -1509,7 +1539,7 @@
         dom.descriptionInput.addEventListener("keydown", (e) => {
           if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
             e.preventDefault();
-            handleWritePreview();
+            handleAddWord();
           }
         });
 
@@ -2124,11 +2154,23 @@ void main() {
       }
 
       function initApp() {
+        const DICTIONARY_RESET_VERSION = "2";
+        try {
+          const resetKey = "vibe_dictionary_reset_v";
+          if (localStorage.getItem(resetKey) !== DICTIONARY_RESET_VERSION) {
+            storage.saveWords([]);
+            localStorage.setItem(resetKey, DICTIONARY_RESET_VERSION);
+          }
+        } catch (_) {
+          /* ignore */
+        }
+        state.words = [];
+        state.isBookInitialized = false;
+        state.writeSpreadPage = 1;
         bindEvents();
         bindDecorativeImages();
         initMagicOverlayParticles();
         setAccessButtonState("default");
-        initCoverFloatWordsSync();
         magicRingsCleanup = initMagicRingsFx();
         grainShaderCleanup = initGrainShaderBackground();
         bookElectricFxCleanup = initBookElectricFxVariantsDEF();

@@ -156,6 +156,93 @@ body {
   cursor: pointer;
 }
 
+/* Статистика словаря по бокам кадра (видна с открытой книгой) */
+.word-stats-aside {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  display: none;
+}
+
+.scene-stage.scene--book-open .word-stats-aside {
+  display: block;
+}
+
+.word-stats-aside__panel {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: min(22vw, 118px);
+  max-width: min(26vw, 150px);
+  padding: 10px 12px;
+  border-radius: 14px;
+  text-align: center;
+  background: linear-gradient(
+    160deg,
+    rgba(24, 14, 48, 0.72) 0%,
+    rgba(48, 26, 86, 0.58) 45%,
+    rgba(18, 32, 72, 0.62) 100%
+  );
+  border: 1px solid rgba(170, 140, 255, 0.42);
+  box-shadow:
+    0 0 20px rgba(120, 200, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px) saturate(1.15);
+}
+
+.word-stats-aside__panel--left {
+  left: clamp(6px, 1.4vw, 18px);
+}
+
+.word-stats-aside__panel--right {
+  right: clamp(6px, 1.4vw, 18px);
+}
+
+.word-stats-aside__label {
+  font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+  font-size: clamp(9px, 0.85vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(220, 230, 255, 0.9);
+  text-shadow: 0 0 12px rgba(100, 180, 255, 0.35);
+  line-height: 1.2;
+}
+
+.word-stats-aside__num {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(26px, 3.8vw, 44px);
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(255, 248, 220, 0.96);
+  text-shadow:
+    0 0 18px rgba(160, 220, 255, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.65);
+}
+
+@media (max-width: 520px) {
+  .word-stats-aside__panel {
+    min-width: 72px;
+    max-width: 88px;
+    padding: 8px 8px;
+    top: 42%;
+  }
+
+  .word-stats-aside__panel--left {
+    left: 4px;
+  }
+
+  .word-stats-aside__panel--right {
+    right: 4px;
+  }
+}
+
 /* Слот книги: зона закрытой книги на обложке; при открытии — расширяется под разворот */
 .book-slot {
   position: absolute;
@@ -412,6 +499,102 @@ body {
   z-index: 7;
 }
 
+/* Режим forma_cl: надпись AI по центру верхнего переплёта (картинка 3) */
+.book-write-ai-logo {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 9.5%;
+  transform: translate(-50%, -35%);
+  z-index: 9;
+  pointer-events: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+#bookImageWrap.book-ui.book-mode--write-active .book-write-ai-logo {
+  display: flex;
+}
+
+/* Не дублировать плавающее слово AI и нижний хотспот — на форме свой маркер */
+#bookImageWrap.book-ui.book-mode--write-active .scene-float-words--book .scene-float-word--ai {
+  display: none;
+}
+
+#bookImageWrap.book-ui.book-mode--write-active .ai-logo-hotspot--book {
+  top: 9.5%;
+  width: min(18vw, 230px);
+  height: min(11vh, 102px);
+}
+
+.book-write-ai-logo__glow {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  width: min(42vw, 280px);
+  height: min(22vh, 120px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse 52% 48% at 50% 50%,
+    rgba(120, 235, 255, 0.34) 0%,
+    rgba(186, 102, 255, 0.22) 42%,
+    rgba(255, 116, 210, 0.12) 62%,
+    transparent 78%
+  );
+  filter: blur(2px);
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.book-write-ai-logo__text {
+  position: relative;
+  display: block;
+  font-family: system-ui, "Segoe UI", sans-serif;
+  font-size: clamp(22px, 2.65vw, 40px);
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: transparent;
+  background-image: linear-gradient(
+    115deg,
+    #b8f6ff 0%,
+    #6edcfd 18%,
+    #c084fc 45%,
+    #ff6bcb 68%,
+    #7ef3ff 100%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter:
+    drop-shadow(0 0 10px rgba(120, 240, 255, 0.9))
+    drop-shadow(0 0 22px rgba(180, 100, 255, 0.55))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.75));
+  animation: bookWriteAiLogoShimmer 5s ease-in-out infinite;
+}
+
+@keyframes bookWriteAiLogoShimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-write-ai-logo__text {
+    animation: none;
+    background-position: 40% 50%;
+  }
+}
+
 .scene-stage.scene--book-open .book-image-wrap {
   overflow: hidden;
 }
@@ -471,17 +654,17 @@ body {
   mix-blend-mode: screen;
 }
 
-.scene-stage.scene--book-open .magic-rings-fx {
-  opacity: 0.86;
-}
-
-/* По запросу: убираем свечение/неон в открытой книге */
-.scene-stage.scene--book-open .magic-rings-fx,
+/* По запросу: убираем свечение/неон в открытой книге; кольца у курсора (MagicRings) оставляем */
 .scene-stage.scene--book-open .magic-overlay,
 .scene-stage.scene--book-open .book-electric-fx-canvas,
 .scene-stage.scene--book-open .light-burst {
   display: none !important;
   opacity: 0 !important;
+}
+
+.scene-stage.scene--book-open .magic-rings-fx {
+  display: block !important;
+  opacity: 0.52 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -665,60 +848,63 @@ body {
   overflow: hidden;
 }
 
+/* Только 2-я / 3-я картинка (разворот / форма): крупнее шрифт и позиции по макету пользователя */
 .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word {
-  font-size: clamp(9px, 0.75vw, 12px);
-  letter-spacing: 0.1em;
-  opacity: 0.82;
+  font-size: clamp(16px, 1.55vw, 26px);
+  letter-spacing: 0.09em;
+  opacity: 0.9;
 }
 
+/* фокус — слева, в тёмном поле; идея — левая страница; рост — вверху справа; остальные — на пергаменте разворота */
 .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--magic {
-  top: 8%;
-  left: 11%;
+  top: 24%;
+  left: 30%;
 }
 
 .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--code {
-  top: 8%;
-  right: 11%;
+  top: 24%;
+  right: 26%;
   left: auto;
 }
 
 .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--vibe {
-  top: 14%;
-  left: 7%;
+  top: 40%;
+  left: 32%;
 }
 
 .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--flow {
-  top: 14%;
-  right: 7%;
+  top: 40%;
+  right: 30%;
   left: auto;
 }
 
 .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--sense {
-  top: 20%;
+  top: 56%;
+  left: 48%;
+  right: auto;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--focus {
+  top: 30%;
+  left: 7%;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--idea {
+  top: 46%;
+  left: 34%;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--growth {
+  top: 16%;
   right: 10%;
   left: auto;
 }
 
-.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--focus {
-  top: 20%;
-  left: 10%;
-}
-
-.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--idea {
-  top: 26%;
-  left: 14%;
-}
-
-.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--growth {
-  top: 26%;
-  right: 14%;
-  left: auto;
-}
-
 .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--ai {
-  top: 6.5%;
+  top: 8%;
   left: 50%;
   transform: translateX(-50%);
+  font-size: clamp(14px, 1.35vw, 22px);
 }
 
 .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--neuro {
@@ -759,7 +945,7 @@ body {
   animation-delay: var(--float-delay), var(--float-delay);
 }
 
-/* Макет: MAGIC / CODE — над головами по бокам; ИДЕЯ — у книги слева внизу; НЕЙРО — над подписью по центру низа */
+/* Экран 1 (обложка с людьми): исходный макет, без правок под разворот */
 .scene-float-word--magic {
   left: 8%;
   top: 5%;
@@ -919,6 +1105,42 @@ body {
     right: 6%;
     top: 50%;
     font-size: clamp(9px, 2.8vw, 13px);
+  }
+
+  .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word {
+    font-size: clamp(13px, 3.4vw, 20px);
+  }
+  .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--magic {
+    top: 22%;
+    left: 26%;
+  }
+  .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--code {
+    top: 22%;
+    right: 22%;
+  }
+  .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--vibe {
+    top: 38%;
+    left: 28%;
+  }
+  .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--flow {
+    top: 38%;
+    right: 26%;
+  }
+  .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--sense {
+    top: 54%;
+    left: 46%;
+  }
+  .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--focus {
+    top: 28%;
+    left: 4%;
+  }
+  .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--idea {
+    top: 44%;
+    left: 30%;
+  }
+  .book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--growth {
+    top: 14%;
+    right: 6%;
   }
 }
 
@@ -2450,12 +2672,16 @@ body {
     }
 
 #bookImageWrap.book-ui .book-mode--write .paper-label,
+#bookImageWrap.book-ui .book-mode--write .book-btn,
+#bookImageWrap.book-ui .book-mode--write .form-helper {
+  color: #0f3d78;
+  text-shadow: none;
+}
+
 #bookImageWrap.book-ui .book-mode--write .paper-input,
 #bookImageWrap.book-ui .book-mode--write .paper-textarea,
-#bookImageWrap.book-ui .book-mode--write .book-btn,
-#bookImageWrap.book-ui .book-mode--write .form-helper,
 #bookImageWrap.book-ui .book-mode--write #writingPreview {
-  color: #2f1207;
+  color: #154f9e;
   text-shadow: none;
 }
 
@@ -2468,18 +2694,58 @@ body {
 #bookImageWrap.book-ui .book-mode--write .paper-textarea {
   font-family: "Caveat", cursive;
   font-weight: 700;
-  font-size: clamp(20px, 1.32vw, 27px);
+  font-size: clamp(17px, 1.12vw, 21px);
   line-height: 1.22;
-  border-bottom-color: rgba(60, 24, 12, 0.52);
+  border-bottom-color: rgba(21, 80, 160, 0.42);
+  caret-color: #0d55c4;
 }
 
 #bookImageWrap.book-ui .book-mode--write .paper-textarea {
-  border-left-color: rgba(60, 24, 12, 0.42);
+  border-left: none !important;
+  padding-left: 0;
+  overflow: hidden;
+}
+
+#bookImageWrap.book-ui .book-mode--write #wordInput {
+  font-size: clamp(22px, 1.55vw, 32px);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding-bottom: 4px;
 }
 
 #bookImageWrap.book-ui .book-mode--write .actions-row {
-  margin-top: 8px;
-  gap: 6px;
+  margin-top: 6px;
+  padding-top: 4px;
+  gap: 8px;
+}
+
+#bookImageWrap.book-ui .book-mode--write .actions-row .book-btn {
+  margin-top: 0;
+  padding: 5px 12px;
+  font-size: clamp(12px, 0.88vw, 16px);
+  border-radius: 8px;
+  font-weight: 700;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(180, 210, 255, 0.35) 45%,
+    rgba(21, 80, 160, 0.14) 100%
+  ) !important;
+  border: 1px solid rgba(21, 80, 160, 0.55);
+  color: #082a5c;
+  box-shadow:
+    0 1px 3px rgba(21, 80, 160, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+}
+
+#bookImageWrap.book-ui .book-mode--write .actions-row .book-btn:hover:not(:disabled) {
+  background: rgba(21, 80, 160, 0.2) !important;
+  border-color: rgba(12, 60, 140, 0.85);
+  color: #061f45;
+  box-shadow:
+    0 2px 10px rgba(21, 80, 160, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
 }
 
 #bookImageWrap.book-ui .book-mode--write .book-btn {
@@ -2491,8 +2757,178 @@ body {
 #bookImageWrap.book-ui .book-mode--write #writingPreview {
   font-family: "Caveat", cursive;
   font-weight: 700;
-  font-size: clamp(24px, 1.75vw, 34px);
-  line-height: 1.28;
+  font-size: clamp(17px, 1.15vw, 21px);
+  line-height: 1.25;
+  overflow: hidden;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+#bookImageWrap.book-ui .book-mode--write #writingPreview::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+#bookImageWrap.book-ui .book-left--write {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+#bookImageWrap.book-ui .write-list-title {
+  flex-shrink: 0;
+  margin: 0 0 2px;
+  color: #0f3d78;
+}
+
+#bookImageWrap.book-ui .write-word-list {
+  flex: 0 1 auto;
+  max-height: 28%;
+  min-height: 1.2em;
+  overflow: hidden;
+  margin: 0;
+  padding-left: 1.25em;
+  list-style: decimal;
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(14px, 0.95vw, 18px);
+  line-height: 1.15;
+  color: #154f9e;
+}
+
+#bookImageWrap.book-ui .write-word-list .write-word-li {
+  margin-bottom: 0.28em;
+  cursor: default;
+  border-radius: 4px;
+  outline: transparent solid 2px;
+  transition: outline-color 0.15s ease, background 0.15s ease;
+}
+
+#bookImageWrap.book-ui .write-word-list .write-word-li-messenger {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+}
+
+#bookImageWrap.book-ui .write-word-list .write-word-li-text {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 1px 2px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  outline: transparent solid 2px;
+  transition: background 0.15s ease, outline-color 0.15s ease;
+}
+
+#bookImageWrap.book-ui .write-word-list .write-word-li-text:hover {
+  background: rgba(21, 80, 160, 0.06);
+}
+
+#bookImageWrap.book-ui .write-word-list .write-word-li-text:focus-visible {
+  outline-color: rgba(21, 80, 160, 0.45);
+  background: rgba(21, 80, 160, 0.05);
+}
+
+#bookImageWrap.book-ui .write-word-list .write-word-li.is-editing .write-word-li-text {
+  outline-color: rgba(21, 80, 160, 0.55);
+  background: rgba(21, 80, 160, 0.08);
+}
+
+#bookImageWrap.book-ui .write-word-list .word-reactions {
+  margin: 0;
+  padding: 0 0 0 2px;
+}
+
+#bookImageWrap.book-ui .book-mode--write .write-right-line,
+#bookImageWrap.book-ui .book-mode--write .write-right-draft {
+  color: #154f9e !important;
+  font-size: clamp(17px, 1.15vw, 21px) !important;
+}
+
+#bookImageWrap.book-ui .write-right-entry {
+  margin-bottom: 0.35em;
+}
+
+#bookImageWrap.book-ui .word-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 2px 0 0;
+  justify-content: flex-start;
+}
+
+#bookImageWrap.book-ui .word-reaction-btn {
+  font-size: clamp(11px, 0.68vw, 14px);
+  line-height: 1.2;
+  padding: 2px 6px;
+  border: 1px solid rgba(21, 80, 160, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  color: #0f3d78;
+  cursor: pointer;
+  font-family: system-ui, "Segoe UI", sans-serif;
+}
+
+#bookImageWrap.book-ui .word-reaction-btn:hover:not(:disabled) {
+  background: rgba(21, 80, 160, 0.12);
+}
+
+#bookImageWrap.book-ui .dictionary-entry-wrap {
+  margin-bottom: 0.5em;
+}
+
+#bookImageWrap.book-ui .dictionary-entry-wrap .word-line {
+  color: #154f9e !important;
+  font-size: clamp(17px, 1.15vw, 21px) !important;
+  text-shadow: none !important;
+}
+
+#bookImageWrap.book-ui .book-left--write #wordForm {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#bookImageWrap.book-ui .book-mode--write .write-right-draft {
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* Низ разворота: Далее / Закрыть книгу */
+#bookImageWrap.book-ui .book-write-bottom {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 4%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+#bookImageWrap.book-ui .book-write-bottom .book-write-actions-row {
+  pointer-events: auto;
+}
+
+#bookImageWrap.book-ui .book-write-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 2px;
 }
 
     #bookImageWrap.book-ui .dictionary-page {
