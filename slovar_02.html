@@ -123,7 +123,13 @@
               <div id="bookImageWrap" class="book-image-wrap book-ui">
                 <div id="pageLightBurst" class="light-burst" aria-hidden="true"></div>
                 <div id="bookFxFlash" class="flash flash--book" aria-hidden="true"></div>
-                <div class="center-cta-banner center-cta-banner--book" aria-hidden="true">
+                <div
+                  id="bookCtaBanner"
+                  class="center-cta-banner center-cta-banner--book"
+                  role="button"
+                  tabindex="0"
+                  aria-label="Перейти к форме заполнения словаря"
+                >
                   ВНЕСИ СВОЕ СЛОВО С ОПИСАНИЕМ
                 </div>
                 <div class="magic-overlay" aria-hidden="true">
@@ -382,7 +388,8 @@
         sceneFlash: document.getElementById("sceneFlash"),
         bookFxFlash: document.getElementById("bookFxFlash"),
         pageLightBurst: document.getElementById("pageLightBurst"),
-        accessSubmitBtn: document.getElementById("accessSubmitBtn")
+        accessSubmitBtn: document.getElementById("accessSubmitBtn"),
+        bookCtaBanner: document.getElementById("bookCtaBanner")
       };
 
       /* --- Утилиты --- */
@@ -1015,11 +1022,9 @@
        * Оставляем только картинку и все декоративные эффекты.
        */
       function pruneBookUiForStep2() {
+        // UI формы скрывается CSS-классом scene--step2-visual; DOM не удаляем,
+        // чтобы можно было перейти к заполнению по клику на плашку.
         if (!dom.bookImageWrap) return;
-        const left = dom.bookImageWrap.querySelector(".book-left");
-        const right = dom.bookImageWrap.querySelector(".book-right");
-        if (left) left.remove();
-        if (right) right.remove();
       }
 
       function goToBook() {
@@ -1137,6 +1142,19 @@
         dom.accessForm.addEventListener("submit", handleAccessSubmit);
 
         dom.bookHitZone.addEventListener("click", handleBookOpenClick);
+        if (dom.bookCtaBanner) {
+          dom.bookCtaBanner.addEventListener("click", () => {
+            if (!dom.sceneStage.classList.contains("scene--book-open")) return;
+            dom.sceneStage.classList.remove("scene--step2-visual");
+            initBook();
+            dom.wordInput.focus();
+          });
+          dom.bookCtaBanner.addEventListener("keydown", (e) => {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            e.preventDefault();
+            dom.bookCtaBanner.click();
+          });
+        }
         dom.accessWordInput.addEventListener("input", () => {
           if (dom.accessWordInput.getAttribute("aria-invalid") === "true") {
             setAccessFieldInvalid(false);
