@@ -124,6 +124,12 @@
               <div id="bookImageWrap" class="book-image-wrap book-ui">
                 <div id="pageLightBurst" class="light-burst" aria-hidden="true"></div>
                 <div id="bookFxFlash" class="flash flash--book" aria-hidden="true"></div>
+                <div class="magic-overlay" aria-hidden="true">
+                  <div class="glow"></div>
+                  <div class="aura"></div>
+                  <div class="rays"></div>
+                  <div class="particles" id="particles"></div>
+                </div>
                 <img
                   id="bookImage"
                   class="book-image"
@@ -384,6 +390,20 @@
 
       function normalizeText(value) {
         return String(value).trim().replace(/\s+/g, " ");
+      }
+
+      function initMagicOverlayParticles() {
+        const container = document.getElementById("particles");
+        if (!container || container.childElementCount > 0) return;
+
+        for (let i = 0; i < 25; i++) {
+          const p = document.createElement("div");
+          p.className = "particle";
+          p.style.left = Math.random() * 100 + "%";
+          p.style.animationDuration = 2 + Math.random() * 3 + "s";
+          p.style.opacity = Math.random();
+          container.appendChild(p);
+        }
       }
 
       function createId() {
@@ -1772,6 +1792,7 @@ void main() {
       function initApp() {
         bindEvents();
         bindDecorativeImages();
+        initMagicOverlayParticles();
         setAccessButtonState("default");
         initCoverFloatWordsSync();
         magicRingsCleanup = initMagicRingsFx();
