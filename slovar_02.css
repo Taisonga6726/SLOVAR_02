@@ -406,14 +406,14 @@ body {
  */
 .ai-logo-hotspot--book {
   left: 50%;
-  top: 13%;
-  width: min(27vw, 360px);
-  height: min(19vh, 190px);
+  top: 9%;
+  width: min(16vw, 210px);
+  height: min(10vh, 95px);
   z-index: 7;
 }
 
 .scene-stage.scene--book-open .book-image-wrap {
-  overflow: visible;
+  overflow: hidden;
 }
 
 .scene-stage.scene--book-open .book-image-wrap > .book-image {
@@ -473,6 +473,15 @@ body {
 
 .scene-stage.scene--book-open .magic-rings-fx {
   opacity: 0.86;
+}
+
+/* По запросу: убираем свечение/неон в открытой книге */
+.scene-stage.scene--book-open .magic-rings-fx,
+.scene-stage.scene--book-open .magic-overlay,
+.scene-stage.scene--book-open .book-electric-fx-canvas,
+.scene-stage.scene--book-open .light-burst {
+  display: none !important;
+  opacity: 0 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -653,6 +662,72 @@ body {
   inset: 0;
   z-index: 3;
   pointer-events: none;
+  overflow: hidden;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word {
+  font-size: clamp(9px, 0.75vw, 12px);
+  letter-spacing: 0.1em;
+  opacity: 0.82;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--magic {
+  top: 8%;
+  left: 11%;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--code {
+  top: 8%;
+  right: 11%;
+  left: auto;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--vibe {
+  top: 14%;
+  left: 7%;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--flow {
+  top: 14%;
+  right: 7%;
+  left: auto;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--sense {
+  top: 20%;
+  right: 10%;
+  left: auto;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--focus {
+  top: 20%;
+  left: 10%;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--idea {
+  top: 26%;
+  left: 14%;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--growth {
+  top: 26%;
+  right: 14%;
+  left: auto;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--ai {
+  top: 6.5%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--neuro {
+  display: none;
+}
+
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--cta-left,
+.book-image-wrap .scene-float-words.scene-float-words--book .scene-float-word--cta-right {
+  display: none;
 }
 
 /* Как @react-bits/GradientText: градиент + первый цвет в конце для плавного цикла; yoyo по оси X */
@@ -1429,6 +1504,14 @@ body {
   pointer-events: auto;
 }
 
+.book-mode {
+  display: none;
+}
+
+.book-mode.is-active {
+  display: block;
+}
+
 /* Чистый Шаг 2: только картинка 2 + эффекты, без формы/страниц */
 .scene-stage.scene--step2-visual .book-image-wrap .book-left,
 .scene-stage.scene--step2-visual .book-image-wrap .book-right {
@@ -1854,7 +1937,25 @@ body {
   margin-top: auto;
   padding-top: clamp(5px, 0.55vw, 9px);
   gap: 8px;
+  flex-wrap: wrap;
   flex-shrink: 0;
+}
+
+#backToViewBtn {
+  align-self: flex-start;
+  margin-bottom: 6px;
+}
+
+#writingPreview {
+  flex: 1;
+  min-height: 0;
+  color: var(--paper-ink);
+  font-family: "Caveat", cursive;
+  font-size: clamp(18px, 1.45vw, 28px);
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 2px 2px 8px 0;
 }
 
 .book-btn {
@@ -2279,6 +2380,24 @@ body {
       box-sizing: border-box;
     }
 
+/* Режим записи на форме forma_cl.png:
+   точечная зона на левой странице и "живой" вывод на правой */
+#bookImageWrap.book-ui .book-mode--write .book-left {
+  left: 21%;
+  top: 18%;
+  width: 23%;
+  height: 48%;
+  padding: 0;
+}
+
+#bookImageWrap.book-ui .book-mode--write .book-right {
+  left: 56%;
+  top: 18%;
+  width: 23%;
+  height: 48%;
+  padding: 0;
+}
+
     #bookImageWrap.book-ui .paper-label {
       color: rgba(58, 32, 14, 0.78);
       text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
@@ -2289,8 +2408,8 @@ body {
       background: transparent !important;
       box-shadow: none !important;
       border-radius: 0;
-      color: #4a2812;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: #4a2812;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
     }
 
     #bookImageWrap.book-ui .paper-input {
@@ -2329,6 +2448,52 @@ body {
       color: rgba(58, 32, 14, 0.85);
       text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
     }
+
+#bookImageWrap.book-ui .book-mode--write .paper-label,
+#bookImageWrap.book-ui .book-mode--write .paper-input,
+#bookImageWrap.book-ui .book-mode--write .paper-textarea,
+#bookImageWrap.book-ui .book-mode--write .book-btn,
+#bookImageWrap.book-ui .book-mode--write .form-helper,
+#bookImageWrap.book-ui .book-mode--write #writingPreview {
+  color: #2f1207;
+  text-shadow: none;
+}
+
+#bookImageWrap.book-ui .book-mode--write .paper-label {
+  font-weight: 700;
+  letter-spacing: 0.045em;
+}
+
+#bookImageWrap.book-ui .book-mode--write .paper-input,
+#bookImageWrap.book-ui .book-mode--write .paper-textarea {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(20px, 1.32vw, 27px);
+  line-height: 1.22;
+  border-bottom-color: rgba(60, 24, 12, 0.52);
+}
+
+#bookImageWrap.book-ui .book-mode--write .paper-textarea {
+  border-left-color: rgba(60, 24, 12, 0.42);
+}
+
+#bookImageWrap.book-ui .book-mode--write .actions-row {
+  margin-top: 8px;
+  gap: 6px;
+}
+
+#bookImageWrap.book-ui .book-mode--write .book-btn {
+  font-weight: 700;
+  background: rgba(120, 72, 40, 0.2) !important;
+  border-color: rgba(60, 24, 12, 0.45);
+}
+
+#bookImageWrap.book-ui .book-mode--write #writingPreview {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: clamp(24px, 1.75vw, 34px);
+  line-height: 1.28;
+}
 
     #bookImageWrap.book-ui .dictionary-page {
       background: transparent !important;

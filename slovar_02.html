@@ -130,7 +130,7 @@
                   tabindex="0"
                   aria-label="Перейти к форме заполнения словаря"
                 >
-                  ВНЕСИ СВОЕ СЛОВО С ОПИСАНИЕМ
+                  ВНЕСИ СВОЕ СЛОВО
                 </div>
                 <div class="magic-overlay" aria-hidden="true">
                   <div class="glow"></div>
@@ -141,7 +141,7 @@
                 <img
                   id="bookImage"
                   class="book-image"
-                  src="images/book-open.svg"
+                  src="images/book-open.png"
                   alt=""
                   decoding="async"
                   loading="lazy"
@@ -177,67 +177,105 @@
                   <span class="scene-float-word scene-float-word--cta-right">LEVEL UP</span>
                 </div>
 
-                <form id="wordForm" class="book-left" novalidate aria-describedby="formMessage formHints">
-                  <p id="formHints" class="visually-hidden">
-                    Поля «Слово» и «Описание» обязательны. В поле описания можно сохранить по Ctrl+Enter или Cmd+Enter.
-                  </p>
-
-                  <label class="paper-label" for="wordInput">Слово</label>
-                  <input
-                    id="wordInput"
-                    class="paper-input handwriting"
-                    name="word"
-                    type="text"
-                    maxlength="30"
-                    placeholder="Слово"
-                    autocomplete="off"
-                    aria-invalid="false"
-                    aria-required="true"
-                    required
-                  />
-
-                  <div class="actions-row">
-                    <button id="saveBtn" class="ghost-btn book-btn" type="submit">
-                      Вписать
-                    </button>
+                <div id="viewMode" class="book-mode book-mode--view is-active" aria-live="polite">
+                  <div class="book-left">
+                    <p class="paper-label">Режим книги</p>
+                    <p class="empty-note">Листайте и читайте слова на правой странице.</p>
                   </div>
 
-                  <p id="formMessage" class="helper-text form-helper" role="status" aria-live="polite"></p>
-                </form>
+                  <div class="book-right">
+                    <div
+                      id="dictionaryPage"
+                      class="dictionary-page"
+                      role="region"
+                      aria-label="Текущая страница словаря"
+                      aria-live="polite"
+                      aria-busy="false"
+                    ></div>
 
-                <div class="book-right">
-                  <div class="right-input-area">
-                    <label class="paper-label" for="descriptionInput">Описание (рукописный ввод)</label>
+                    <nav class="page-nav" aria-label="Страницы словаря">
+                      <button id="prevBtn" class="nav-btn" type="button" aria-label="Предыдущая страница">
+                        <span aria-hidden="true">◀</span>
+                      </button>
+                      <span id="pageCounter" class="page-counter" aria-live="polite">1 / 1</span>
+                      <button id="nextBtn" class="nav-btn" type="button" aria-label="Следующая страница">
+                        <span aria-hidden="true">▶</span>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+
+                <div id="writeMode" class="book-mode book-mode--write" aria-live="polite">
+                  <div class="book-left book-left--write">
+                    <p class="paper-label write-list-title">Пишем и вносим слова здесь</p>
+                    <ol id="writeWordList" class="write-word-list" aria-label="Нумерованный список слов"></ol>
+
+                  <form id="wordForm" novalidate aria-describedby="formMessage formHints">
+                    <p id="formHints" class="visually-hidden">
+                      Поля «Слово» и «Описание» обязательны. «Редактировать» запускает предпросмотр справа. После «Сохранить» открывается следующая строка; книга остаётся на этой картинке.
+                    </p>
+
+                    <button id="backToViewBtn" class="ghost-btn book-btn" type="button">← Назад в книгу</button>
+
+                    <label class="paper-label" for="wordInput">Слово</label>
+                    <input
+                      id="wordInput"
+                      class="paper-input handwriting"
+                      name="word"
+                      type="text"
+                      maxlength="30"
+                      placeholder="Слово"
+                      autocomplete="off"
+                      aria-invalid="false"
+                      aria-required="true"
+                      required
+                    />
+
+                    <label class="paper-label" for="descriptionInput">Описание</label>
                     <textarea
                       id="descriptionInput"
                       class="paper-textarea handwriting"
                       name="description"
-                      form="wordForm"
                       maxlength="150"
                       placeholder="Пишите от руки..."
                       aria-invalid="false"
                       aria-required="true"
                       required
                     ></textarea>
-                  </div>
-                  <div
-                    id="dictionaryPage"
-                    class="dictionary-page"
-                    role="region"
-                    aria-label="Текущая страница словаря"
-                    aria-live="polite"
-                    aria-busy="false"
-                  ></div>
 
-                  <nav class="page-nav" aria-label="Страницы словаря">
-                    <button id="prevBtn" class="nav-btn" type="button" aria-label="Предыдущая страница">
-                      <span aria-hidden="true">◀</span>
-                    </button>
-                    <span id="pageCounter" class="page-counter" aria-live="polite">1 / 1</span>
-                    <button id="nextBtn" class="nav-btn" type="button" aria-label="Следующая страница">
-                      <span aria-hidden="true">▶</span>
-                    </button>
-                  </nav>
+                    <div class="actions-row">
+                      <button id="writeBtn" class="ghost-btn book-btn" type="button">Редактировать</button>
+                      <button id="saveBtn" class="ghost-btn book-btn" type="submit">Сохранить</button>
+                    </div>
+
+                    <p id="formMessage" class="helper-text form-helper" role="status" aria-live="polite"></p>
+                  </form>
+                  </div>
+
+                  <div class="book-right">
+                    <div id="writingPreview" class="dictionary-page" aria-live="polite"></div>
+                  </div>
+
+                  <div class="book-write-bottom" aria-label="Превью анимации и навигация">
+                    <p class="book-anim-preview-hint" id="animPreviewHint">
+                      Временное превью анимации книги — выберите вариант (1–5), затем скажите, какой утвердить.
+                      <span class="book-anim-preview-legend">
+                        1) дыхание · 2) лёгкое качание · 3) перо в превью · 4) мягкий перелист · 5) комбо (1+3+4)
+                      </span>
+                    </p>
+                    <div class="book-anim-preview-row" role="group" aria-labelledby="animPreviewHint">
+                      <button type="button" class="anim-preview-btn" data-anim="0">Выкл.</button>
+                      <button type="button" class="anim-preview-btn" data-anim="1">1</button>
+                      <button type="button" class="anim-preview-btn" data-anim="2">2</button>
+                      <button type="button" class="anim-preview-btn" data-anim="3">3</button>
+                      <button type="button" class="anim-preview-btn" data-anim="4">4</button>
+                      <button type="button" class="anim-preview-btn" data-anim="5">5</button>
+                    </div>
+                    <div class="book-write-actions-row">
+                      <button id="writeNextBtn" type="button" class="ghost-btn book-btn">Далее</button>
+                      <button id="closeBookBtn" type="button" class="ghost-btn book-btn">Закрыть книгу</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -320,7 +358,9 @@
         storageKey: "vibe_dictionary_words",
         accessStorageKey: "vibe_dictionary_access",
         storageFormatVersion: 1,
-        wordsPerPage: 8,
+        wordsPerPage: 30,
+        /** Сколько строк помещается на правой странице в режиме записи (перелист после заполнения) */
+        writeWordsPerRightPage: 12,
         coverAnimationMs: 1450,
         typingSpeed: 15,
         maxWordLength: 30,
@@ -330,6 +370,8 @@
          * Поставьте свои файлы в images/ и при необходимости переставьте строки (например jpg первым).
          */
         images: {
+          bookViewSource: "images/book-open.png",
+          bookWriteSource: "images/forma_cl.png",
           coverSources: [
             "images/book-cover%2001%20.png",
             "images/cover.svg",
@@ -339,8 +381,9 @@
             "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1600&auto=format&fit=crop"
           ],
           bookSources: [
-            "images/book-open.svg",
             "images/book-open.png",
+            "images/book-open.svg",
+            "images/forma_cl.png",
             "images/book.jpg",
             "images/book.png",
             "images/book.webp",
@@ -353,12 +396,19 @@
       const state = {
         words: [],
         currentPage: 1,
+        currentPageWords: [],
+        bookMode: "view",
         typingTimer: null,
+        writingTimer: null,
         isBookInitialized: false,
         coverAnimationEndHandler: null,
         isEnteringBook: false,
         /** Код верный, ждём клика по обложке для анимации «открытия» */
-        coverAwaitingClick: false
+        coverAwaitingClick: false,
+        /** Текущий «разворот» правой страницы в writeMode (1..) */
+        writeSpreadPage: 1,
+        /** Временное превью анимации книги: 0 = выкл., 1..5 */
+        bookAnimDemo: 0
       };
 
       /* --- Ссылки на DOM --- */
@@ -377,9 +427,17 @@
         accessWordInput: document.getElementById("accessWord"),
         loginMessage: document.getElementById("loginMessage"),
         wordForm: document.getElementById("wordForm"),
+        viewMode: document.getElementById("viewMode"),
+        writeMode: document.getElementById("writeMode"),
         wordInput: document.getElementById("wordInput"),
         descriptionInput: document.getElementById("descriptionInput"),
         saveBtn: document.getElementById("saveBtn"),
+        writeBtn: document.getElementById("writeBtn"),
+        backToViewBtn: document.getElementById("backToViewBtn"),
+        writeWordList: document.getElementById("writeWordList"),
+        writeNextBtn: document.getElementById("writeNextBtn"),
+        closeBookBtn: document.getElementById("closeBookBtn"),
+        writingPreview: document.getElementById("writingPreview"),
         formMessage: document.getElementById("formMessage"),
         dictionaryPage: document.getElementById("dictionaryPage"),
         pageCounter: document.getElementById("pageCounter"),
@@ -501,18 +559,22 @@
       /* --- Нормализация записей в хранилище --- */
       function normalizeStoredWord(raw) {
         if (!raw || typeof raw !== "object") return null;
-        const word = typeof raw.word === "string" ? raw.word.trim() : "";
-        const description =
-          typeof raw.description === "string" ? raw.description.trim() : "";
+        const legacyWord = typeof raw.word === "string" ? raw.word.trim() : "";
+        const legacyDescription = typeof raw.description === "string" ? raw.description.trim() : "";
+        const text = typeof raw.text === "string" ? raw.text.trim() : "";
+        const normalizedText = text || [legacyWord, legacyDescription].filter(Boolean).join(" — ");
+        const emoji = typeof raw.emoji === "string" ? raw.emoji.trim() : "";
+        const likes = Number.isFinite(raw.likes) ? raw.likes : 0;
         let id = typeof raw.id === "string" ? raw.id : "";
         if (!id) id = createId();
 
-        if (!word || !description) return null;
+        if (!normalizedText) return null;
 
         return {
           id,
-          word: word.slice(0, CONFIG.maxWordLength),
-          description: description.slice(0, CONFIG.maxDescriptionLength),
+          text: normalizedText.slice(0, CONFIG.maxWordLength + CONFIG.maxDescriptionLength + 3),
+          emoji: emoji.slice(0, 8),
+          likes: Math.max(0, Math.floor(likes)),
           createdAt:
             typeof raw.createdAt === "string" ? raw.createdAt : new Date().toISOString()
         };
@@ -816,14 +878,19 @@
 
       function isDuplicateWord(word) {
         const normalized = word.trim().toLowerCase();
-        return state.words.some((item) => item.word.trim().toLowerCase() === normalized);
+        return state.words.some((item) => {
+          const itemText = String(item.text || "").toLowerCase();
+          const baseWord = itemText.split("—")[0].trim();
+          return baseWord === normalized;
+        });
       }
 
-      function createWordEntry(word, description) {
+      function createWordEntry(word, description, emoji) {
         return {
           id: createId(),
-          word,
-          description,
+          text: `${word} — ${description}`,
+          emoji: emoji || "",
+          likes: 0,
           createdAt: new Date().toISOString()
         };
       }
@@ -849,6 +916,155 @@
         if (state.typingTimer) {
           clearInterval(state.typingTimer);
           state.typingTimer = null;
+        }
+      }
+
+
+      function clearWritingTimer() {
+        if (state.writingTimer) {
+          clearInterval(state.writingTimer);
+          state.writingTimer = null;
+        }
+      }
+
+      function setBookImageByMode(mode) {
+        if (!dom.bookImage) return;
+        const nextSrc =
+          mode === "write" ? CONFIG.images.bookWriteSource : CONFIG.images.bookViewSource;
+        if (!nextSrc) return;
+        if (!dom.bookImage.src.endsWith(nextSrc)) {
+          dom.bookImage.src = nextSrc;
+        }
+      }
+
+      function syncWriteSpreadFromWordCount() {
+        const cap = CONFIG.writeWordsPerRightPage;
+        state.writeSpreadPage = Math.max(1, Math.ceil(Math.max(state.words.length, 1) / cap));
+      }
+
+      function setBookAnimDemoVariant(n) {
+        state.bookAnimDemo = Math.max(0, Math.min(5, n | 0));
+        if (!dom.bookImageWrap) return;
+        dom.bookImageWrap.classList.remove(
+          "book-anim-demo--0",
+          "book-anim-demo--1",
+          "book-anim-demo--2",
+          "book-anim-demo--3",
+          "book-anim-demo--4",
+          "book-anim-demo--5"
+        );
+        dom.bookImageWrap.classList.add(`book-anim-demo--${state.bookAnimDemo}`);
+        document.querySelectorAll(".anim-preview-btn").forEach((btn) => {
+          btn.classList.toggle(
+            "is-selected",
+            String(state.bookAnimDemo) === btn.getAttribute("data-anim")
+          );
+        });
+      }
+
+      function renderWriteWordList() {
+        const list = dom.writeWordList;
+        if (!list) return;
+        list.innerHTML = "";
+        state.words.forEach((item, i) => {
+          const li = document.createElement("li");
+          li.className = "write-word-li";
+          li.textContent = `${item.emoji ? `${item.emoji} ` : ""}${item.text}`;
+          list.appendChild(li);
+        });
+      }
+
+      function renderWriteRightPane() {
+        if (!dom.writingPreview || state.bookMode !== "write") return;
+        clearWritingTimer();
+        const cap = CONFIG.writeWordsPerRightPage;
+        syncWriteSpreadFromWordCount();
+        const spread = state.writeSpreadPage;
+        const start = (spread - 1) * cap;
+        const slice = state.words.slice(start, start + cap);
+        const { word, description, text: draftFull } = buildWritingText();
+        const hasDraft = Boolean(
+          normalizeText(word) || normalizeText(description)
+        );
+        const nextNum = state.words.length + 1;
+
+        dom.writingPreview.innerHTML = "";
+        slice.forEach((item, idx) => {
+          const n = start + idx + 1;
+          const line = document.createElement("div");
+          line.className = "word-line write-right-line";
+          line.textContent = `${n}. ${item.emoji ? `${item.emoji} ` : ""}${item.text}`;
+          dom.writingPreview.appendChild(line);
+        });
+        if (hasDraft) {
+          const d = document.createElement("div");
+          d.className = "word-line write-right-draft";
+          d.textContent = `${nextNum}. ${draftFull}`;
+          dom.writingPreview.appendChild(d);
+        }
+      }
+
+      function playWriteRightPageTurn(direction) {
+        if (!dom.writingPreview) return;
+        if (direction === "next" || direction === "prev") {
+          runPageTurnVfx(direction);
+        }
+        dom.writingPreview.classList.remove("turn-next", "turn-prev");
+        if (direction === "none" || prefersReducedMotion()) {
+          return;
+        }
+        void dom.writingPreview.offsetWidth;
+        if (direction === "next") {
+          dom.writingPreview.classList.add("turn-next");
+        } else if (direction === "prev") {
+          dom.writingPreview.classList.add("turn-prev");
+        }
+        const onEnd = (ev) => {
+          if (ev.target !== dom.writingPreview) return;
+          dom.writingPreview.removeEventListener("animationend", onEnd);
+          dom.writingPreview.classList.remove("turn-next", "turn-prev");
+        };
+        dom.writingPreview.addEventListener("animationend", onEnd, { once: true });
+      }
+
+      function closeBookToCover() {
+        clearWritingTimer();
+        clearTypingTimer();
+        state.bookMode = "view";
+        state.writeSpreadPage = 1;
+        state.isBookInitialized = false;
+        if (dom.viewMode) dom.viewMode.classList.add("is-active");
+        if (dom.writeMode) dom.writeMode.classList.remove("is-active");
+        if (dom.bookImage) dom.bookImage.src = CONFIG.images.bookViewSource;
+        dom.sceneStage.classList.remove("scene--book-open", "scene--step2-visual");
+        if (dom.bookOpenLayer) {
+          dom.bookOpenLayer.classList.add("hidden");
+          dom.bookOpenLayer.setAttribute("hidden", "");
+          dom.bookOpenLayer.setAttribute("aria-hidden", "true");
+        }
+        if (dom.accessOverlay) {
+          dom.accessOverlay.removeAttribute("hidden");
+        }
+      }
+
+      function switchBookMode(mode) {
+        state.bookMode = mode === "write" ? "write" : "view";
+        setBookImageByMode(state.bookMode);
+        if (dom.viewMode) {
+          dom.viewMode.classList.toggle("is-active", state.bookMode === "view");
+        }
+        if (dom.writeMode) {
+          dom.writeMode.classList.toggle("is-active", state.bookMode === "write");
+        }
+
+        if (state.bookMode === "write") {
+          syncWriteSpreadFromWordCount();
+          renderWriteWordList();
+          renderWriteRightPane();
+          dom.wordInput.focus();
+        } else if (state.bookMode === "view") {
+          clearWritingTimer();
+          renderCurrentPage();
         }
       }
 
@@ -900,6 +1116,33 @@
         }, speed);
       }
 
+      function runWritingPreview(text) {
+        if (!dom.writingPreview) return;
+        clearWritingTimer();
+        dom.writingPreview.textContent = "";
+        if (!text) return;
+
+        const typingMs = prefersReducedMotion() ? 0 : CONFIG.typingSpeed;
+        if (typingMs === 0) {
+          dom.writingPreview.textContent = text;
+          return;
+        }
+
+        let index = 0;
+        state.writingTimer = window.setInterval(() => {
+          if (index >= text.length) {
+            clearWritingTimer();
+            return;
+          }
+          dom.writingPreview.textContent += text.charAt(index);
+          index += 1;
+        }, typingMs);
+      }
+
+      function syncLiveWritingPreview() {
+        renderWriteRightPane();
+      }
+
       /**
        * Рисует текущую страницу словаря.
        * Исправлено: при анимации печати новой строки остальные строки страницы тоже отображаются.
@@ -915,6 +1158,7 @@
         const startIndex = (state.currentPage - 1) * CONFIG.wordsPerPage;
         const endIndex = startIndex + CONFIG.wordsPerPage;
         const wordsForPage = state.words.slice(startIndex, endIndex);
+        state.currentPageWords = wordsForPage.slice();
 
         updatePagination(totalPages);
         playPageAnimation(turnDirection);
@@ -936,7 +1180,7 @@
         wordsForPage.forEach((item, index) => {
           const line = document.createElement("div");
           line.className = "word-line";
-          const text = `${startIndex + index + 1}. ${item.word} — ${item.description}`;
+          const text = `${startIndex + index + 1}. ${item.emoji ? `${item.emoji} ` : ""}${item.text}`;
 
           if (item.id === animateId) {
             line.classList.add("typing");
@@ -983,9 +1227,46 @@
         dom.wordInput.focus();
       }
 
-      function handleAddWord() {
+      function buildWritingText() {
         const word = normalizeText(dom.wordInput.value);
         const description = normalizeText(dom.descriptionInput.value);
+        const text = `${word}${description ? ` — ${description}` : ""}`.trim();
+        return { word, description, emoji: "", text };
+      }
+
+      function handleWritePreview() {
+        const data = buildWritingText();
+        if (!data.word || !data.description) {
+          setFormMessage("Сначала заполните слово и описание", "error");
+          setWordFieldsInvalid(true);
+          return;
+        }
+        setWordFieldsInvalid(false);
+        setFormMessage("", "");
+        renderWriteRightPane();
+        const draftEl = dom.writingPreview && dom.writingPreview.querySelector(".write-right-draft");
+        if (!draftEl) return;
+        const full = draftEl.textContent;
+        draftEl.textContent = "";
+        const typingMs = prefersReducedMotion() ? 0 : CONFIG.typingSpeed;
+        if (typingMs === 0) {
+          draftEl.textContent = full;
+          return;
+        }
+        let index = 0;
+        clearWritingTimer();
+        state.writingTimer = window.setInterval(() => {
+          if (index >= full.length) {
+            clearWritingTimer();
+            return;
+          }
+          draftEl.textContent += full.charAt(index);
+          index += 1;
+        }, typingMs);
+      }
+
+      function handleAddWord() {
+        const { word, description, emoji } = buildWritingText();
 
         const validationError = validateWordForm(word, description);
         if (validationError) {
@@ -997,7 +1278,8 @@
         setWordFieldsInvalid(false);
         setButtonLoading(dom.saveBtn, true, "пишем...");
 
-        const newWord = createWordEntry(word, description);
+        const spreadBefore = state.writeSpreadPage;
+        const newWord = createWordEntry(word, description, emoji);
         state.words.push(newWord);
 
         const saved = storage.saveWords(state.words);
@@ -1008,11 +1290,15 @@
           return;
         }
 
+        syncWriteSpreadFromWordCount();
+        if (state.writeSpreadPage > spreadBefore) {
+          playWriteRightPageTurn("next");
+        }
+
         resetWordForm();
         setFormMessage("Слово вписано", "success");
-
-        state.currentPage = getTotalPages();
-        renderCurrentPage({ animateId: newWord.id });
+        renderWriteWordList();
+        renderWriteRightPane();
 
         setButtonLoading(dom.saveBtn, false);
       }
@@ -1061,18 +1347,15 @@
       }
 
       function initBook() {
-        if (state.isBookInitialized) return;
-
-        state.words = storage.loadWords();
-        state.currentPage = getTotalPages();
-        state.isBookInitialized = true;
+        if (!state.isBookInitialized) {
+          state.words = storage.loadWords();
+          state.currentPage = getTotalPages();
+          state.isBookInitialized = true;
+        }
 
         renderCurrentPage();
         setFormMessage("", "");
-
-        if (!dom.sceneStage.classList.contains("scene--step2-visual")) {
-          dom.wordInput.focus();
-        }
+        switchBookMode("view");
       }
 
       function handleAccessSubmit(e) {
@@ -1147,7 +1430,7 @@
             if (!dom.sceneStage.classList.contains("scene--book-open")) return;
             dom.sceneStage.classList.remove("scene--step2-visual");
             initBook();
-            dom.wordInput.focus();
+            switchBookMode("write");
           });
           dom.bookCtaBanner.addEventListener("keydown", (e) => {
             if (e.key !== "Enter" && e.key !== " ") return;
@@ -1171,6 +1454,35 @@
           handleAddWord();
         });
 
+        if (dom.writeBtn) {
+          dom.writeBtn.addEventListener("click", handleWritePreview);
+        }
+
+        if (dom.backToViewBtn) {
+          dom.backToViewBtn.addEventListener("click", () => {
+            switchBookMode("view");
+          });
+        }
+
+        if (dom.writeNextBtn) {
+          dom.writeNextBtn.addEventListener("click", () => {
+            switchBookMode("view");
+          });
+        }
+
+        if (dom.closeBookBtn) {
+          dom.closeBookBtn.addEventListener("click", () => {
+            closeBookToCover();
+          });
+        }
+
+        document.querySelectorAll(".anim-preview-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const v = parseInt(btn.getAttribute("data-anim"), 10);
+            setBookAnimDemoVariant(Number.isNaN(v) ? 0 : v);
+          });
+        });
+
         dom.wordInput.addEventListener("keydown", (e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -1183,6 +1495,7 @@
             setWordFieldsInvalid(false);
             setFormMessage("", "");
           }
+          syncLiveWritingPreview();
         });
 
         dom.descriptionInput.addEventListener("input", () => {
@@ -1190,12 +1503,13 @@
             setWordFieldsInvalid(false);
             setFormMessage("", "");
           }
+          syncLiveWritingPreview();
         });
 
         dom.descriptionInput.addEventListener("keydown", (e) => {
           if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
             e.preventDefault();
-            handleAddWord();
+            handleWritePreview();
           }
         });
 
