@@ -296,30 +296,35 @@
   
     </div>
 
-    <!-- ТЗ FINAL: screen2 — images/book 02_svet.png, клик по центру → форма -->
-    <div id="screen2" class="screen tz-screen tz-screen--svet">
-      <div class="tz-svet-scene">
-        <img class="tz-bg-img tz-svet-bg" src="images/book%2002_svet.png" alt="" decoding="async" />
-        <div class="tz-brand-mark" aria-hidden="true">
-          <img class="tz-logo tz-logo--pulse" src="images/LOGO.png" width="112" height="112" alt="" />
-        </div>
+    <!-- screen2: открытая книга (клик по книге на обложке) + гимн — audio#hymnAudio вне экранов -->
+    <div id="screen2" class="screen tz-screen tz-screen--svet tz-screen--book-open">
+      <div class="tz-svet-scene tz-book-open-scene">
+        <img
+          class="tz-bg-img tz-svet-bg"
+          src="images/book-open.png"
+          alt=""
+          decoding="async"
+        />
         <button
           type="button"
           class="tz-svet-hotspot"
           id="tzSvetCta"
           aria-label="Внести своё слово"
         ></button>
+        <button
+          type="button"
+          class="tz-music-fab"
+          id="tzBtnMusicToggle"
+          aria-pressed="true"
+          aria-label="Выключить музыку"
+        >
+          🎵
+        </button>
         <div class="tz-svet-subnav">
           <button type="button" class="tz-svet-link" id="tzBtnNavRead">Книга</button>
           <button type="button" class="tz-svet-link" id="tzBtnNavCat">Каталог</button>
         </div>
         <button type="button" class="tz-link-back tz-svet-back" id="tzBtnHubToCover">← Обложка</button>
-        <div class="tz-rock-row">
-          <audio id="tzRockAudio" preload="metadata">
-            <source src="assets/sounds/versiya%205_hard-rok.mp3" type="audio/mpeg" />
-          </audio>
-          <button type="button" class="tz-btn-audio-power" id="tzBtnRockToggle" aria-label="Включить музыку">♪</button>
-        </div>
       </div>
     </div>
 
@@ -391,17 +396,15 @@
           </div>
         </div>
         <div id="tzCatalogGrid" class="tz-catalog-grid"></div>
-        <div class="tz-audio-row">
-          <audio id="tzAmbientAudio" preload="metadata">
-            <source src="assets/sounds/versiya%205_hard-rok.mp3" type="audio/mpeg" />
-          </audio>
-          <button type="button" class="tz-btn tz-btn--ghost" id="tzBtnPlayAudio">♪ Включить</button>
-        </div>
         <button type="button" class="tz-link-back" id="tzBtnCatalogToMenu">← Меню</button>
       </div>
     </div>
 
   </main>
+
+  <audio id="hymnAudio" preload="auto" loop>
+    <source src="assets/sounds/versiya%205_hard-rok.mp3" type="audio/mpeg" />
+  </audio>
 
     <script src="script.js" defer></script>
 </body>

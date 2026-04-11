@@ -96,7 +96,9 @@
         /** Индекс разворота для экрана «книга» (ТЗ), по 2 слова */
         tzFlipSpreadIndex: 0,
         /** Фильтр каталога: all | like | funny | wow | fire */
-        tzCatalogFilter: "all"
+        tzCatalogFilter: "all",
+        /** Гимн: пользователь явно поставил на паузу — при открытии книги не форсить play */
+        hymnUserPaused: false
       };
 
       /* --- Ссылки на DOM --- */
@@ -530,7 +532,10 @@
         setLoginMessage("Нажмите на книгу", "success");
       }
 
-      /** Показать разворот book-open.svg поверх статичного фона; фон сцены не меняется. */
+      /**
+       * Клик по книге на обложке: без открытия встроенного слота на screen1 —
+       * переход на screen2 с images/book-open.png + старт гимна (см. vibe-book-opened).
+       */
       function runCoverOpenAnimationAndGoToBook() {
         if (state.isEnteringBook) return;
 
@@ -543,7 +548,14 @@
         setLoginMessage("", "");
         clearCoverAnimationListeners();
 
-        window.setTimeout(goToBook, 0);
+        window.setTimeout(() => {
+          state.isEnteringBook = false;
+          setAccessControlsDisabled(false);
+          if (typeof window.showScreen === "function") {
+            window.showScreen("screen2");
+          }
+          window.dispatchEvent(new CustomEvent("vibe-book-opened"));
+        }, 0);
       }
 
       function setButtonLoading(button, isLoading, loadingText = "загрузка...") {
@@ -1212,7 +1224,7 @@
           dom.bookCtaBanner.addEventListener("click", () => {
             if (!dom.sceneStage.classList.contains("scene--book-open")) return;
             if (typeof window.showScreen === "function") {
-              window.showScreen("screen2");
+              window.showScreen("screen3");
               return;
             }
             dom.sceneStage.classList.remove("scene--step2-visual");
@@ -2090,6 +2102,25 @@ void main() {
           }, 1000);
         }
 
+        const hymnAudioEl = document.getElementById("hymnAudio");
+        const musicFab = document.getElementById("tzBtnMusicToggle");
+
+        function syncMusicButtonUi() {
+          if (!musicFab || !hymnAudioEl) return;
+          const on = !hymnAudioEl.paused;
+          musicFab.classList.toggle("tz-music-fab--on", on);
+          musicFab.setAttribute("aria-pressed", on ? "true" : "false");
+          musicFab.setAttribute("aria-label", on ? "Выключить музыку" : "Включить музыку");
+        }
+
+        document.addEventListener("vibe-book-opened", () => {
+          if (!hymnAudioEl) return;
+          if (!state.hymnUserPaused) {
+            hymnAudioEl.play().catch(() => {});
+          }
+          syncMusicButtonUi();
+        });
+
         document.addEventListener("vibe-screenchange", (ev) => {
           const id = ev.detail && ev.detail.screenId;
           state.words = storage.loadWords();
@@ -2102,7 +2133,23 @@ void main() {
             renderBook();
           }
           if (id === "screen5") renderCatalog();
+          if (id === "screen2") syncMusicButtonUi();
         });
+
+        if (hymnAudioEl && musicFab) {
+          musicFab.addEventListener("click", () => {
+            if (hymnAudioEl.paused) {
+              state.hymnUserPaused = false;
+              hymnAudioEl.play().catch(() => {});
+            } else {
+              state.hymnUserPaused = true;
+              hymnAudioEl.pause();
+            }
+            syncMusicButtonUi();
+          });
+          hymnAudioEl.addEventListener("play", syncMusicButtonUi);
+          hymnAudioEl.addEventListener("pause", syncMusicButtonUi);
+        }
 
         const svetCta = document.getElementById("tzSvetCta");
         const navRead = document.getElementById("tzBtnNavRead");
@@ -2112,22 +2159,6 @@ void main() {
         if (navRead) navRead.addEventListener("click", () => window.showScreen("screen4"));
         if (navCat) navCat.addEventListener("click", () => window.showScreen("screen5"));
         if (hubCover) hubCover.addEventListener("click", () => window.showScreen("screen1"));
-
-        const rock = document.getElementById("tzRockAudio");
-        const rockBtn = document.getElementById("tzBtnRockToggle");
-        if (rock && rockBtn) {
-          rockBtn.addEventListener("click", () => {
-            if (rock.paused) {
-              rock.play().catch(() => {});
-              rockBtn.textContent = "❚❚";
-              rockBtn.setAttribute("aria-pressed", "true");
-            } else {
-              rock.pause();
-              rockBtn.textContent = "♪";
-              rockBtn.setAttribute("aria-pressed", "false");
-            }
-          });
-        }
 
         const form = document.getElementById("tzFormWord");
         const wIn = document.getElementById("tzInputWord");
@@ -2240,20 +2271,6 @@ void main() {
             renderCatalog();
           });
         });
-
-        const audio = document.getElementById("tzAmbientAudio");
-        const playBtn = document.getElementById("tzBtnPlayAudio");
-        if (audio && playBtn) {
-          playBtn.addEventListener("click", () => {
-            if (audio.paused) {
-              audio.play().catch(() => {});
-              playBtn.textContent = "❚❚ Пауза";
-            } else {
-              audio.pause();
-              playBtn.textContent = "▶ Атмосфера";
-            }
-          });
-        }
 
         window.renderBook = renderBook;
         window.renderCatalog = renderCatalog;
