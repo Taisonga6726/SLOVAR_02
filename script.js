@@ -2172,14 +2172,66 @@ void main() {
           hymnAudioEl.addEventListener("pause", syncHymnToggleUi);
         }
 
+        function initMagicBookParticles() {
+          const root = document.getElementById("magicParticles");
+          if (!root || root.dataset.inited === "1") return;
+          root.dataset.inited = "1";
+          const colors = [
+            "rgba(200, 120, 255, 0.95)",
+            "rgba(120, 170, 255, 0.95)",
+            "rgba(255, 140, 220, 0.9)",
+            "rgba(160, 100, 255, 0.9)",
+            "rgba(100, 200, 255, 0.85)"
+          ];
+          const glows = [
+            "rgba(220, 160, 255, 0.95)",
+            "rgba(130, 180, 255, 0.85)",
+            "rgba(255, 150, 230, 0.9)"
+          ];
+          const sparkCount = 44;
+          for (let i = 0; i < sparkCount; i += 1) {
+            const el = document.createElement("span");
+            const spiral = i % 3 !== 0;
+            el.className = spiral
+              ? "magic-particles__spark magic-particles__spark--spiral"
+              : "magic-particles__spark";
+            el.style.setProperty("--mp-left", `${38 + Math.random() * 24}%`);
+            el.style.setProperty("--mp-delay", `${Math.random() * 3.8}s`);
+            el.style.setProperty("--mp-dur", `${1.5 + Math.random() * 2.6}s`);
+            el.style.setProperty("--mp-size", `${2 + Math.random() * 2.8}px`);
+            el.style.setProperty("--mp-drift", `${(Math.random() - 0.5) * 90}px`);
+            const ci = Math.floor(Math.random() * colors.length);
+            el.style.setProperty("--mp-color", colors[ci]);
+            el.style.setProperty("--mp-glow", glows[ci % glows.length]);
+            root.appendChild(el);
+          }
+          const lineCount = 12;
+          const lineMids = [
+            "rgba(220, 100, 255, 0.9)",
+            "rgba(120, 160, 255, 0.85)",
+            "rgba(255, 140, 200, 0.85)"
+          ];
+          for (let i = 0; i < lineCount; i += 1) {
+            const el = document.createElement("span");
+            el.className =
+              i % 2 === 0
+                ? "magic-particles__line magic-particles__line--spiral"
+                : "magic-particles__line";
+            el.style.setProperty("--mp-left", `${34 + Math.random() * 32}%`);
+            el.style.setProperty("--mp-delay", `${Math.random() * 4.2}s`);
+            el.style.setProperty("--mp-dur", `${3 + Math.random() * 3.8}s`);
+            el.style.setProperty("--mp-w", `${1 + Math.random() * 1.6}px`);
+            el.style.setProperty("--mp-h", `${16 + Math.random() * 40}px`);
+            el.style.setProperty("--mp-drift", `${(Math.random() - 0.5) * 55}px`);
+            el.style.setProperty("--mp-line-mid", lineMids[i % lineMids.length]);
+            root.appendChild(el);
+          }
+        }
+
+        initMagicBookParticles();
+
         const svetCta = document.getElementById("tzSvetCta");
-        const navRead = document.getElementById("tzBtnNavRead");
-        const navCat = document.getElementById("tzBtnNavCat");
-        const hubCover = document.getElementById("tzBtnHubToCover");
         if (svetCta) svetCta.addEventListener("click", () => window.showScreen("screen3"));
-        if (navRead) navRead.addEventListener("click", () => window.showScreen("screen4"));
-        if (navCat) navCat.addEventListener("click", () => window.showScreen("screen5"));
-        if (hubCover) hubCover.addEventListener("click", () => window.showScreen("screen1"));
 
         const form = document.getElementById("tzFormWord");
         const wIn = document.getElementById("tzInputWord");

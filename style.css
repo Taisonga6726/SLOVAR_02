@@ -3433,53 +3433,6 @@ body {
   }
 }
 
-.tz-svet-hotspot {
-  position: absolute;
-  left: 50%;
-  top: 52%;
-  transform: translate(-50%, -50%);
-  width: min(44%, 440px);
-  height: min(24%, 220px);
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(123, 97, 255, 0.12) 0%,
-    rgba(123, 97, 255, 0.04) 45%,
-    transparent 70%
-  );
-  cursor: pointer;
-  z-index: 2;
-}
-
-.tz-svet-hotspot:focus-visible {
-  outline: 2px solid rgba(127, 170, 255, 0.9);
-  outline-offset: 4px;
-}
-
-.tz-svet-subnav {
-  position: absolute;
-  bottom: clamp(56px, 12vh, 120px);
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 16px;
-  z-index: 3;
-}
-
-.tz-svet-link {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 1rem;
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(123, 97, 255, 0.35);
-  background: rgba(15, 15, 26, 0.55);
-  color: #dcd8ff;
-  cursor: pointer;
-}
-
-.tz-svet-back,
 .tz-reed-back {
   position: absolute;
   bottom: clamp(12px, 3vh, 28px);
@@ -3490,6 +3443,187 @@ body {
 
 .tz-book-open-scene {
   position: relative;
+  justify-content: center;
+  padding-bottom: clamp(24px, 5vh, 48px);
+}
+
+.tz-book-open-scene .tz-bg-img {
+  position: relative;
+  z-index: 0;
+}
+
+/* Магия у корешка: ниже кнопки и логотипа (логотип fixed z-index 300) */
+.magic-particles {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: min(32vw, 240px);
+  height: min(42vh, 320px);
+  margin-left: calc(min(32vw, 240px) / -2);
+  margin-top: calc(min(42vh, 320px) / -2);
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
+}
+
+#screen2:not(.active) .magic-particles .magic-particles__spark,
+#screen2:not(.active) .magic-particles .magic-particles__line {
+  animation-play-state: paused;
+}
+
+.magic-particles__spark,
+.magic-particles__line {
+  position: absolute;
+  left: var(--mp-left, 50%);
+  bottom: 0;
+  transform: translateX(-50%);
+  will-change: transform, opacity;
+}
+
+.magic-particles__spark {
+  width: var(--mp-size, 3px);
+  height: var(--mp-size, 3px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 200, 255, 0.95),
+    var(--mp-color, rgba(180, 120, 255, 0.85)) 45%,
+    transparent 72%
+  );
+  box-shadow:
+    0 0 6px var(--mp-glow, rgba(200, 140, 255, 0.9)),
+    0 0 14px rgba(100, 160, 255, 0.55);
+  filter: blur(0.5px);
+  animation: mpSparkFloat var(--mp-dur, 2.4s) ease-out infinite;
+  animation-delay: var(--mp-delay, 0s);
+}
+
+.magic-particles__spark--spiral {
+  animation-name: mpSparkSpiral;
+}
+
+.magic-particles__line {
+  width: var(--mp-w, 2px);
+  height: var(--mp-h, 28px);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--mp-line-mid, rgba(236, 120, 255, 0.85)),
+    rgba(120, 180, 255, 0.5),
+    transparent
+  );
+  box-shadow:
+    0 0 10px rgba(200, 100, 255, 0.65),
+    0 0 22px rgba(80, 140, 255, 0.4);
+  filter: blur(1px);
+  opacity: 0.85;
+  animation: mpLineRise var(--mp-dur, 4.2s) ease-in-out infinite;
+  animation-delay: var(--mp-delay, 0s);
+}
+
+.magic-particles__line--spiral {
+  animation-name: mpLineSpiral;
+}
+
+@keyframes mpSparkFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.5);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--mp-drift, 0px)), -260px) scale(1.15);
+  }
+}
+
+@keyframes mpSparkSpiral {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.5) rotate(0deg);
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--mp-drift, 24px)), -240px) scale(1.2) rotate(18deg);
+  }
+}
+
+@keyframes mpLineRise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scaleY(0.5);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -200px) scaleY(1.2);
+  }
+}
+
+@keyframes mpLineSpiral {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scaleY(0.4) rotate(-8deg);
+  }
+  18% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--mp-drift, 20px)), -220px) scaleY(1.25) rotate(12deg);
+  }
+}
+
+/* CTA screen2: центр экрана, тот же градиент/glow что у .ui-btn */
+.ui-btn--svet-cta {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  min-width: min(92vw, 340px);
+  padding: 14px 28px;
+  font-size: clamp(0.95rem, 2.4vw, 1.12rem);
+  letter-spacing: 0.14em;
+  border-radius: 26px;
+  background: linear-gradient(145deg, #7b61ff 0%, #5a4fcf 45%, #4a6cff 100%);
+  border: 1px solid rgba(180, 140, 255, 0.5);
+  color: #f7f4ff;
+  box-shadow:
+    0 4px 24px rgba(90, 70, 200, 0.5),
+    0 0 32px rgba(123, 97, 255, 0.45),
+    0 0 48px rgba(74, 108, 255, 0.35);
+  text-shadow: 0 0 18px rgba(200, 180, 255, 0.45);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.25s ease,
+    filter 0.2s ease;
+}
+
+.ui-btn--svet-cta:hover {
+  box-shadow:
+    0 6px 40px rgba(123, 97, 255, 0.55),
+    0 0 44px rgba(236, 140, 255, 0.42),
+    0 0 64px rgba(74, 108, 255, 0.45);
+  filter: brightness(1.08);
+  transform: translate(-50%, -50%) translateY(-2px);
+}
+
+.ui-btn--svet-cta:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+.ui-btn--svet-cta:focus-visible {
+  outline: 2px solid rgba(160, 200, 255, 0.95);
+  outline-offset: 4px;
 }
 
 .tz-forma-scene .tz-forma-form {
@@ -3806,27 +3940,6 @@ body {
   }
 }
 
-.tz-book-open-stack {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(100px, 20vh, 200px);
-  transform: translateX(-50%);
-  z-index: 5;
-  width: min(94%, 560px);
-  text-align: center;
-  pointer-events: auto;
-}
-
-.tz-cta-line {
-  margin: 0 0 12px;
-  font-family: "Cormorant Garamond", serif;
-  font-weight: 700;
-  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
-  letter-spacing: 0.12em;
-  color: #e8e0ff;
-  text-shadow: 0 0 18px rgba(123, 97, 255, 0.55);
-}
-
 .tz-catalog-wrap--unified {
   background:
     radial-gradient(ellipse 80% 50% at 50% 0%, rgba(123, 97, 255, 0.1), transparent 55%),
@@ -3840,6 +3953,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .app-brand-logo img,
   .ui-btn--hymn-toggle.ui-btn--hymn-playing,
+  .magic-particles .magic-particles__spark,
+  .magic-particles .magic-particles__line,
   .cover-energy-burst.is-active,
   .screen.active.screen-enter-anim {
     animation: none !important;
