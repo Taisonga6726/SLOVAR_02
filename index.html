@@ -17,6 +17,10 @@
   <!-- Блок: пропуск к основному содержимому (клавиатура / вспомогательные технологии) -->
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
 
+  <div id="appBrandLogo" class="app-brand-logo" aria-hidden="true">
+    <img src="images/LOGO.png" width="96" height="96" alt="" decoding="async" />
+  </div>
+
   <main id="main-content" class="app" tabindex="-1">
     <div id="screen1" class="screen active">
 
@@ -60,7 +64,7 @@
             <img
               id="sceneBg"
               class="scene-bg"
-              src="images/book-cover%2001%20.png"
+              src="images/book-cover%2001.png"
               alt=""
               decoding="async"
               fetchpriority="high"
@@ -87,6 +91,7 @@
               </svg>
             </div>
             <div class="cover-book-glow" aria-hidden="true"></div>
+            <div id="coverEnergyBurst" class="cover-energy-burst" aria-hidden="true"></div>
             <button
               type="button"
               id="bookHitZone"
@@ -296,7 +301,7 @@
   
     </div>
 
-    <!-- screen2: открытая книга (клик по книге на обложке) + гимн — audio#hymnAudio вне экранов -->
+    <!-- screen2: book-open.png + панель гимна (клик по книге на обложке после анимации) -->
     <div id="screen2" class="screen tz-screen tz-screen--svet tz-screen--book-open">
       <div class="tz-svet-scene tz-book-open-scene">
         <img
@@ -305,26 +310,31 @@
           alt=""
           decoding="async"
         />
+        <div class="tz-book-open-stack">
+          <p class="tz-cta-line">ВНЕСИ СВОЕ СЛОВО</p>
+          <div class="tz-hymn-bar" role="group" aria-label="Управление гимном">
+            <button type="button" class="ui-btn ui-btn--hymn" id="tzBtnHymnOn" aria-pressed="true">
+              ВКЛ
+            </button>
+            <span class="tz-hymn-label">ГИМН ВАЙБКОДЕРА</span>
+            <button type="button" class="ui-btn ui-btn--hymn" id="tzBtnHymnOff" aria-pressed="false">
+              ВЫКЛ
+            </button>
+          </div>
+        </div>
         <button
           type="button"
           class="tz-svet-hotspot"
           id="tzSvetCta"
           aria-label="Внести своё слово"
         ></button>
-        <button
-          type="button"
-          class="tz-music-fab"
-          id="tzBtnMusicToggle"
-          aria-pressed="true"
-          aria-label="Выключить музыку"
-        >
-          🎵
-        </button>
         <div class="tz-svet-subnav">
-          <button type="button" class="tz-svet-link" id="tzBtnNavRead">Книга</button>
-          <button type="button" class="tz-svet-link" id="tzBtnNavCat">Каталог</button>
+          <button type="button" class="ui-btn ui-btn--nav" id="tzBtnNavRead">Книга</button>
+          <button type="button" class="ui-btn ui-btn--nav" id="tzBtnNavCat">Каталог</button>
         </div>
-        <button type="button" class="tz-link-back tz-svet-back" id="tzBtnHubToCover">← Обложка</button>
+        <button type="button" class="ui-btn ui-btn--ghost-nav tz-svet-back" id="tzBtnHubToCover">
+          ← Обложка
+        </button>
       </div>
     </div>
 
@@ -332,17 +342,14 @@
     <div id="screen3" class="screen tz-screen tz-screen--forma">
       <div class="tz-forma-scene">
         <img class="tz-bg-img tz-forma-bg" src="images/forma_cl.png" alt="" decoding="async" />
-        <div class="tz-brand-mark tz-brand-mark--forma" aria-hidden="true">
-          <img class="tz-logo tz-logo--pulse" src="images/LOGO.png" width="88" height="88" alt="" />
-        </div>
         <form id="tzFormWord" class="tz-forma-form" novalidate>
           <label class="tz-label tz-label--ink" for="tzInputWord">Слово</label>
           <input id="tzInputWord" class="tz-input tz-input--ink" type="text" maxlength="30" required autocomplete="off" />
           <label class="tz-label tz-label--ink" for="tzInputDesc">Описание</label>
           <textarea id="tzInputDesc" class="tz-textarea tz-textarea--ink" maxlength="150" required rows="4"></textarea>
           <div class="tz-form__row">
-            <button type="submit" class="tz-btn tz-btn--primary tz-btn--glass" id="tzFormSave">Сохранить</button>
-            <button type="button" class="tz-btn tz-btn--ghost tz-btn--glass" id="tzFormCancel">Назад</button>
+            <button type="submit" class="ui-btn ui-btn--primary" id="tzFormSave">Сохранить</button>
+            <button type="button" class="ui-btn ui-btn--secondary" id="tzFormCancel">Назад</button>
           </div>
           <p id="tzFormMsg" class="tz-form-msg" role="status" aria-live="polite"></p>
         </form>
@@ -359,9 +366,6 @@
     <div id="screen4" class="screen tz-screen tz-screen--reed">
       <div class="tz-reed-scene">
         <img class="tz-bg-img tz-reed-bg" src="images/boor_reed%2004.png" alt="" decoding="async" />
-        <div class="tz-brand-mark tz-brand-mark--reed" aria-hidden="true">
-          <img class="tz-logo tz-logo--pulse" src="images/LOGO.png" width="88" height="88" alt="" />
-        </div>
         <div class="tz-reed-layer">
           <div class="tz-flip-stage" id="tzFlipStage">
             <div class="tz-flip-book" id="tzFlipBook">
@@ -370,12 +374,16 @@
             </div>
           </div>
           <nav class="tz-flip-nav" aria-label="Страницы книги">
-            <button type="button" class="tz-nav-btn" id="tzFlipPrev" aria-label="Предыдущий разворот">◀</button>
+            <button type="button" class="ui-btn ui-btn--icon" id="tzFlipPrev" aria-label="Предыдущий разворот">
+              ◀
+            </button>
             <span class="tz-flip-counter" id="tzFlipCounter">1 / 1</span>
-            <button type="button" class="tz-nav-btn" id="tzFlipNext" aria-label="Следующий разворот">▶</button>
+            <button type="button" class="ui-btn ui-btn--icon" id="tzFlipNext" aria-label="Следующий разворот">
+              ▶
+            </button>
           </nav>
         </div>
-        <button type="button" class="tz-link-back tz-reed-back" id="tzBtnBookToMenu">← Экран книги</button>
+        <button type="button" class="ui-btn ui-btn--ghost-nav tz-reed-back" id="tzBtnBookToMenu">← Экран книги</button>
         <audio id="audioFlip" preload="metadata">
           <source src="assets/sounds/flipping%20through%20the%20pages.mp3" type="audio/mpeg" />
         </audio>
@@ -383,27 +391,27 @@
     </div>
 
     <div id="screen5" class="screen tz-screen tz-screen--catalog">
-      <div class="tz-screen__inner tz-catalog-wrap">
+      <div class="tz-screen__inner tz-catalog-wrap tz-catalog-wrap--unified">
         <h2 class="tz-screen__title">Каталог</h2>
         <div class="tz-catalog-toolbar">
           <input type="search" id="tzCatalogSearch" class="tz-catalog-search" placeholder="Поиск по слову или описанию…" autocomplete="off" />
           <div class="tz-filter" role="group" aria-label="Фильтр по реакциям">
-            <button type="button" class="tz-filter-btn is-active" data-tz-filter="all">Все</button>
-            <button type="button" class="tz-filter-btn" data-tz-filter="like">👍</button>
-            <button type="button" class="tz-filter-btn" data-tz-filter="funny">😂</button>
-            <button type="button" class="tz-filter-btn" data-tz-filter="wow">😮</button>
-            <button type="button" class="tz-filter-btn" data-tz-filter="fire">🔥</button>
+            <button type="button" class="ui-btn ui-btn--chip is-active" data-tz-filter="all">Все</button>
+            <button type="button" class="ui-btn ui-btn--chip" data-tz-filter="like">👍</button>
+            <button type="button" class="ui-btn ui-btn--chip" data-tz-filter="funny">😂</button>
+            <button type="button" class="ui-btn ui-btn--chip" data-tz-filter="wow">😮</button>
+            <button type="button" class="ui-btn ui-btn--chip" data-tz-filter="fire">🔥</button>
           </div>
         </div>
         <div id="tzCatalogGrid" class="tz-catalog-grid"></div>
-        <button type="button" class="tz-link-back" id="tzBtnCatalogToMenu">← Меню</button>
+        <button type="button" class="ui-btn ui-btn--ghost-nav" id="tzBtnCatalogToMenu">← Меню</button>
       </div>
     </div>
 
   </main>
 
   <audio id="hymnAudio" preload="auto" loop>
-    <source src="assets/sounds/versiya%205_hard-rok.mp3" type="audio/mpeg" />
+    <source src="assets/sounds/versiya%205_hard-rok%20Tanya.mp3" type="audio/mpeg" />
   </audio>
 
     <script src="script.js" defer></script>

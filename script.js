@@ -6,8 +6,15 @@
   window.showScreen = function (screenId) {
     const root = document.getElementById("main-content");
     if (!root) return;
+    document.body.dataset.activeScreen = screenId;
     root.querySelectorAll(":scope > .screen").forEach((el) => {
-      el.classList.toggle("active", el.id === screenId);
+      const on = el.id === screenId;
+      el.classList.toggle("active", on);
+      if (on) {
+        el.classList.remove("screen-enter-anim");
+        void el.offsetWidth;
+        el.classList.add("screen-enter-anim");
+      }
     });
     window.dispatchEvent(new CustomEvent("vibe-screenchange", { detail: { screenId } }));
   };
@@ -57,6 +64,7 @@
           bookViewSource: "images/book-open.png",
           bookWriteSource: "images/forma_cl.png",
           coverSources: [
+            "images/book-cover%2001.png",
             "images/book-cover%2001%20.png",
             "images/cover.svg",
             "images/cover.jpg",
@@ -532,9 +540,11 @@
         setLoginMessage("Нажмите на книгу", "success");
       }
 
+      /** Длительность вспышки и энергии на обложке перед переходом на book-open */
+      const COVER_OPEN_ANIM_MS = 920;
+
       /**
-       * Клик по книге на обложке: без открытия встроенного слота на screen1 —
-       * переход на screen2 с images/book-open.png + старт гимна (см. vibe-book-opened).
+       * Клик по книге: сразу гимн + вспышка и энергия из центра книги → затем screen2 (book-open.png).
        */
       function runCoverOpenAnimationAndGoToBook() {
         if (state.isEnteringBook) return;
@@ -543,19 +553,30 @@
         setAccessControlsDisabled(true);
         clearCoverReadyUi();
         storage.setAccessGranted();
-        triggerSceneFlash("open");
 
         setLoginMessage("", "");
         clearCoverAnimationListeners();
 
+        const hymn = document.getElementById("hymnAudio");
+        if (hymn && !state.hymnUserPaused) {
+          hymn.play().catch(() => {});
+        }
+
+        triggerSceneFlash("open");
+        if (dom.sceneStage) dom.sceneStage.classList.add("scene--opening-book");
+        const burst = document.getElementById("coverEnergyBurst");
+        if (burst) burst.classList.add("is-active");
+
         window.setTimeout(() => {
+          if (dom.sceneStage) dom.sceneStage.classList.remove("scene--opening-book");
+          if (burst) burst.classList.remove("is-active");
           state.isEnteringBook = false;
           setAccessControlsDisabled(false);
           if (typeof window.showScreen === "function") {
             window.showScreen("screen2");
           }
           window.dispatchEvent(new CustomEvent("vibe-book-opened"));
-        }, 0);
+        }, COVER_OPEN_ANIM_MS);
       }
 
       function setButtonLoading(button, isLoading, loadingText = "загрузка...") {
@@ -2103,22 +2124,24 @@ void main() {
         }
 
         const hymnAudioEl = document.getElementById("hymnAudio");
-        const musicFab = document.getElementById("tzBtnMusicToggle");
+        const btnHymnOn = document.getElementById("tzBtnHymnOn");
+        const btnHymnOff = document.getElementById("tzBtnHymnOff");
 
-        function syncMusicButtonUi() {
-          if (!musicFab || !hymnAudioEl) return;
+        function syncHymnBarUi() {
+          if (!hymnAudioEl) return;
           const on = !hymnAudioEl.paused;
-          musicFab.classList.toggle("tz-music-fab--on", on);
-          musicFab.setAttribute("aria-pressed", on ? "true" : "false");
-          musicFab.setAttribute("aria-label", on ? "Выключить музыку" : "Включить музыку");
+          if (btnHymnOn) {
+            btnHymnOn.classList.toggle("ui-btn--hymn-on", on);
+            btnHymnOn.setAttribute("aria-pressed", on ? "true" : "false");
+          }
+          if (btnHymnOff) {
+            btnHymnOff.classList.toggle("ui-btn--hymn-off-active", !on);
+            btnHymnOff.setAttribute("aria-pressed", !on ? "true" : "false");
+          }
         }
 
         document.addEventListener("vibe-book-opened", () => {
-          if (!hymnAudioEl) return;
-          if (!state.hymnUserPaused) {
-            hymnAudioEl.play().catch(() => {});
-          }
-          syncMusicButtonUi();
+          syncHymnBarUi();
         });
 
         document.addEventListener("vibe-screenchange", (ev) => {
@@ -2133,22 +2156,26 @@ void main() {
             renderBook();
           }
           if (id === "screen5") renderCatalog();
-          if (id === "screen2") syncMusicButtonUi();
+          if (id === "screen2") syncHymnBarUi();
         });
 
-        if (hymnAudioEl && musicFab) {
-          musicFab.addEventListener("click", () => {
-            if (hymnAudioEl.paused) {
-              state.hymnUserPaused = false;
-              hymnAudioEl.play().catch(() => {});
-            } else {
-              state.hymnUserPaused = true;
-              hymnAudioEl.pause();
-            }
-            syncMusicButtonUi();
+        if (hymnAudioEl && btnHymnOn) {
+          btnHymnOn.addEventListener("click", () => {
+            state.hymnUserPaused = false;
+            hymnAudioEl.play().catch(() => {});
+            syncHymnBarUi();
           });
-          hymnAudioEl.addEventListener("play", syncMusicButtonUi);
-          hymnAudioEl.addEventListener("pause", syncMusicButtonUi);
+        }
+        if (hymnAudioEl && btnHymnOff) {
+          btnHymnOff.addEventListener("click", () => {
+            state.hymnUserPaused = true;
+            hymnAudioEl.pause();
+            syncHymnBarUi();
+          });
+        }
+        if (hymnAudioEl) {
+          hymnAudioEl.addEventListener("play", syncHymnBarUi);
+          hymnAudioEl.addEventListener("pause", syncHymnBarUi);
         }
 
         const svetCta = document.getElementById("tzSvetCta");
@@ -2298,6 +2325,7 @@ void main() {
         grainShaderCleanup = initGrainShaderBackground();
         bookElectricFxCleanup = initBookElectricFxVariantsDEF();
         state.words = storage.loadWords();
+        document.body.dataset.activeScreen = "screen1";
         initTzScreens();
         renderBook();
         renderCatalog();
