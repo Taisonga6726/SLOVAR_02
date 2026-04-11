@@ -3624,11 +3624,6 @@ body {
   }
 }
 
-body[data-active-screen="screen1"] .app-brand-logo {
-  opacity: 0;
-  visibility: hidden;
-}
-
 .cover-energy-burst {
   position: absolute;
   left: 50%;
@@ -3760,42 +3755,54 @@ body[data-active-screen="screen1"] .app-brand-logo {
     0 4px 18px rgba(74, 108, 255, 0.35);
 }
 
-.ui-btn--hymn {
-  min-width: 76px;
-  padding: 10px 16px;
-  font-size: 0.95rem;
-  letter-spacing: 0.04em;
-}
-
-.ui-btn--hymn.ui-btn--hymn-on {
+/* Одна кнопка гимна: screen3–5, правый верх, тот же градиент/glow что у .ui-btn */
+.ui-btn--hymn-toggle {
+  position: fixed;
+  top: clamp(10px, 2.5vh, 22px);
+  right: clamp(10px, 2.5vw, 22px);
+  z-index: 400;
+  pointer-events: auto;
+  min-width: 140px;
+  padding: 10px 18px;
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #7b61ff 0%, #5a4fcf 45%, #4a6cff 100%);
   box-shadow:
-    0 0 26px rgba(236, 100, 255, 0.65),
-    0 0 48px rgba(120, 80, 255, 0.4);
-  animation: uiHymnOnPulse 1.35s ease-in-out infinite;
+    0 4px 22px rgba(90, 70, 200, 0.5),
+    0 0 28px rgba(123, 97, 255, 0.45),
+    0 0 40px rgba(74, 108, 255, 0.3);
 }
 
-.ui-btn--hymn.ui-btn--hymn-off-active {
+.ui-btn--hymn-toggle:hover {
   box-shadow:
-    0 0 18px rgba(100, 130, 220, 0.45),
-    inset 0 0 12px rgba(0, 0, 0, 0.2);
-  filter: brightness(0.95);
+    0 6px 36px rgba(123, 97, 255, 0.6),
+    0 0 42px rgba(180, 100, 255, 0.45),
+    0 0 56px rgba(74, 108, 255, 0.4);
+  filter: brightness(1.08);
 }
 
-.ui-btn--hymn:not(.ui-btn--hymn-on):not(.ui-btn--hymn-off-active) {
-  opacity: 0.55;
+.ui-btn--hymn-toggle:active {
+  transform: scale(0.95);
 }
 
-@keyframes uiHymnOnPulse {
+.ui-btn--hymn-toggle.ui-btn--hymn-playing {
+  animation: uiHymnTogglePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes uiHymnTogglePulse {
   0%,
   100% {
     box-shadow:
-      0 0 22px rgba(236, 100, 255, 0.55),
-      0 0 40px rgba(120, 80, 255, 0.35);
+      0 4px 22px rgba(90, 70, 200, 0.5),
+      0 0 28px rgba(123, 97, 255, 0.45),
+      0 0 40px rgba(74, 108, 255, 0.3);
   }
   50% {
     box-shadow:
-      0 0 32px rgba(255, 140, 255, 0.7),
-      0 0 56px rgba(100, 140, 255, 0.45);
+      0 6px 32px rgba(123, 97, 255, 0.55),
+      0 0 48px rgba(236, 100, 255, 0.42),
+      0 0 64px rgba(100, 140, 255, 0.38);
   }
 }
 
@@ -3820,29 +3827,6 @@ body[data-active-screen="screen1"] .app-brand-logo {
   text-shadow: 0 0 18px rgba(123, 97, 255, 0.55);
 }
 
-.tz-hymn-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.tz-hymn-label {
-  font-family: "Cormorant Garamond", serif;
-  font-weight: 700;
-  font-size: clamp(0.78rem, 1.8vw, 0.95rem);
-  letter-spacing: 0.08em;
-  padding: 8px 14px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(40, 32, 80, 0.75), rgba(20, 18, 45, 0.9));
-  border: 1px solid rgba(123, 97, 255, 0.35);
-  color: #dcd4ff;
-  text-shadow: 0 0 12px rgba(123, 97, 255, 0.35);
-  user-select: none;
-  pointer-events: none;
-}
-
 .tz-catalog-wrap--unified {
   background:
     radial-gradient(ellipse 80% 50% at 50% 0%, rgba(123, 97, 255, 0.1), transparent 55%),
@@ -3855,7 +3839,7 @@ body[data-active-screen="screen1"] .app-brand-logo {
 
 @media (prefers-reduced-motion: reduce) {
   .app-brand-logo img,
-  .ui-btn--hymn.ui-btn--hymn-on,
+  .ui-btn--hymn-toggle.ui-btn--hymn-playing,
   .cover-energy-burst.is-active,
   .screen.active.screen-enter-anim {
     animation: none !important;

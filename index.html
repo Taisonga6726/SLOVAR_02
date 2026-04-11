@@ -21,6 +21,17 @@
     <img src="images/LOGO.png" width="96" height="96" alt="" decoding="async" />
   </div>
 
+  <button
+    type="button"
+    id="btnHymnToggle"
+    class="ui-btn ui-btn--hymn-toggle"
+    hidden
+    aria-hidden="true"
+    aria-label="Переключить гимн"
+  >
+    ГИМН: ВКЛ
+  </button>
+
   <main id="main-content" class="app" tabindex="-1">
     <div id="screen1" class="screen active">
 
@@ -301,7 +312,7 @@
   
     </div>
 
-    <!-- screen2: book-open.png + панель гимна (клик по книге на обложке после анимации) -->
+    <!-- screen2: book-open.png — только фон, магия у корешка, CTA по центру -->
     <div id="screen2" class="screen tz-screen tz-screen--svet tz-screen--book-open">
       <div class="tz-svet-scene tz-book-open-scene">
         <img
@@ -310,30 +321,9 @@
           alt=""
           decoding="async"
         />
-        <div class="tz-book-open-stack">
-          <p class="tz-cta-line">ВНЕСИ СВОЕ СЛОВО</p>
-          <div class="tz-hymn-bar" role="group" aria-label="Управление гимном">
-            <button type="button" class="ui-btn ui-btn--hymn" id="tzBtnHymnOn" aria-pressed="true">
-              ВКЛ
-            </button>
-            <span class="tz-hymn-label">ГИМН ВАЙБКОДЕРА</span>
-            <button type="button" class="ui-btn ui-btn--hymn" id="tzBtnHymnOff" aria-pressed="false">
-              ВЫКЛ
-            </button>
-          </div>
-        </div>
-        <button
-          type="button"
-          class="tz-svet-hotspot"
-          id="tzSvetCta"
-          aria-label="Внести своё слово"
-        ></button>
-        <div class="tz-svet-subnav">
-          <button type="button" class="ui-btn ui-btn--nav" id="tzBtnNavRead">Книга</button>
-          <button type="button" class="ui-btn ui-btn--nav" id="tzBtnNavCat">Каталог</button>
-        </div>
-        <button type="button" class="ui-btn ui-btn--ghost-nav tz-svet-back" id="tzBtnHubToCover">
-          ← Обложка
+        <div id="magicParticles" class="magic-particles" aria-hidden="true"></div>
+        <button type="button" class="ui-btn ui-btn--svet-cta" id="tzSvetCta" aria-label="Внести своё слово">
+          ВНЕСИ СВОЕ СЛОВО
         </button>
       </div>
     </div>

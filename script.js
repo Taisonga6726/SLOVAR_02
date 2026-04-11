@@ -104,9 +104,7 @@
         /** Индекс разворота для экрана «книга» (ТЗ), по 2 слова */
         tzFlipSpreadIndex: 0,
         /** Фильтр каталога: all | like | funny | wow | fire */
-        tzCatalogFilter: "all",
-        /** Гимн: пользователь явно поставил на паузу — при открытии книги не форсить play */
-        hymnUserPaused: false
+        tzCatalogFilter: "all"
       };
 
       /* --- Ссылки на DOM --- */
@@ -558,7 +556,7 @@
         clearCoverAnimationListeners();
 
         const hymn = document.getElementById("hymnAudio");
-        if (hymn && !state.hymnUserPaused) {
+        if (hymn) {
           hymn.play().catch(() => {});
         }
 
@@ -2124,24 +2122,26 @@ void main() {
         }
 
         const hymnAudioEl = document.getElementById("hymnAudio");
-        const btnHymnOn = document.getElementById("tzBtnHymnOn");
-        const btnHymnOff = document.getElementById("tzBtnHymnOff");
+        const btnHymnToggle = document.getElementById("btnHymnToggle");
 
-        function syncHymnBarUi() {
-          if (!hymnAudioEl) return;
+        function syncHymnToggleUi() {
+          if (!hymnAudioEl || !btnHymnToggle) return;
           const on = !hymnAudioEl.paused;
-          if (btnHymnOn) {
-            btnHymnOn.classList.toggle("ui-btn--hymn-on", on);
-            btnHymnOn.setAttribute("aria-pressed", on ? "true" : "false");
-          }
-          if (btnHymnOff) {
-            btnHymnOff.classList.toggle("ui-btn--hymn-off-active", !on);
-            btnHymnOff.setAttribute("aria-pressed", !on ? "true" : "false");
-          }
+          btnHymnToggle.textContent = on ? "ГИМН: ВКЛ" : "ГИМН: ВЫКЛ";
+          btnHymnToggle.classList.toggle("ui-btn--hymn-playing", on);
+        }
+
+        function updateHymnToggleForScreen(screenId) {
+          if (!btnHymnToggle) return;
+          const show =
+            screenId === "screen3" || screenId === "screen4" || screenId === "screen5";
+          btnHymnToggle.hidden = !show;
+          btnHymnToggle.setAttribute("aria-hidden", show ? "false" : "true");
+          if (show) syncHymnToggleUi();
         }
 
         document.addEventListener("vibe-book-opened", () => {
-          syncHymnBarUi();
+          syncHymnToggleUi();
         });
 
         document.addEventListener("vibe-screenchange", (ev) => {
@@ -2156,26 +2156,20 @@ void main() {
             renderBook();
           }
           if (id === "screen5") renderCatalog();
-          if (id === "screen2") syncHymnBarUi();
+          updateHymnToggleForScreen(id || "");
         });
 
-        if (hymnAudioEl && btnHymnOn) {
-          btnHymnOn.addEventListener("click", () => {
-            state.hymnUserPaused = false;
-            hymnAudioEl.play().catch(() => {});
-            syncHymnBarUi();
+        if (hymnAudioEl && btnHymnToggle) {
+          btnHymnToggle.addEventListener("click", () => {
+            if (hymnAudioEl.paused) {
+              hymnAudioEl.play().catch(() => {});
+            } else {
+              hymnAudioEl.pause();
+            }
+            syncHymnToggleUi();
           });
-        }
-        if (hymnAudioEl && btnHymnOff) {
-          btnHymnOff.addEventListener("click", () => {
-            state.hymnUserPaused = true;
-            hymnAudioEl.pause();
-            syncHymnBarUi();
-          });
-        }
-        if (hymnAudioEl) {
-          hymnAudioEl.addEventListener("play", syncHymnBarUi);
-          hymnAudioEl.addEventListener("pause", syncHymnBarUi);
+          hymnAudioEl.addEventListener("play", syncHymnToggleUi);
+          hymnAudioEl.addEventListener("pause", syncHymnToggleUi);
         }
 
         const svetCta = document.getElementById("tzSvetCta");
@@ -2301,6 +2295,8 @@ void main() {
 
         window.renderBook = renderBook;
         window.renderCatalog = renderCatalog;
+
+        updateHymnToggleForScreen(document.body.dataset.activeScreen || "screen1");
       }
 
       function initApp() {
