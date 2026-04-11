@@ -3561,40 +3561,8 @@ body {
 }
 
 /* =============================================================================
-   Финальная сборка: глобальный логотип, энергия на обложке, ui-btn, вход экрана
+   Финальная сборка: энергия на обложке, ui-btn, вход экрана
    ============================================================================= */
-
-.app-brand-logo {
-  position: fixed;
-  top: clamp(8px, 2vh, 20px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 300;
-  pointer-events: none;
-}
-
-/* Как на экране обложки (book-cover): один размер, glow, лёгкая пульсация — на всех экранах одинаково */
-.app-brand-logo .app-brand-logo__img,
-.app-brand-logo img {
-  display: block;
-  width: clamp(72px, 12vmin, 96px);
-  height: auto;
-  transform-origin: center center;
-  filter: drop-shadow(0 0 14px rgba(123, 97, 255, 0.75)) drop-shadow(0 0 28px rgba(74, 108, 255, 0.45));
-  animation: appLogoPulse 2.8s ease-in-out infinite;
-}
-
-@keyframes appLogoPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.03);
-    opacity: 0.95;
-  }
-}
 
 .cover-energy-burst {
   position: absolute;
@@ -3789,8 +3757,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .app-brand-logo .app-brand-logo__img,
-  .app-brand-logo img,
   .ui-btn--hymn-toggle.ui-btn--hymn-playing,
   .cover-energy-burst.is-active,
   .screen.active.screen-enter-anim {
