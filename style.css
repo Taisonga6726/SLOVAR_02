@@ -3445,11 +3445,7 @@ body {
   position: relative;
   justify-content: center;
   padding-bottom: clamp(24px, 5vh, 48px);
-}
-
-.tz-book-open-scene .tz-bg-img {
-  position: relative;
-  z-index: 0;
+  overflow: hidden;
 }
 
 /* Магия у корешка: ниже кнопки и логотипа (логотип fixed z-index 300) */
@@ -3461,7 +3457,7 @@ body {
   height: min(42vh, 320px);
   margin-left: calc(min(32vw, 240px) / -2);
   margin-top: calc(min(42vh, 320px) / -2);
-  z-index: 2;
+  z-index: 3;
   pointer-events: none;
   overflow: visible;
 }
@@ -3582,48 +3578,49 @@ body {
   }
 }
 
-/* CTA screen2: центр экрана, тот же градиент/glow что у .ui-btn */
-.ui-btn--svet-cta {
+/* screen2: та же кнопка, что «Войти» (.access-submit-btn) — только центрирование обёрткой */
+.tz-svet-cta-anchor {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
-  min-width: min(92vw, 340px);
-  padding: 14px 28px;
-  font-size: clamp(0.95rem, 2.4vw, 1.12rem);
-  letter-spacing: 0.14em;
-  border-radius: 26px;
-  background: linear-gradient(145deg, #7b61ff 0%, #5a4fcf 45%, #4a6cff 100%);
-  border: 1px solid rgba(180, 140, 255, 0.5);
-  color: #f7f4ff;
+  pointer-events: auto;
+}
+
+/* Без сдвига кнопки при hover: только усиление свечения и лёгкий scale (как на обложке — без translate) */
+#screen2 .tz-svet-cta-anchor .access-submit-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+#screen2 .tz-svet-cta-anchor .access-submit-btn:hover:not(:disabled) {
+  transform: scale(1.02);
   box-shadow:
-    0 4px 24px rgba(90, 70, 200, 0.5),
-    0 0 32px rgba(123, 97, 255, 0.45),
-    0 0 48px rgba(74, 108, 255, 0.35);
-  text-shadow: 0 0 18px rgba(200, 180, 255, 0.45);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.25s ease,
-    filter 0.2s ease;
+    0 0 24px rgba(130, 245, 255, 1),
+    0 0 44px rgba(112, 145, 255, 0.85),
+    0 0 66px rgba(220, 118, 255, 0.78),
+    0 6px 20px rgba(0, 0, 0, 0.48),
+    inset 0 0 0 1px rgba(245, 255, 255, 0.56);
+  filter: brightness(1.05);
 }
 
-.ui-btn--svet-cta:hover {
-  box-shadow:
-    0 6px 40px rgba(123, 97, 255, 0.55),
-    0 0 44px rgba(236, 140, 255, 0.42),
-    0 0 64px rgba(74, 108, 255, 0.45);
-  filter: brightness(1.08);
-  transform: translate(-50%, -50%) translateY(-2px);
+#screen2 .tz-svet-cta-anchor .access-submit-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  filter: brightness(0.98);
 }
 
-.ui-btn--svet-cta:active {
-  transform: translate(-50%, -50%) scale(0.95);
+.tz-book-open-scene > .grain-shader-bg {
+  z-index: 0;
 }
 
-.ui-btn--svet-cta:focus-visible {
-  outline: 2px solid rgba(160, 200, 255, 0.95);
-  outline-offset: 4px;
+.tz-book-open-scene > .magic-rings-fx {
+  z-index: 2;
+  opacity: 0.52;
+}
+
+.tz-book-open-scene > .tz-bg-img {
+  position: relative;
+  z-index: 1;
 }
 
 .tz-forma-scene .tz-forma-form {

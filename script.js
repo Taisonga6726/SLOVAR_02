@@ -1357,118 +1357,133 @@
       /**
        * Аналог @paper-design/shaders-react GrainGradient: без npm, Canvas 2D.
        * Параметры как в промпте: чёрный фон, мягкие пятна в углах, HSL-палитра, speed.
+       * Два экземпляра: обложка (#grainShaderBg) и экран book-open (#grainShaderBgScreen2).
        */
       function initGrainShaderBackground() {
-        const container = document.getElementById("grainShaderBg");
-        const canvas = document.getElementById("grainShaderCanvas");
-        if (!container || !canvas) return function noop() {};
+        function initOneGrainShader(containerId, canvasId, grainOptions) {
+          const container = document.getElementById(containerId);
+          const canvas = document.getElementById(canvasId);
+          if (!container || !canvas) return function noop() {};
 
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          container.setAttribute("hidden", "");
-          return function noop() {};
-        }
-
-        if (prefersReducedMotion()) {
-          if (dom.sceneStage) dom.sceneStage.classList.add("grain-shader-off");
-          container.setAttribute("hidden", "");
-          return function noop() {};
-        }
-
-        const intensity = 0.28;
-        const softness = 0.76;
-        const speed = 0.72;
-        const colors = [
-          { h: 14, s: 100, l: 57 },
-          { h: 45, s: 100, l: 51 },
-          { h: 340, s: 82, l: 52 }
-        ];
-
-        let dpr = 1;
-        let raf = 0;
-        let running = true;
-
-        function resize() {
-          const rect = container.getBoundingClientRect();
-          dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-          const cw = Math.max(1, Math.floor(rect.width * dpr));
-          const ch = Math.max(1, Math.floor(rect.height * dpr));
-          canvas.width = cw;
-          canvas.height = ch;
-          canvas.style.width = `${rect.width}px`;
-          canvas.style.height = `${rect.height}px`;
-        }
-
-        function hsla(c, a) {
-          return `hsla(${c.h}, ${c.s}%, ${c.l}%, ${a})`;
-        }
-
-        function drawCorner(cx, cy, r, colorIndex, tOff, wPx, hPx) {
-          const c = colors[colorIndex % colors.length];
-          const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-          const pulse = 0.92 + 0.08 * Math.sin(tOff);
-          g.addColorStop(0, hsla(c, intensity * pulse));
-          g.addColorStop(0.38, hsla(c, intensity * 0.42 * pulse));
-          g.addColorStop(0.72, hsla(c, intensity * 0.12));
-          g.addColorStop(1, "hsla(0, 0%, 0%, 0)");
-          ctx.fillStyle = g;
-          ctx.fillRect(0, 0, wPx, hPx);
-        }
-
-        function frame(now) {
-          if (!running) return;
-          const wPx = canvas.width / dpr;
-          const hPx = canvas.height / dpr;
-          if (wPx < 2 || hPx < 2) {
-            raf = requestAnimationFrame(frame);
-            return;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            container.setAttribute("hidden", "");
+            return function noop() {};
           }
 
-          const t = now * 0.00012 * speed;
-          const ox = Math.sin(t * 0.55) * wPx * 0.028;
-          const oy = Math.cos(t * 0.48) * hPx * 0.024;
-          const baseR = Math.min(wPx, hPx) * (0.34 + softness * 0.36);
+          if (prefersReducedMotion()) {
+            if (grainOptions && grainOptions.primaryScene && dom.sceneStage) {
+              dom.sceneStage.classList.add("grain-shader-off");
+            }
+            container.setAttribute("hidden", "");
+            return function noop() {};
+          }
 
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          ctx.globalCompositeOperation = "source-over";
-          ctx.fillStyle = "hsl(0, 0%, 0%)";
-          ctx.fillRect(0, 0, wPx, hPx);
+          const intensity = 0.28;
+          const softness = 0.76;
+          const speed = 0.72;
+          const colors = [
+            { h: 14, s: 100, l: 57 },
+            { h: 45, s: 100, l: 51 },
+            { h: 340, s: 82, l: 52 }
+          ];
 
-          ctx.globalCompositeOperation = "screen";
-          drawCorner(wPx * 0.18 + ox, hPx * 0.2 + oy, baseR, 0, t, wPx, hPx);
-          drawCorner(wPx * 0.82 - ox, hPx * 0.22 + oy, baseR * 0.98, 1, t + 1.2, wPx, hPx);
-          drawCorner(wPx * 0.78 + ox, hPx * 0.8 - oy, baseR * 0.95, 2, t + 2.1, wPx, hPx);
-          drawCorner(wPx * 0.22 - ox, hPx * 0.78 - oy, baseR * 0.92, 0, t + 0.7, wPx, hPx);
+          let dpr = 1;
+          let raf = 0;
+          let running = true;
 
-          ctx.globalCompositeOperation = "source-over";
+          function resize() {
+            const rect = container.getBoundingClientRect();
+            dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            const cw = Math.max(1, Math.floor(rect.width * dpr));
+            const ch = Math.max(1, Math.floor(rect.height * dpr));
+            canvas.width = cw;
+            canvas.height = ch;
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+          }
+
+          function hsla(c, a) {
+            return `hsla(${c.h}, ${c.s}%, ${c.l}%, ${a})`;
+          }
+
+          function drawCorner(cx, cy, r, colorIndex, tOff, wPx, hPx) {
+            const c = colors[colorIndex % colors.length];
+            const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+            const pulse = 0.92 + 0.08 * Math.sin(tOff);
+            g.addColorStop(0, hsla(c, intensity * pulse));
+            g.addColorStop(0.38, hsla(c, intensity * 0.42 * pulse));
+            g.addColorStop(0.72, hsla(c, intensity * 0.12));
+            g.addColorStop(1, "hsla(0, 0%, 0%, 0)");
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, wPx, hPx);
+          }
+
+          function frame(now) {
+            if (!running) return;
+            const wPx = canvas.width / dpr;
+            const hPx = canvas.height / dpr;
+            if (wPx < 2 || hPx < 2) {
+              raf = requestAnimationFrame(frame);
+              return;
+            }
+
+            const t = now * 0.00012 * speed;
+            const ox = Math.sin(t * 0.55) * wPx * 0.028;
+            const oy = Math.cos(t * 0.48) * hPx * 0.024;
+            const baseR = Math.min(wPx, hPx) * (0.34 + softness * 0.36);
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.globalCompositeOperation = "source-over";
+            ctx.fillStyle = "hsl(0, 0%, 0%)";
+            ctx.fillRect(0, 0, wPx, hPx);
+
+            ctx.globalCompositeOperation = "screen";
+            drawCorner(wPx * 0.18 + ox, hPx * 0.2 + oy, baseR, 0, t, wPx, hPx);
+            drawCorner(wPx * 0.82 - ox, hPx * 0.22 + oy, baseR * 0.98, 1, t + 1.2, wPx, hPx);
+            drawCorner(wPx * 0.78 + ox, hPx * 0.8 - oy, baseR * 0.95, 2, t + 2.1, wPx, hPx);
+            drawCorner(wPx * 0.22 - ox, hPx * 0.78 - oy, baseR * 0.92, 0, t + 0.7, wPx, hPx);
+
+            ctx.globalCompositeOperation = "source-over";
+            raf = requestAnimationFrame(frame);
+          }
+
+          resize();
+          window.addEventListener("resize", resize, { passive: true });
+          let ro = null;
+          if (typeof ResizeObserver !== "undefined") {
+            ro = new ResizeObserver(resize);
+            ro.observe(container);
+          }
           raf = requestAnimationFrame(frame);
+
+          return function disposeOneGrain() {
+            running = false;
+            cancelAnimationFrame(raf);
+            window.removeEventListener("resize", resize);
+            if (ro) ro.disconnect();
+          };
         }
 
-        resize();
-        window.addEventListener("resize", resize, { passive: true });
-        let ro = null;
-        if (typeof ResizeObserver !== "undefined") {
-          ro = new ResizeObserver(resize);
-          ro.observe(container);
-        }
-        raf = requestAnimationFrame(frame);
-
-        return function dispose() {
-          running = false;
-          cancelAnimationFrame(raf);
-          window.removeEventListener("resize", resize);
-          if (ro) ro.disconnect();
+        const disposeGrain1 = initOneGrainShader("grainShaderBg", "grainShaderCanvas", {
+          primaryScene: true
+        });
+        const disposeGrain2 = initOneGrainShader("grainShaderBgScreen2", "grainShaderCanvasScreen2", {
+          primaryScene: false
+        });
+        return function disposeGrainShaderAll() {
+          disposeGrain1();
+          disposeGrain2();
         };
       }
 
       /**
        * Адаптация @react-bits/MagicRings под текущий проект (vanilla JS + WebGL2).
-       * Эффект курсора в неоновой палитре сайта.
+       * Эффект курсора в неоновой палитре сайта. Два слоя: обложка и #screen2 (book-open).
        */
-      function initMagicRingsFx() {
-        const container = document.getElementById("magicRingsFx");
-        const canvas = document.getElementById("magicRingsCanvas");
-        const stage = dom.sceneStage;
+      function initMagicRingsFor(containerId, canvasId, stage) {
+        const container = document.getElementById(containerId);
+        const canvas = document.getElementById(canvasId);
         if (!container || !canvas || !stage) return function noop() {};
 
         if (prefersReducedMotion()) {
@@ -1768,6 +1783,16 @@ void main() {
           gl.deleteProgram(program);
           gl.deleteShader(vs);
           gl.deleteShader(fs);
+        };
+      }
+
+      function initMagicRingsFx() {
+        const d1 = initMagicRingsFor("magicRingsFx", "magicRingsCanvas", dom.sceneStage);
+        const screen2 = document.getElementById("screen2");
+        const d2 = initMagicRingsFor("magicRingsFxScreen2", "magicRingsCanvasScreen2", screen2);
+        return function disposeMagicRingsAll() {
+          d1();
+          d2();
         };
       }
 
