@@ -2164,7 +2164,7 @@ void main() {
 
         let formaPreviewPrevLen = 0;
         const FORMA_PAGE_CHARS = 300;
-        const INK_LINE_CHUNK = 40;
+        const INK_LINE_CHUNK = 52;
 
         function playFormFlipSound() {
           const a = document.getElementById("audioFormFlip");
