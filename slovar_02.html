@@ -417,6 +417,15 @@
         bookCtaBanner: document.getElementById("bookCtaBanner")
       };
 
+      /** Блок 3: полный UI книги (после снятия step2-visual), без декоративного шага «только картинка». */
+      function isBookBlock3() {
+        return (
+          dom.sceneStage &&
+          dom.sceneStage.classList.contains("scene--book-open") &&
+          !dom.sceneStage.classList.contains("scene--step2-visual")
+        );
+      }
+
       /* --- Утилиты --- */
       function prefersReducedMotion() {
         return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -964,6 +973,9 @@
         const list = dom.writeWordList;
         if (!list) return;
         list.innerHTML = "";
+        if (isBookBlock3()) {
+          return;
+        }
         state.words.forEach((item, i) => {
           const li = document.createElement("li");
           li.className = "write-word-li";
@@ -991,6 +1003,10 @@
 
       function renderWriteRightPane() {
         if (!dom.writingPreview || state.bookMode !== "write") return;
+        if (isBookBlock3()) {
+          dom.writingPreview.innerHTML = "";
+          return;
+        }
         clearWritingTimer();
         const cap = CONFIG.writeWordsPerRightPage;
         syncWriteSpreadFromWordCount();
@@ -1197,7 +1213,9 @@
             line.textContent = text;
           }
           wrap.appendChild(line);
-          wrap.appendChild(renderReactionRow(item.id, item.reactions || defaultReactions()));
+          if (!isBookBlock3()) {
+            wrap.appendChild(renderReactionRow(item.id, item.reactions || defaultReactions()));
+          }
           fragment.appendChild(wrap);
         });
 
