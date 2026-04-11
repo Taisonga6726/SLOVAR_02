@@ -1108,9 +1108,6 @@
           pruneBookUiForStep2();
           state.words = storage.loadWords();
           state.isBookInitialized = true;
-          window.setTimeout(() => {
-            if (typeof window.showScreen === "function") window.showScreen("screen2");
-          }, 420);
           return;
         }
         initBook();
@@ -1127,9 +1124,6 @@
           pruneBookUiForStep2();
           state.words = storage.loadWords();
           state.isBookInitialized = true;
-          window.setTimeout(() => {
-            if (typeof window.showScreen === "function") window.showScreen("screen2");
-          }, 200);
           return;
         }
         initBook();
@@ -1218,7 +1212,7 @@
           dom.bookCtaBanner.addEventListener("click", () => {
             if (!dom.sceneStage.classList.contains("scene--book-open")) return;
             if (typeof window.showScreen === "function") {
-              window.showScreen("screen3");
+              window.showScreen("screen2");
               return;
             }
             dom.sceneStage.classList.remove("scene--step2-visual");
@@ -1979,6 +1973,15 @@ void main() {
       }
 
       function tzFlipStep(dir) {
+        const flipAudio = document.getElementById("audioFlip");
+        if (flipAudio) {
+          try {
+            flipAudio.currentTime = 0;
+            flipAudio.play().catch(() => {});
+          } catch (_) {
+            /* ignore */
+          }
+        }
         const words = storage.loadWords();
         const totalSpreads = Math.max(1, Math.ceil(Math.max(words.length, 1) / 2));
         const book = document.getElementById("tzFlipBook");
@@ -2057,9 +2060,43 @@ void main() {
       }
 
       function initTzScreens() {
+        const audioPen = document.getElementById("audioPen");
+        let penIdleTimer = null;
+
+        function stopPenIdleTimer() {
+          if (penIdleTimer) {
+            window.clearTimeout(penIdleTimer);
+            penIdleTimer = null;
+          }
+        }
+
+        function pausePenSound() {
+          if (!audioPen) return;
+          try {
+            audioPen.pause();
+            audioPen.currentTime = 0;
+          } catch (_) {
+            /* ignore */
+          }
+        }
+
+        function touchPenSound() {
+          if (!audioPen) return;
+          stopPenIdleTimer();
+          audioPen.play().catch(() => {});
+          penIdleTimer = window.setTimeout(() => {
+            pausePenSound();
+            penIdleTimer = null;
+          }, 1000);
+        }
+
         document.addEventListener("vibe-screenchange", (ev) => {
           const id = ev.detail && ev.detail.screenId;
           state.words = storage.loadWords();
+          if (id !== "screen3") {
+            stopPenIdleTimer();
+            pausePenSound();
+          }
           if (id === "screen4") {
             state.tzFlipSpreadIndex = 0;
             renderBook();
@@ -2067,14 +2104,30 @@ void main() {
           if (id === "screen5") renderCatalog();
         });
 
-        const hubAdd = document.getElementById("tzBtnAddWord");
-        const hubBook = document.getElementById("tzBtnBook");
-        const hubCat = document.getElementById("tzBtnCatalog");
+        const svetCta = document.getElementById("tzSvetCta");
+        const navRead = document.getElementById("tzBtnNavRead");
+        const navCat = document.getElementById("tzBtnNavCat");
         const hubCover = document.getElementById("tzBtnHubToCover");
-        if (hubAdd) hubAdd.addEventListener("click", () => window.showScreen("screen3"));
-        if (hubBook) hubBook.addEventListener("click", () => window.showScreen("screen4"));
-        if (hubCat) hubCat.addEventListener("click", () => window.showScreen("screen5"));
+        if (svetCta) svetCta.addEventListener("click", () => window.showScreen("screen3"));
+        if (navRead) navRead.addEventListener("click", () => window.showScreen("screen4"));
+        if (navCat) navCat.addEventListener("click", () => window.showScreen("screen5"));
         if (hubCover) hubCover.addEventListener("click", () => window.showScreen("screen1"));
+
+        const rock = document.getElementById("tzRockAudio");
+        const rockBtn = document.getElementById("tzBtnRockToggle");
+        if (rock && rockBtn) {
+          rockBtn.addEventListener("click", () => {
+            if (rock.paused) {
+              rock.play().catch(() => {});
+              rockBtn.textContent = "❚❚";
+              rockBtn.setAttribute("aria-pressed", "true");
+            } else {
+              rock.pause();
+              rockBtn.textContent = "♪";
+              rockBtn.setAttribute("aria-pressed", "false");
+            }
+          });
+        }
 
         const form = document.getElementById("tzFormWord");
         const wIn = document.getElementById("tzInputWord");
@@ -2082,26 +2135,45 @@ void main() {
         const msg = document.getElementById("tzFormMsg");
         const preview = document.getElementById("tzLivePreview");
 
-        function tzPreview() {
+        let previewAnimTimer = null;
+        let previewDebounce = null;
+
+        function tzPreviewInk() {
           if (!preview) return;
           const word = normalizeText((wIn && wIn.value) || "");
           const description = normalizeText((dIn && dIn.value) || "");
+          const full =
+            word && description ? `${word} — ${description}` : word || description || "";
+          if (previewAnimTimer) {
+            window.clearInterval(previewAnimTimer);
+            previewAnimTimer = null;
+          }
           preview.innerHTML = "";
-          const box = document.createElement("div");
-          box.className = "tz-preview-inner";
-          const hw = document.createElement("p");
-          hw.className = "tz-preview-word";
-          hw.textContent = word || "…";
-          const hd = document.createElement("p");
-          hd.className = "tz-preview-desc";
-          hd.textContent = description || "…";
-          box.appendChild(hw);
-          box.appendChild(hd);
-          preview.appendChild(box);
+          if (!full) return;
+          const p = document.createElement("p");
+          p.className = "tz-ink-line";
+          preview.appendChild(p);
+          let i = 0;
+          previewAnimTimer = window.setInterval(() => {
+            i += 1;
+            p.textContent = full.slice(0, i);
+            if (i >= full.length) {
+              window.clearInterval(previewAnimTimer);
+              previewAnimTimer = null;
+            }
+          }, 20);
         }
 
-        if (wIn) wIn.addEventListener("input", tzPreview);
-        if (dIn) dIn.addEventListener("input", tzPreview);
+        function onFormInput() {
+          touchPenSound();
+          window.clearTimeout(previewDebounce);
+          previewDebounce = window.setTimeout(() => {
+            tzPreviewInk();
+          }, 45);
+        }
+
+        if (wIn) wIn.addEventListener("input", onFormInput);
+        if (dIn) dIn.addEventListener("input", onFormInput);
 
         if (form) {
           form.addEventListener("submit", (e) => {
@@ -2130,7 +2202,7 @@ void main() {
             }
             if (wIn) wIn.value = "";
             if (dIn) dIn.value = "";
-            tzPreview();
+            if (preview) preview.innerHTML = "";
             if (msg) {
               msg.textContent = "Сохранено.";
               msg.className = "tz-form-msg tz-form-msg--ok";

@@ -296,55 +296,84 @@
   
     </div>
 
-    <div id="screen2" class="screen tz-screen tz-hub">
-      <div class="tz-screen__inner">
-        <h2 class="tz-screen__title">VIBE Словарь</h2>
-        <p class="tz-screen__lead">Выберите раздел</p>
-        <div class="tz-hub__actions">
-          <button type="button" class="tz-btn tz-btn--primary" id="tzBtnAddWord">Внести слово</button>
-          <button type="button" class="tz-btn tz-btn--ghost" id="tzBtnBook">Книга</button>
-          <button type="button" class="tz-btn tz-btn--ghost" id="tzBtnCatalog">Каталог</button>
+    <!-- ТЗ FINAL: screen2 — images/book 02_svet.png, клик по центру → форма -->
+    <div id="screen2" class="screen tz-screen tz-screen--svet">
+      <div class="tz-svet-scene">
+        <img class="tz-bg-img tz-svet-bg" src="images/book%2002_svet.png" alt="" decoding="async" />
+        <div class="tz-brand-mark" aria-hidden="true">
+          <img class="tz-logo tz-logo--pulse" src="images/LOGO.png" width="112" height="112" alt="" />
         </div>
-        <button type="button" class="tz-link-back" id="tzBtnHubToCover">← На обложку</button>
+        <button
+          type="button"
+          class="tz-svet-hotspot"
+          id="tzSvetCta"
+          aria-label="Внести своё слово"
+        ></button>
+        <div class="tz-svet-subnav">
+          <button type="button" class="tz-svet-link" id="tzBtnNavRead">Книга</button>
+          <button type="button" class="tz-svet-link" id="tzBtnNavCat">Каталог</button>
+        </div>
+        <button type="button" class="tz-link-back tz-svet-back" id="tzBtnHubToCover">← Обложка</button>
+        <div class="tz-rock-row">
+          <audio id="tzRockAudio" preload="metadata">
+            <source src="assets/sounds/versiya%205_hard-rok.mp3" type="audio/mpeg" />
+          </audio>
+          <button type="button" class="tz-btn-audio-power" id="tzBtnRockToggle" aria-label="Включить музыку">♪</button>
+        </div>
       </div>
     </div>
 
-    <div id="screen3" class="screen tz-screen tz-screen--form">
-      <div class="tz-screen__inner tz-form-layout">
-        <h2 class="tz-screen__title">Новое слово</h2>
-        <form id="tzFormWord" class="tz-form" novalidate>
-          <label class="tz-label" for="tzInputWord">Слово</label>
-          <input id="tzInputWord" class="tz-input" type="text" maxlength="30" required autocomplete="off" />
-          <label class="tz-label" for="tzInputDesc">Описание</label>
-          <textarea id="tzInputDesc" class="tz-textarea" maxlength="150" required rows="4" placeholder="Пояснение к слову…"></textarea>
+    <!-- ТЗ FINAL: screen3 — images/forma_cl.png, форма поверх -->
+    <div id="screen3" class="screen tz-screen tz-screen--forma">
+      <div class="tz-forma-scene">
+        <img class="tz-bg-img tz-forma-bg" src="images/forma_cl.png" alt="" decoding="async" />
+        <div class="tz-brand-mark tz-brand-mark--forma" aria-hidden="true">
+          <img class="tz-logo tz-logo--pulse" src="images/LOGO.png" width="88" height="88" alt="" />
+        </div>
+        <form id="tzFormWord" class="tz-forma-form" novalidate>
+          <label class="tz-label tz-label--ink" for="tzInputWord">Слово</label>
+          <input id="tzInputWord" class="tz-input tz-input--ink" type="text" maxlength="30" required autocomplete="off" />
+          <label class="tz-label tz-label--ink" for="tzInputDesc">Описание</label>
+          <textarea id="tzInputDesc" class="tz-textarea tz-textarea--ink" maxlength="150" required rows="4"></textarea>
           <div class="tz-form__row">
-            <button type="submit" class="tz-btn tz-btn--primary" id="tzFormSave">Сохранить</button>
-            <button type="button" class="tz-btn tz-btn--ghost" id="tzFormCancel">Назад в меню</button>
+            <button type="submit" class="tz-btn tz-btn--primary tz-btn--glass" id="tzFormSave">Сохранить</button>
+            <button type="button" class="tz-btn tz-btn--ghost tz-btn--glass" id="tzFormCancel">Назад</button>
           </div>
           <p id="tzFormMsg" class="tz-form-msg" role="status" aria-live="polite"></p>
         </form>
-        <aside class="tz-preview-panel" aria-label="Предпросмотр">
-          <p class="tz-preview-label">Предпросмотр</p>
+        <aside class="tz-ink-preview" aria-label="Предпросмотр письма">
           <div id="tzLivePreview" class="tz-live-preview"></div>
         </aside>
+        <audio id="audioPen" preload="metadata" loop>
+          <source src="assets/sounds/pen%20writing%20in%20a%20book.mp3" type="audio/mpeg" />
+        </audio>
       </div>
     </div>
 
-    <div id="screen4" class="screen tz-screen tz-screen--flip">
-      <div class="tz-screen__inner tz-flip-wrap">
-        <h2 class="tz-screen__title tz-visually-hidden">Книга</h2>
-        <div class="tz-flip-stage" id="tzFlipStage">
-          <div class="tz-flip-book" id="tzFlipBook">
-            <div class="tz-spread tz-spread--left" id="tzPageLeft"></div>
-            <div class="tz-spread tz-spread--right" id="tzPageRight"></div>
-          </div>
+    <!-- ТЗ FINAL: screen4 — images/boor_reed 04.png, 2 слова, rotateY -->
+    <div id="screen4" class="screen tz-screen tz-screen--reed">
+      <div class="tz-reed-scene">
+        <img class="tz-bg-img tz-reed-bg" src="images/boor_reed%2004.png" alt="" decoding="async" />
+        <div class="tz-brand-mark tz-brand-mark--reed" aria-hidden="true">
+          <img class="tz-logo tz-logo--pulse" src="images/LOGO.png" width="88" height="88" alt="" />
         </div>
-        <nav class="tz-flip-nav" aria-label="Страницы книги">
-          <button type="button" class="tz-nav-btn" id="tzFlipPrev" aria-label="Предыдущий разворот">◀</button>
-          <span class="tz-flip-counter" id="tzFlipCounter">1 / 1</span>
-          <button type="button" class="tz-nav-btn" id="tzFlipNext" aria-label="Следующий разворот">▶</button>
-        </nav>
-        <button type="button" class="tz-link-back" id="tzBtnBookToMenu">← Меню</button>
+        <div class="tz-reed-layer">
+          <div class="tz-flip-stage" id="tzFlipStage">
+            <div class="tz-flip-book" id="tzFlipBook">
+              <div class="tz-spread tz-spread--left" id="tzPageLeft"></div>
+              <div class="tz-spread tz-spread--right" id="tzPageRight"></div>
+            </div>
+          </div>
+          <nav class="tz-flip-nav" aria-label="Страницы книги">
+            <button type="button" class="tz-nav-btn" id="tzFlipPrev" aria-label="Предыдущий разворот">◀</button>
+            <span class="tz-flip-counter" id="tzFlipCounter">1 / 1</span>
+            <button type="button" class="tz-nav-btn" id="tzFlipNext" aria-label="Следующий разворот">▶</button>
+          </nav>
+        </div>
+        <button type="button" class="tz-link-back tz-reed-back" id="tzBtnBookToMenu">← Экран книги</button>
+        <audio id="audioFlip" preload="metadata">
+          <source src="assets/sounds/flipping%20through%20the%20pages.mp3" type="audio/mpeg" />
+        </audio>
       </div>
     </div>
 
@@ -364,9 +393,9 @@
         <div id="tzCatalogGrid" class="tz-catalog-grid"></div>
         <div class="tz-audio-row">
           <audio id="tzAmbientAudio" preload="metadata">
-            <source src="assetss/sounds/pen%20writing%20in%20a%20book%20magic.MP3" type="audio/mpeg" />
+            <source src="assets/sounds/versiya%205_hard-rok.mp3" type="audio/mpeg" />
           </audio>
-          <button type="button" class="tz-btn tz-btn--ghost" id="tzBtnPlayAudio">▶ Атмосфера</button>
+          <button type="button" class="tz-btn tz-btn--ghost" id="tzBtnPlayAudio">♪ Включить</button>
         </div>
         <button type="button" class="tz-link-back" id="tzBtnCatalogToMenu">← Меню</button>
       </div>

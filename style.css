@@ -2996,6 +2996,12 @@ body {
   box-sizing: border-box;
 }
 
+.tz-screen--svet,
+.tz-screen--forma,
+.tz-screen--reed {
+  padding: 0;
+}
+
 .tz-screen__inner {
   max-width: 920px;
   margin: 0 auto;
@@ -3365,5 +3371,237 @@ body {
 
 .tz-screen .word-reaction-btn:hover {
   border-color: rgba(123, 97, 255, 0.5);
+}
+
+/* --- FINAL ТЗ: единая «магическая книга», фоновые изображения, LOGO --- */
+.tz-bg-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(92vh, 1000px);
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.tz-svet-scene,
+.tz-forma-scene,
+.tz-reed-scene {
+  position: relative;
+  width: min(100%, 1200px);
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: clamp(8px, 2vw, 20px) 0 72px;
+  box-sizing: border-box;
+}
+
+.tz-brand-mark {
+  position: absolute;
+  top: clamp(8px, 2.5vh, 24px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.tz-brand-mark--forma {
+  top: clamp(4px, 1.5vh, 16px);
+}
+
+.tz-brand-mark--reed {
+  top: clamp(6px, 2vh, 20px);
+}
+
+.tz-logo--pulse {
+  animation: tzLogoPulse 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 16px rgba(123, 97, 255, 0.75)) drop-shadow(0 0 32px rgba(74, 108, 255, 0.35));
+}
+
+@keyframes tzLogoPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.95;
+  }
+}
+
+.tz-svet-hotspot {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+  width: min(44%, 440px);
+  height: min(24%, 220px);
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(123, 97, 255, 0.12) 0%,
+    rgba(123, 97, 255, 0.04) 45%,
+    transparent 70%
+  );
+  cursor: pointer;
+  z-index: 2;
+}
+
+.tz-svet-hotspot:focus-visible {
+  outline: 2px solid rgba(127, 170, 255, 0.9);
+  outline-offset: 4px;
+}
+
+.tz-svet-subnav {
+  position: absolute;
+  bottom: clamp(56px, 12vh, 120px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  z-index: 3;
+}
+
+.tz-svet-link {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1rem;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(123, 97, 255, 0.35);
+  background: rgba(15, 15, 26, 0.55);
+  color: #dcd8ff;
+  cursor: pointer;
+}
+
+.tz-svet-back,
+.tz-reed-back {
+  position: absolute;
+  bottom: clamp(12px, 3vh, 28px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+}
+
+.tz-rock-row {
+  position: absolute;
+  top: clamp(12px, 3vh, 28px);
+  right: clamp(12px, 3vw, 28px);
+  z-index: 4;
+}
+
+.tz-btn-audio-power {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(123, 97, 255, 0.45);
+  background: rgba(15, 15, 26, 0.65);
+  color: #e8e4ff;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(74, 108, 255, 0.25);
+}
+
+.tz-forma-scene .tz-forma-form {
+  position: absolute;
+  left: clamp(4%, 6vw, 10%);
+  top: clamp(22%, 24vh, 34%);
+  width: min(40%, 360px);
+  z-index: 2;
+}
+
+@media (max-width: 900px) {
+  .tz-forma-scene .tz-forma-form {
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(88%, 400px);
+    top: clamp(28%, 30vh, 40%);
+  }
+}
+
+.tz-label--ink {
+  color: rgba(200, 210, 255, 0.88);
+  text-shadow: 0 0 8px rgba(127, 170, 255, 0.35);
+}
+
+.tz-input--ink,
+.tz-textarea--ink {
+  background: rgba(12, 12, 22, 0.45);
+  border-color: rgba(127, 170, 255, 0.35);
+  color: #7faaff;
+  text-shadow: 0 0 10px rgba(127, 170, 255, 0.45);
+}
+
+.tz-btn--glass {
+  background: rgba(20, 22, 42, 0.55) !important;
+  backdrop-filter: blur(6px);
+  border-color: rgba(127, 170, 255, 0.35) !important;
+}
+
+.tz-ink-preview {
+  position: absolute;
+  right: clamp(5%, 7vw, 10%);
+  top: clamp(24%, 26vh, 36%);
+  width: min(38%, 340px);
+  min-height: 140px;
+  z-index: 2;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(10, 10, 24, 0.35);
+  border: 1px solid rgba(127, 170, 255, 0.15);
+  box-shadow: inset 0 0 24px rgba(74, 108, 255, 0.08);
+}
+
+@media (max-width: 900px) {
+  .tz-ink-preview {
+    position: relative;
+    right: auto;
+    top: auto;
+    width: min(92%, 440px);
+    margin: 16px auto 0;
+  }
+}
+
+.tz-ink-line {
+  margin: 0;
+  font-family: "Caveat", "Marck Script", cursive;
+  font-size: clamp(1.15rem, 2.8vw, 1.45rem);
+  line-height: 1.45;
+  color: #7faaff;
+  text-shadow:
+    0 0 10px rgba(127, 170, 255, 0.55),
+    0 0 22px rgba(80, 120, 200, 0.35);
+}
+
+.tz-reed-layer {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  width: min(86%, 920px);
+  z-index: 2;
+}
+
+.tz-reed-scene .tz-flip-stage {
+  margin-bottom: 12px;
+}
+
+.tz-reed-scene .tz-spread {
+  background: rgba(8, 10, 22, 0.42);
+  border-color: rgba(127, 170, 255, 0.22);
+  backdrop-filter: blur(4px);
+}
+
+.tz-reed-scene .tz-page-word {
+  color: #dce6ff !important;
+}
+
+.tz-reed-scene .tz-page-desc {
+  color: rgba(230, 235, 255, 0.9) !important;
 }
 
