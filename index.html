@@ -20,12 +20,12 @@
   <button
     type="button"
     id="btnHymnToggle"
-    class="ui-btn ui-btn--hymn-toggle"
+    class="ui-btn ui-btn--hymn-toggle ui-btn--hymn-idle"
     hidden
     aria-hidden="true"
-    aria-label="Переключить гимн"
+    aria-label="Гимн Вайбкодера: воспроизведение и пауза"
   >
-    ГИМН: ВКЛ
+    🔊 Гимн Вайбкодера
   </button>
 
   <main id="main-content" class="app" tabindex="-1">
@@ -116,6 +116,16 @@
             <div class="book-scene book-open-layer__scene">
               <!-- book-ui: контент позиционируется по областям страниц на изображении, без отдельных «карточек» -->
               <div id="bookImageWrap" class="book-image-wrap book-ui">
+                <div class="magic-float-words magic-float-words--book" aria-hidden="true">
+                  <span class="magic-float-word" style="--mf-l: 3%; --mf-t: 6%">VIBE</span>
+                  <span class="magic-float-word" style="--mf-l: 82%; --mf-t: 8%">CODE</span>
+                  <span class="magic-float-word" style="--mf-l: 6%; --mf-t: 72%">AI</span>
+                  <span class="magic-float-word" style="--mf-l: 84%; --mf-t: 76%">СМЫСЛ</span>
+                  <span class="magic-float-word" style="--mf-l: 4%; --mf-t: 38%">ПОТОК</span>
+                  <span class="magic-float-word" style="--mf-l: 86%; --mf-t: 42%">МАГИЯ</span>
+                  <span class="magic-float-word" style="--mf-l: 22%; --mf-t: 4%">ФОКУС</span>
+                  <span class="magic-float-word" style="--mf-l: 68%; --mf-t: 88%">НЕЙРО</span>
+                </div>
                 <div id="pageLightBurst" class="light-burst" aria-hidden="true"></div>
                 <div id="bookFxFlash" class="flash flash--book" aria-hidden="true"></div>
                 <div
@@ -311,23 +321,46 @@
     <!-- ТЗ FINAL: screen3 — images/forma_cl.png, форма поверх -->
     <div id="screen3" class="screen tz-screen tz-screen--forma">
       <div class="tz-forma-scene">
+        <div class="magic-float-words magic-float-words--forma" aria-hidden="true">
+          <span class="magic-float-word" style="--mf-l: 4%; --mf-t: 10%">VIBE</span>
+          <span class="magic-float-word" style="--mf-l: 78%; --mf-t: 12%">CODE</span>
+          <span class="magic-float-word" style="--mf-l: 8%; --mf-t: 78%">AI</span>
+          <span class="magic-float-word" style="--mf-l: 80%; --mf-t: 74%">СМЫСЛ</span>
+          <span class="magic-float-word" style="--mf-l: 5%; --mf-t: 44%">ПОТОК</span>
+          <span class="magic-float-word" style="--mf-l: 84%; --mf-t: 48%">МАГИЯ</span>
+          <span class="magic-float-word" style="--mf-l: 26%; --mf-t: 6%">ФОКУС</span>
+          <span class="magic-float-word" style="--mf-l: 70%; --mf-t: 86%">НЕЙРО</span>
+        </div>
+        <div class="tz-forma-brand-wrap">
+          <img
+            class="tz-forma-logo"
+            src="images/LOGO.png"
+            width="120"
+            alt=""
+            decoding="async"
+            onerror="this.onerror=null;this.src='images/LOGO.svg';"
+          />
+        </div>
         <img class="tz-bg-img tz-forma-bg" src="images/forma_cl.png" alt="" decoding="async" />
         <form id="tzFormWord" class="tz-forma-form" novalidate>
           <label class="tz-label tz-label--ink" for="tzInputWord">Слово</label>
           <input id="tzInputWord" class="tz-input tz-input--ink" type="text" maxlength="30" required autocomplete="off" />
           <label class="tz-label tz-label--ink" for="tzInputDesc">Описание</label>
           <textarea id="tzInputDesc" class="tz-textarea tz-textarea--ink" maxlength="150" required rows="4"></textarea>
-          <div class="tz-form__row">
+          <div class="tz-form__row tz-form__row--save">
             <button type="submit" class="ui-btn ui-btn--primary" id="tzFormSave">Сохранить</button>
-            <button type="button" class="ui-btn ui-btn--secondary" id="tzFormCancel">Назад</button>
           </div>
+          <button type="button" class="ui-btn ui-btn--primary tz-forma-back" id="tzFormCancel">Назад</button>
           <p id="tzFormMsg" class="tz-form-msg" role="status" aria-live="polite"></p>
         </form>
         <aside class="tz-ink-preview" aria-label="Предпросмотр письма">
           <div id="tzLivePreview" class="tz-live-preview"></div>
         </aside>
-        <audio id="audioPen" preload="metadata" loop>
-          <source src="assets/sounds/pen%20writing%20in%20a%20book.mp3" type="audio/mpeg" />
+        <audio id="audioPen" preload="metadata">
+          <source src="assets/sounds/pen%20writing%20in%20a%20book%20magic.MP3" type="audio/mpeg" />
+        </audio>
+        <audio id="audioFormFlip" preload="metadata">
+          <source src="assets/sounds/flipping%20through%20the%20pages%20of%20a%20book.MP3" type="audio/mpeg" />
         </audio>
       </div>
     </div>
@@ -355,7 +388,7 @@
         </div>
         <button type="button" class="ui-btn ui-btn--ghost-nav tz-reed-back" id="tzBtnBookToMenu">← Экран книги</button>
         <audio id="audioFlip" preload="metadata">
-          <source src="assets/sounds/flipping%20through%20the%20pages.mp3" type="audio/mpeg" />
+          <source src="assets/sounds/flipping%20through%20the%20pages%20of%20a%20book.MP3" type="audio/mpeg" />
         </audio>
       </div>
     </div>

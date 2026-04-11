@@ -3395,6 +3395,82 @@ body {
   border-color: rgba(123, 97, 255, 0.5);
 }
 
+/* Плавающие слова (форма + разворот книги), только декор */
+.magic-float-words {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.magic-float-words--book {
+  z-index: 2;
+}
+
+.magic-float-word {
+  position: absolute;
+  left: var(--mf-l, 4%);
+  top: var(--mf-t, 10%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(10px, 1.45vw, 14px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(180, 220, 255, 0.95);
+  opacity: 0.42;
+  text-shadow:
+    0 0 10px rgba(100, 200, 255, 0.45),
+    0 0 20px rgba(150, 100, 255, 0.35);
+  animation: magicFloatDrift 24s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.magic-float-words--book .magic-float-word {
+  animation-duration: 28s;
+}
+
+.magic-float-word:nth-child(2) {
+  animation-delay: -3s;
+}
+.magic-float-word:nth-child(3) {
+  animation-delay: -5.5s;
+}
+.magic-float-word:nth-child(4) {
+  animation-delay: -2s;
+}
+.magic-float-word:nth-child(5) {
+  animation-delay: -7s;
+}
+.magic-float-word:nth-child(6) {
+  animation-delay: -4.2s;
+}
+.magic-float-word:nth-child(7) {
+  animation-delay: -6s;
+}
+.magic-float-word:nth-child(8) {
+  animation-delay: -8.5s;
+}
+
+@keyframes magicFloatDrift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-3deg);
+    opacity: 0.32;
+  }
+  50% {
+    transform: translate(10px, -12px) rotate(4deg);
+    opacity: 0.58;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .magic-float-word {
+    animation: none !important;
+    opacity: 0.4;
+  }
+}
+
 /* --- FINAL ТЗ: единая «магическая книга», фоновые изображения, LOGO --- */
 .tz-bg-img {
   display: block;
@@ -3403,6 +3479,11 @@ body {
   max-height: min(92vh, 1000px);
   object-fit: contain;
   margin: 0 auto;
+}
+
+.tz-forma-scene > .tz-forma-bg {
+  position: relative;
+  z-index: 2;
 }
 
 .tz-forma-scene,
@@ -3418,6 +3499,38 @@ body {
   justify-content: flex-start;
   padding: clamp(8px, 2vw, 20px) 0 72px;
   box-sizing: border-box;
+}
+
+.tz-forma-brand-wrap {
+  position: absolute;
+  left: 50%;
+  top: clamp(6px, 1.4vh, 16px);
+  transform: translateX(-50%);
+  z-index: 6;
+  pointer-events: none;
+}
+
+.tz-forma-logo {
+  display: block;
+  width: clamp(72px, 13vmin, 120px);
+  height: auto;
+  transform-origin: center center;
+  filter: drop-shadow(0 0 14px rgba(123, 97, 255, 0.88)) drop-shadow(0 0 28px rgba(74, 108, 255, 0.55));
+  animation: tzFormaLogoGlow 2.8s ease-in-out infinite;
+}
+
+@keyframes tzFormaLogoGlow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 0 14px rgba(123, 97, 255, 0.88)) drop-shadow(0 0 28px rgba(74, 108, 255, 0.55));
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.96;
+    filter: drop-shadow(0 0 20px rgba(160, 120, 255, 0.95)) drop-shadow(0 0 36px rgba(90, 140, 255, 0.62));
+  }
 }
 
 .tz-brand-mark {
@@ -3467,7 +3580,25 @@ body {
   left: clamp(4%, 6vw, 10%);
   top: clamp(22%, 24vh, 34%);
   width: min(40%, 360px);
-  z-index: 2;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: min(48vh, 440px);
+  box-sizing: border-box;
+}
+
+.tz-forma-scene .tz-form__row--save {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.tz-forma-back {
+  margin-top: auto;
+  align-self: flex-start;
+  margin-left: clamp(2px, 0.8vw, 8px);
+  margin-bottom: clamp(4px, 1vh, 10px);
 }
 
 @media (max-width: 900px) {
@@ -3476,6 +3607,7 @@ body {
     transform: translateX(-50%);
     width: min(88%, 400px);
     top: clamp(28%, 30vh, 40%);
+    min-height: min(42vh, 400px);
   }
 }
 
@@ -3504,12 +3636,12 @@ body {
   top: clamp(24%, 26vh, 36%);
   width: min(38%, 340px);
   min-height: 140px;
-  z-index: 2;
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(10, 10, 24, 0.35);
-  border: 1px solid rgba(127, 170, 255, 0.15);
-  box-shadow: inset 0 0 24px rgba(74, 108, 255, 0.08);
+  z-index: 4;
+  padding: 10px 8px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 @media (max-width: 900px) {
@@ -3520,6 +3652,24 @@ body {
     width: min(92%, 440px);
     margin: 16px auto 0;
   }
+}
+
+.tz-ink-ol {
+  margin: 0;
+  padding-left: 1.35em;
+  list-style: decimal;
+  color: #7faaff;
+  font-family: "Caveat", "Marck Script", cursive;
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  line-height: 1.5;
+}
+
+.tz-ink-ol li {
+  margin: 0 0 0.5em;
+  padding-left: 0.15em;
+  text-shadow:
+    0 0 10px rgba(127, 170, 255, 0.55),
+    0 0 22px rgba(80, 120, 200, 0.38);
 }
 
 .tz-ink-line {
@@ -3695,23 +3845,32 @@ body {
     0 4px 18px rgba(74, 108, 255, 0.35);
 }
 
-/* Одна кнопка гимна: screen3–5, правый верх, тот же градиент/glow что у .ui-btn */
+/* Кнопка гимна: screen3–5, правый верх */
 .ui-btn--hymn-toggle {
   position: fixed;
   top: clamp(10px, 2.5vh, 22px);
   right: clamp(10px, 2.5vw, 22px);
   z-index: 400;
   pointer-events: auto;
-  min-width: 140px;
-  padding: 10px 18px;
-  font-size: 0.92rem;
-  letter-spacing: 0.06em;
+  min-width: 200px;
+  max-width: min(92vw, 340px);
+  padding: 10px 16px;
+  font-size: clamp(0.82rem, 1.9vw, 0.95rem);
+  letter-spacing: 0.04em;
   border-radius: 24px;
   background: linear-gradient(145deg, #7b61ff 0%, #5a4fcf 45%, #4a6cff 100%);
   box-shadow:
     0 4px 22px rgba(90, 70, 200, 0.5),
     0 0 28px rgba(123, 97, 255, 0.45),
     0 0 40px rgba(74, 108, 255, 0.3);
+  transition: box-shadow 0.25s ease, filter 0.25s ease, transform 0.15s ease;
+}
+
+.ui-btn--hymn-idle {
+  filter: saturate(0.92) brightness(0.98);
+  box-shadow:
+    0 3px 16px rgba(60, 50, 120, 0.45),
+    0 0 18px rgba(100, 90, 180, 0.28);
 }
 
 .ui-btn--hymn-toggle:hover {
@@ -3727,6 +3886,7 @@ body {
 }
 
 .ui-btn--hymn-toggle.ui-btn--hymn-playing {
+  filter: brightness(1.05);
   animation: uiHymnTogglePulse 1.4s ease-in-out infinite;
 }
 
@@ -3757,6 +3917,9 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .tz-forma-logo {
+    animation: none !important;
+  }
   .ui-btn--hymn-toggle.ui-btn--hymn-playing,
   .cover-energy-burst.is-active,
   .screen.active.screen-enter-anim {

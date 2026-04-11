@@ -2144,8 +2144,9 @@ void main() {
         function syncHymnToggleUi() {
           if (!hymnAudioEl || !btnHymnToggle) return;
           const on = !hymnAudioEl.paused;
-          btnHymnToggle.textContent = on ? "ГИМН: ВКЛ" : "ГИМН: ВЫКЛ";
+          btnHymnToggle.textContent = "🔊 Гимн Вайбкодера";
           btnHymnToggle.classList.toggle("ui-btn--hymn-playing", on);
+          btnHymnToggle.classList.toggle("ui-btn--hymn-idle", !on);
         }
 
         function updateHymnToggleForScreen(screenId) {
@@ -2161,12 +2162,30 @@ void main() {
           syncHymnToggleUi();
         });
 
+        let formaPreviewPrevLen = 0;
+        const FORMA_PAGE_CHARS = 300;
+        const INK_LINE_CHUNK = 52;
+
+        function playFormFlipSound() {
+          const a = document.getElementById("audioFormFlip");
+          if (!a) return;
+          try {
+            a.currentTime = 0;
+            a.play().catch(() => {});
+          } catch (_) {
+            /* ignore */
+          }
+        }
+
         document.addEventListener("vibe-screenchange", (ev) => {
           const id = ev.detail && ev.detail.screenId;
           state.words = storage.loadWords();
           if (id !== "screen3") {
             stopPenIdleTimer();
             pausePenSound();
+          }
+          if (id === "screen3") {
+            formaPreviewPrevLen = 0;
           }
           if (id === "screen4") {
             state.tzFlipSpreadIndex = 0;
@@ -2209,17 +2228,53 @@ void main() {
             previewAnimTimer = null;
           }
           preview.innerHTML = "";
-          if (!full) return;
-          const p = document.createElement("p");
-          p.className = "tz-ink-line";
-          preview.appendChild(p);
-          let i = 0;
+          if (!full) {
+            formaPreviewPrevLen = 0;
+            return;
+          }
+
+          const len = full.length;
+          if (len > formaPreviewPrevLen) {
+            const a = Math.max(0, len - 1);
+            const b = Math.max(0, formaPreviewPrevLen - 1);
+            if (Math.floor(a / FORMA_PAGE_CHARS) > Math.floor(b / FORMA_PAGE_CHARS)) {
+              playFormFlipSound();
+            }
+          }
+          formaPreviewPrevLen = len;
+
+          const displayText = full.slice(Math.max(0, len - FORMA_PAGE_CHARS));
+          const chunks = [];
+          for (let i = 0; i < displayText.length; i += INK_LINE_CHUNK) {
+            chunks.push(displayText.slice(i, i + INK_LINE_CHUNK));
+          }
+          if (chunks.length === 0) return;
+
+          const ol = document.createElement("ol");
+          ol.className = "tz-ink-ol";
+          chunks.forEach(() => {
+            const li = document.createElement("li");
+            const span = document.createElement("span");
+            li.appendChild(span);
+            ol.appendChild(li);
+          });
+          preview.appendChild(ol);
+
+          const spans = ol.querySelectorAll("span");
+          let chunkIdx = 0;
+          let pos = 0;
           previewAnimTimer = window.setInterval(() => {
-            i += 1;
-            p.textContent = full.slice(0, i);
-            if (i >= full.length) {
+            if (chunkIdx >= chunks.length) {
               window.clearInterval(previewAnimTimer);
               previewAnimTimer = null;
+              return;
+            }
+            const cur = chunks[chunkIdx];
+            pos += 1;
+            spans[chunkIdx].textContent = cur.slice(0, pos);
+            if (pos >= cur.length) {
+              chunkIdx += 1;
+              pos = 0;
             }
           }, 20);
         }
@@ -2262,6 +2317,7 @@ void main() {
             }
             if (wIn) wIn.value = "";
             if (dIn) dIn.value = "";
+            formaPreviewPrevLen = 0;
             if (preview) preview.innerHTML = "";
             if (msg) {
               msg.textContent = "Сохранено.";
