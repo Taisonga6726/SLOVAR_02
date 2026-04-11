@@ -538,12 +538,7 @@
         setLoginMessage("Нажмите на книгу", "success");
       }
 
-      /** Длительность вспышки и энергии на обложке перед переходом на book-open */
-      const COVER_OPEN_ANIM_MS = 920;
-
-      /**
-       * Клик по книге: сразу гимн + вспышка и энергия из центра книги → затем screen2 (book-open.png).
-       */
+      /** Показать разворот book-open.png поверх статичного фона; фон сцены не меняется. */
       function runCoverOpenAnimationAndGoToBook() {
         if (state.isEnteringBook) return;
 
@@ -551,30 +546,12 @@
         setAccessControlsDisabled(true);
         clearCoverReadyUi();
         storage.setAccessGranted();
+        triggerSceneFlash("open");
 
         setLoginMessage("", "");
         clearCoverAnimationListeners();
 
-        const hymn = document.getElementById("hymnAudio");
-        if (hymn) {
-          hymn.play().catch(() => {});
-        }
-
-        triggerSceneFlash("open");
-        if (dom.sceneStage) dom.sceneStage.classList.add("scene--opening-book");
-        const burst = document.getElementById("coverEnergyBurst");
-        if (burst) burst.classList.add("is-active");
-
-        window.setTimeout(() => {
-          if (dom.sceneStage) dom.sceneStage.classList.remove("scene--opening-book");
-          if (burst) burst.classList.remove("is-active");
-          state.isEnteringBook = false;
-          setAccessControlsDisabled(false);
-          if (typeof window.showScreen === "function") {
-            window.showScreen("screen2");
-          }
-          window.dispatchEvent(new CustomEvent("vibe-book-opened"));
-        }, COVER_OPEN_ANIM_MS);
+        window.setTimeout(goToBook, 0);
       }
 
       function setButtonLoading(button, isLoading, loadingText = "загрузка...") {
@@ -1357,7 +1334,7 @@
       /**
        * Аналог @paper-design/shaders-react GrainGradient: без npm, Canvas 2D.
        * Параметры как в промпте: чёрный фон, мягкие пятна в углах, HSL-палитра, speed.
-       * Два экземпляра: обложка (#grainShaderBg) и экран book-open (#grainShaderBgScreen2).
+       * Обложка сцены: #grainShaderBg.
        */
       function initGrainShaderBackground() {
         function initOneGrainShader(containerId, canvasId, grainOptions) {
@@ -1468,18 +1445,14 @@
         const disposeGrain1 = initOneGrainShader("grainShaderBg", "grainShaderCanvas", {
           primaryScene: true
         });
-        const disposeGrain2 = initOneGrainShader("grainShaderBgScreen2", "grainShaderCanvasScreen2", {
-          primaryScene: false
-        });
         return function disposeGrainShaderAll() {
           disposeGrain1();
-          disposeGrain2();
         };
       }
 
       /**
        * Адаптация @react-bits/MagicRings под текущий проект (vanilla JS + WebGL2).
-       * Эффект курсора в неоновой палитре сайта. Два слоя: обложка и #screen2 (book-open).
+       * Эффект курсора в неоновой палитре сайта: слой обложки (#sceneStage).
        */
       function initMagicRingsFor(containerId, canvasId, stage) {
         const container = document.getElementById(containerId);
@@ -1788,11 +1761,8 @@ void main() {
 
       function initMagicRingsFx() {
         const d1 = initMagicRingsFor("magicRingsFx", "magicRingsCanvas", dom.sceneStage);
-        const screen2 = document.getElementById("screen2");
-        const d2 = initMagicRingsFor("magicRingsFxScreen2", "magicRingsCanvasScreen2", screen2);
         return function disposeMagicRingsAll() {
           d1();
-          d2();
         };
       }
 
@@ -2165,10 +2135,6 @@ void main() {
           if (show) syncHymnToggleUi();
         }
 
-        document.addEventListener("vibe-book-opened", () => {
-          syncHymnToggleUi();
-        });
-
         document.addEventListener("vibe-screenchange", (ev) => {
           const id = ev.detail && ev.detail.screenId;
           state.words = storage.loadWords();
@@ -2196,67 +2162,6 @@ void main() {
           hymnAudioEl.addEventListener("play", syncHymnToggleUi);
           hymnAudioEl.addEventListener("pause", syncHymnToggleUi);
         }
-
-        function initMagicBookParticles() {
-          const root = document.getElementById("magicParticles");
-          if (!root || root.dataset.inited === "1") return;
-          root.dataset.inited = "1";
-          const colors = [
-            "rgba(200, 120, 255, 0.95)",
-            "rgba(120, 170, 255, 0.95)",
-            "rgba(255, 140, 220, 0.9)",
-            "rgba(160, 100, 255, 0.9)",
-            "rgba(100, 200, 255, 0.85)"
-          ];
-          const glows = [
-            "rgba(220, 160, 255, 0.95)",
-            "rgba(130, 180, 255, 0.85)",
-            "rgba(255, 150, 230, 0.9)"
-          ];
-          const sparkCount = 44;
-          for (let i = 0; i < sparkCount; i += 1) {
-            const el = document.createElement("span");
-            const spiral = i % 3 !== 0;
-            el.className = spiral
-              ? "magic-particles__spark magic-particles__spark--spiral"
-              : "magic-particles__spark";
-            el.style.setProperty("--mp-left", `${38 + Math.random() * 24}%`);
-            el.style.setProperty("--mp-delay", `${Math.random() * 3.8}s`);
-            el.style.setProperty("--mp-dur", `${1.5 + Math.random() * 2.6}s`);
-            el.style.setProperty("--mp-size", `${2 + Math.random() * 2.8}px`);
-            el.style.setProperty("--mp-drift", `${(Math.random() - 0.5) * 90}px`);
-            const ci = Math.floor(Math.random() * colors.length);
-            el.style.setProperty("--mp-color", colors[ci]);
-            el.style.setProperty("--mp-glow", glows[ci % glows.length]);
-            root.appendChild(el);
-          }
-          const lineCount = 12;
-          const lineMids = [
-            "rgba(220, 100, 255, 0.9)",
-            "rgba(120, 160, 255, 0.85)",
-            "rgba(255, 140, 200, 0.85)"
-          ];
-          for (let i = 0; i < lineCount; i += 1) {
-            const el = document.createElement("span");
-            el.className =
-              i % 2 === 0
-                ? "magic-particles__line magic-particles__line--spiral"
-                : "magic-particles__line";
-            el.style.setProperty("--mp-left", `${34 + Math.random() * 32}%`);
-            el.style.setProperty("--mp-delay", `${Math.random() * 4.2}s`);
-            el.style.setProperty("--mp-dur", `${3 + Math.random() * 3.8}s`);
-            el.style.setProperty("--mp-w", `${1 + Math.random() * 1.6}px`);
-            el.style.setProperty("--mp-h", `${16 + Math.random() * 40}px`);
-            el.style.setProperty("--mp-drift", `${(Math.random() - 0.5) * 55}px`);
-            el.style.setProperty("--mp-line-mid", lineMids[i % lineMids.length]);
-            root.appendChild(el);
-          }
-        }
-
-        initMagicBookParticles();
-
-        const svetCta = document.getElementById("tzSvetCta");
-        if (svetCta) svetCta.addEventListener("click", () => window.showScreen("screen3"));
 
         const form = document.getElementById("tzFormWord");
         const wIn = document.getElementById("tzInputWord");
@@ -2341,7 +2246,7 @@ void main() {
         }
 
         const cancel = document.getElementById("tzFormCancel");
-        if (cancel) cancel.addEventListener("click", () => window.showScreen("screen2"));
+        if (cancel) cancel.addEventListener("click", () => window.showScreen("screen1"));
 
         const fp = document.getElementById("tzFlipPrev");
         const fn = document.getElementById("tzFlipNext");
@@ -2350,8 +2255,8 @@ void main() {
 
         const bm = document.getElementById("tzBtnBookToMenu");
         const cm = document.getElementById("tzBtnCatalogToMenu");
-        if (bm) bm.addEventListener("click", () => window.showScreen("screen2"));
-        if (cm) cm.addEventListener("click", () => window.showScreen("screen2"));
+        if (bm) bm.addEventListener("click", () => window.showScreen("screen1"));
+        if (cm) cm.addEventListener("click", () => window.showScreen("screen1"));
 
         const search = document.getElementById("tzCatalogSearch");
         if (search) {

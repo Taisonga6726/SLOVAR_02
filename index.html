@@ -18,7 +18,14 @@
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
 
   <div id="appBrandLogo" class="app-brand-logo" aria-hidden="true">
-    <img src="images/LOGO.png" width="96" height="96" alt="" decoding="async" />
+    <img
+      class="app-brand-logo__img"
+      src="images/LOGO.svg"
+      width="96"
+      height="96"
+      alt=""
+      decoding="async"
+    />
   </div>
 
   <button
@@ -102,7 +109,6 @@
               </svg>
             </div>
             <div class="cover-book-glow" aria-hidden="true"></div>
-            <div id="coverEnergyBurst" class="cover-energy-burst" aria-hidden="true"></div>
             <button
               type="button"
               id="bookHitZone"
@@ -310,30 +316,6 @@
       </footer>
     </section>
   
-    </div>
-
-    <!-- screen2: book-open.png — только фон, магия у корешка, CTA по центру -->
-    <div id="screen2" class="screen tz-screen tz-screen--svet tz-screen--book-open">
-      <div class="tz-svet-scene tz-book-open-scene">
-        <div id="grainShaderBgScreen2" class="grain-shader-bg" aria-hidden="true">
-          <canvas id="grainShaderCanvasScreen2" width="300" height="200"></canvas>
-        </div>
-        <div id="magicRingsFxScreen2" class="magic-rings-fx" aria-hidden="true">
-          <canvas id="magicRingsCanvasScreen2" width="300" height="200"></canvas>
-        </div>
-        <img
-          class="tz-bg-img tz-svet-bg"
-          src="images/book-open.png"
-          alt=""
-          decoding="async"
-        />
-        <div id="magicParticles" class="magic-particles" aria-hidden="true"></div>
-        <div class="tz-svet-cta-anchor">
-          <button type="button" class="access-submit-btn" id="tzSvetCta" aria-label="Внести своё слово">
-            <span class="btn-gradient-text gradient-animated-text">ВНЕСИ СВОЕ СЛОВО</span>
-          </button>
-        </div>
-      </div>
     </div>
 
     <!-- ТЗ FINAL: screen3 — images/forma_cl.png, форма поверх -->
