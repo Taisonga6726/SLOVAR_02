@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Интерактивная книга-словарь: добавляйте слова и листайте страницы. Данные хранятся в браузере."
+  />
+  <title>Словарь вайбкодера</title>
+
+  <!-- ТЗ: index.html + style.css + script.js (defer) -->
+  <link rel="stylesheet" href="style.css" />
+
+</head>
+<body>
+  <!-- Блок: пропуск к основному содержимому (клавиатура / вспомогательные технологии) -->
+  <a class="skip-link" href="#main-content">Перейти к содержимому</a>
+
+  <main id="main-content" class="app" tabindex="-1">
+    <div id="screen1" class="screen active">
+
+    <!--
+      Одна сцена: фон всегда images/book-cover 01 .png (статичен).
+      После кода и клика по зоне книги поверх фона показывается только раскрытая книга (book-open.svg) и UI на страницах.
+      Второго полноэкранного экрана нет — композиция кадра сохраняется.
+    -->
+    <section id="mainScene" class="screen cover-screen" aria-labelledby="cover-heading">
+      <div
+        id="sceneStage"
+        class="scene-stage"
+        role="group"
+        aria-labelledby="cover-heading"
+        aria-describedby="accessHint"
+      >
+          <!-- Вспышка успех/ошибка (ТЗ: div.flash) -->
+          <div id="sceneFlash" class="flash" aria-hidden="true"></div>
+          <!-- Вариант C: hotspot логотипа AI (искры + скан при hover) -->
+          <div id="aiLogoHotspot" class="ai-logo-hotspot" aria-hidden="true">
+            <span class="ai-logo-c-spark"></span>
+            <span class="ai-logo-c-spark"></span>
+            <span class="ai-logo-c-spark"></span>
+            <span class="ai-logo-c-spark"></span>
+            <span class="ai-logo-c-spark"></span>
+            <span class="ai-logo-c-spark"></span>
+          </div>
+
+          <!-- Курсорный эффект: Magic Rings (адаптация без React/Three.js) -->
+          <div id="magicRingsFx" class="magic-rings-fx" aria-hidden="true">
+            <canvas id="magicRingsCanvas" width="300" height="200"></canvas>
+          </div>
+
+          <!-- Фон «paper GrainGradient» за картинкой: Canvas 2D, без React (параметры как в промпте) -->
+          <div id="grainShaderBg" class="grain-shader-bg" aria-hidden="true">
+            <canvas id="grainShaderCanvas" width="300" height="200"></canvas>
+          </div>
+
+          <!-- Статичный фон сцены (не меняется, не анимируется) -->
+          <div id="sceneBgWrap" class="scene-bg-wrap">
+            <img
+              id="sceneBg"
+              class="scene-bg"
+              src="images/book-cover%2001%20.png"
+              alt=""
+              decoding="async"
+              fetchpriority="high"
+            />
+            <div class="cover-image-fallback scene-bg-fallback" role="img" aria-label="Декоративная обложка словаря">
+              Обложка словаря
+            </div>
+
+            <canvas
+              id="coverBookPerimeterCanvas"
+              class="cover-book-perimeter-canvas"
+              width="300"
+              height="200"
+              aria-hidden="true"
+            ></canvas>
+          </div>
+          <div class="scene-bottom-mask" aria-hidden="true"></div>
+          <div class="scene-signature-erase" aria-hidden="true"></div>
+          <!-- ШАГ 2–3: слот книги = зона закрытой книги на обложке; подсветка и клик — только здесь -->
+          <div id="bookSlot" class="book-slot">
+            <div class="book-electric-frame" aria-hidden="true">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <rect x="2.2" y="2.2" width="95.6" height="95.6" rx="9.5" ry="9.5"></rect>
+              </svg>
+            </div>
+            <div class="cover-book-glow" aria-hidden="true"></div>
+            <button
+              type="button"
+              id="bookHitZone"
+              class="book-hit-zone"
+              aria-label="Открыть книгу после ввода кодового слова"
+            ></button>
+            <!-- Разворот book-open.svg в слоте: форма на левой странице, словарь на правой -->
+            <div
+              id="bookOpenLayer"
+              class="book-open-layer hidden"
+              hidden
+              aria-hidden="true"
+            >
+            <h2 id="book-heading" class="visually-hidden">Словарь: добавление слов и список</h2>
+            <div class="book-scene book-open-layer__scene">
+              <!-- book-ui: контент позиционируется по областям страниц на изображении, без отдельных «карточек» -->
+              <div id="bookImageWrap" class="book-image-wrap book-ui">
+                <div id="pageLightBurst" class="light-burst" aria-hidden="true"></div>
+                <div id="bookFxFlash" class="flash flash--book" aria-hidden="true"></div>
+                <div
+                  id="bookCtaBanner"
+                  class="center-cta-banner center-cta-banner--book"
+                  role="button"
+                  tabindex="0"
+                  aria-label="Перейти к форме заполнения словаря"
+                >
+                  ВНЕСИ СВОЕ СЛОВО
+                </div>
+                <div class="magic-overlay" aria-hidden="true">
+                  <div class="glow"></div>
+                  <div class="aura"></div>
+                  <div class="rays"></div>
+                  <div class="particles" id="particles"></div>
+                </div>
+                <img
+                  id="bookImage"
+                  class="book-image"
+                  src="images/book-open.png"
+                  alt=""
+                  decoding="async"
+                  loading="lazy"
+                  fetchpriority="low"
+                />
+                <div class="book-image-fallback" aria-hidden="true">
+                  <span class="book-fallback-spine" aria-hidden="true"></span>
+                </div>
+                <!-- Вариант B: неоновые лучи/искры на картинке 2 -->
+                <canvas id="bookElectricFxCanvas" class="book-electric-fx-canvas" width="300" height="200" aria-hidden="true"></canvas>
+                <!-- Та же подсветка логотипа AI, что на обложке (shimmer + искры) -->
+                <div class="ai-logo-hotspot ai-logo-hotspot--book" aria-hidden="true">
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                  <span class="ai-logo-c-spark"></span>
+                </div>
+                <div id="viewMode" class="book-mode book-mode--view is-active" aria-live="polite">
+                  <div class="book-left">
+                    <p class="paper-label">Режим книги</p>
+                    <p class="empty-note">Листайте и читайте слова на правой странице.</p>
+                  </div>
+
+                  <div class="book-right">
+                    <div
+                      id="dictionaryPage"
+                      class="dictionary-page"
+                      role="region"
+                      aria-label="Текущая страница словаря"
+                      aria-live="polite"
+                      aria-busy="false"
+                    ></div>
+
+                    <nav class="page-nav" aria-label="Страницы словаря">
+                      <button id="prevBtn" class="nav-btn" type="button" aria-label="Предыдущая страница">
+                        <span aria-hidden="true">◀</span>
+                      </button>
+                      <span id="pageCounter" class="page-counter" aria-live="polite">1 / 1</span>
+                      <button id="nextBtn" class="nav-btn" type="button" aria-label="Следующая страница">
+                        <span aria-hidden="true">▶</span>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+
+                <div id="writeMode" class="book-mode book-mode--write" aria-live="polite">
+                  <div class="book-left book-left--write">
+                    <p class="paper-label write-list-title">Пишем и вносим слова здесь</p>
+                    <ol id="writeWordList" class="write-word-list" aria-label="Нумерованный список слов"></ol>
+
+                  <form id="wordForm" novalidate aria-describedby="formMessage formHints">
+                    <p id="formHints" class="visually-hidden">
+                      Поля «Слово» и «Описание» обязательны. Клик по тексту в списке слева или кнопка «Редактировать»
+                      подставляют сохранённую запись в форму для исправления. Под каждой записью в списке и под строкой
+                      справа — пять положительных реакций (нажатие добавляет голос читателя). Ctrl+Enter сохраняет.
+                    </p>
+
+                    <label class="paper-label" for="wordInput">Слово</label>
+                    <input
+                      id="wordInput"
+                      class="paper-input handwriting"
+                      name="word"
+                      type="text"
+                      maxlength="30"
+                      placeholder="Слово"
+                      autocomplete="off"
+                      aria-invalid="false"
+                      aria-required="true"
+                      required
+                    />
+
+                    <label class="paper-label" for="descriptionInput">Описание</label>
+                    <textarea
+                      id="descriptionInput"
+                      class="paper-textarea handwriting"
+                      name="description"
+                      maxlength="150"
+                      placeholder="Пишите от руки..."
+                      aria-invalid="false"
+                      aria-required="true"
+                      required
+                    ></textarea>
+
+                    <div class="actions-row">
+                      <button id="writeBtn" class="ghost-btn book-btn" type="button">Редактировать</button>
+                      <button id="saveBtn" class="ghost-btn book-btn" type="submit">Сохранить</button>
+                    </div>
+
+                    <p id="formMessage" class="helper-text form-helper" role="status" aria-live="polite"></p>
+                  </form>
+                  </div>
+
+                  <div class="book-right">
+                    <div id="writingPreview" class="dictionary-page" aria-live="polite"></div>
+                  </div>
+
+                  <div class="book-write-bottom" aria-label="Навигация по книге">
+                    <div class="book-write-actions-row">
+                      <button id="writeNextBtn" type="button" class="ghost-btn book-btn">Далее</button>
+                      <button id="closeBookBtn" type="button" class="ghost-btn book-btn">Закрыть книгу</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Логотип AI над корешком только на картинке формы (forma_cl) -->
+                <div class="book-write-ai-logo" aria-hidden="true">
+                  <span class="book-write-ai-logo__glow" aria-hidden="true"></span>
+                  <span class="book-write-ai-logo__text">AI</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <div class="cover-overlay">
+            <div id="accessOverlay" class="cover-access-float">
+              <h1 id="cover-heading" class="visually-hidden">Словарь вайбкодера</h1>
+
+              <form id="accessForm" novalidate>
+                <label class="visually-hidden" for="accessWord">Кодовое слово</label>
+                <input
+                  id="accessWord"
+                  class="access-input"
+                  name="access"
+                  type="password"
+                  autocomplete="off"
+                  aria-describedby="loginMessage accessHint"
+                  aria-invalid="false"
+                  required
+                />
+                <div class="access-actions">
+                  <button type="submit" class="access-submit-btn" id="accessSubmitBtn">
+                    <span class="btn-gradient-text gradient-animated-text">Войти</span>
+                  </button>
+                </div>
+                <p id="accessHint" class="visually-hidden">
+                  Введите кодовое слово и нажмите Enter. Затем нажмите на книгу на картинке, чтобы открыть
+                  словарь. Это не защита данных, а вход в интерфейс.
+                </p>
+              </form>
+
+              <p class="cover-tap-hint" aria-hidden="true">
+                <span class="cover-tap-arrow" title="Нажмите на книгу">↓</span>
+              </p>
+
+              <p id="loginMessage" class="helper-text cover-login-msg" role="status" aria-live="polite"></p>
+            </div>
+          </div>
+
+    </div>
+
+      <footer class="site-footer-signature" aria-label="Авторская подпись">
+        <img
+          class="author-signature-img"
+          src="images/podpi_s.jpg"
+          width="400"
+          height="120"
+          alt="Подпись автора: Tanya Gaiduk"
+          decoding="async"
+          loading="lazy"
+        />
+        <p class="site-footer-copy">
+          © 2026 Автор идеи ТАНЯ ГАЙДУК — ученица 5 курса школы SMM
+        </p>
+      </footer>
+    </section>
+  
+    </div>
+
+    <div id="screen2" class="screen tz-screen tz-hub">
+      <div class="tz-screen__inner">
+        <h2 class="tz-screen__title">VIBE Словарь</h2>
+        <p class="tz-screen__lead">Выберите раздел</p>
+        <div class="tz-hub__actions">
+          <button type="button" class="tz-btn tz-btn--primary" id="tzBtnAddWord">Внести слово</button>
+          <button type="button" class="tz-btn tz-btn--ghost" id="tzBtnBook">Книга</button>
+          <button type="button" class="tz-btn tz-btn--ghost" id="tzBtnCatalog">Каталог</button>
+        </div>
+        <button type="button" class="tz-link-back" id="tzBtnHubToCover">← На обложку</button>
+      </div>
+    </div>
+
+    <div id="screen3" class="screen tz-screen tz-screen--form">
+      <div class="tz-screen__inner tz-form-layout">
+        <h2 class="tz-screen__title">Новое слово</h2>
+        <form id="tzFormWord" class="tz-form" novalidate>
+          <label class="tz-label" for="tzInputWord">Слово</label>
+          <input id="tzInputWord" class="tz-input" type="text" maxlength="30" required autocomplete="off" />
+          <label class="tz-label" for="tzInputDesc">Описание</label>
+          <textarea id="tzInputDesc" class="tz-textarea" maxlength="150" required rows="4" placeholder="Пояснение к слову…"></textarea>
+          <div class="tz-form__row">
+            <button type="submit" class="tz-btn tz-btn--primary" id="tzFormSave">Сохранить</button>
+            <button type="button" class="tz-btn tz-btn--ghost" id="tzFormCancel">Назад в меню</button>
+          </div>
+          <p id="tzFormMsg" class="tz-form-msg" role="status" aria-live="polite"></p>
+        </form>
+        <aside class="tz-preview-panel" aria-label="Предпросмотр">
+          <p class="tz-preview-label">Предпросмотр</p>
+          <div id="tzLivePreview" class="tz-live-preview"></div>
+        </aside>
+      </div>
+    </div>
+
+    <div id="screen4" class="screen tz-screen tz-screen--flip">
+      <div class="tz-screen__inner tz-flip-wrap">
+        <h2 class="tz-screen__title tz-visually-hidden">Книга</h2>
+        <div class="tz-flip-stage" id="tzFlipStage">
+          <div class="tz-flip-book" id="tzFlipBook">
+            <div class="tz-spread tz-spread--left" id="tzPageLeft"></div>
+            <div class="tz-spread tz-spread--right" id="tzPageRight"></div>
+          </div>
+        </div>
+        <nav class="tz-flip-nav" aria-label="Страницы книги">
+          <button type="button" class="tz-nav-btn" id="tzFlipPrev" aria-label="Предыдущий разворот">◀</button>
+          <span class="tz-flip-counter" id="tzFlipCounter">1 / 1</span>
+          <button type="button" class="tz-nav-btn" id="tzFlipNext" aria-label="Следующий разворот">▶</button>
+        </nav>
+        <button type="button" class="tz-link-back" id="tzBtnBookToMenu">← Меню</button>
+      </div>
+    </div>
+
+    <div id="screen5" class="screen tz-screen tz-screen--catalog">
+      <div class="tz-screen__inner tz-catalog-wrap">
+        <h2 class="tz-screen__title">Каталог</h2>
+        <div class="tz-catalog-toolbar">
+          <input type="search" id="tzCatalogSearch" class="tz-catalog-search" placeholder="Поиск по слову или описанию…" autocomplete="off" />
+          <div class="tz-filter" role="group" aria-label="Фильтр по реакциям">
+            <button type="button" class="tz-filter-btn is-active" data-tz-filter="all">Все</button>
+            <button type="button" class="tz-filter-btn" data-tz-filter="like">👍</button>
+            <button type="button" class="tz-filter-btn" data-tz-filter="funny">😂</button>
+            <button type="button" class="tz-filter-btn" data-tz-filter="wow">😮</button>
+            <button type="button" class="tz-filter-btn" data-tz-filter="fire">🔥</button>
+          </div>
+        </div>
+        <div id="tzCatalogGrid" class="tz-catalog-grid"></div>
+        <div class="tz-audio-row">
+          <audio id="tzAmbientAudio" preload="metadata">
+            <source src="assetss/sounds/pen%20writing%20in%20a%20book%20magic.MP3" type="audio/mpeg" />
+          </audio>
+          <button type="button" class="tz-btn tz-btn--ghost" id="tzBtnPlayAudio">▶ Атмосфера</button>
+        </div>
+        <button type="button" class="tz-link-back" id="tzBtnCatalogToMenu">← Меню</button>
+      </div>
+    </div>
+
+  </main>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

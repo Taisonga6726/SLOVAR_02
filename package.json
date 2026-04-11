@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "http-server . -p 5173 -o /slovar_02.html",
-    "start": "http-server . -p 5173 -o /slovar_02.html"
+    "dev": "http-server . -p 5173 -o /index.html",
+    "start": "http-server . -p 5173 -o /index.html"
   },
   "repository": {
     "type": "git",
