@@ -538,7 +538,12 @@
         setLoginMessage("Нажмите на книгу", "success");
       }
 
-      /** Показать разворот book-open.png поверх статичного фона; фон сцены не меняется. */
+      /** Длительность вспышки и энергии на обложке перед переходом в разворот */
+      const COVER_OPEN_ANIM_MS = 920;
+
+      /**
+       * Клик по книге: звук и визуальная анимация сразу, затем по таймеру — переход в разворот.
+       */
       function runCoverOpenAnimationAndGoToBook() {
         if (state.isEnteringBook) return;
 
@@ -546,12 +551,29 @@
         setAccessControlsDisabled(true);
         clearCoverReadyUi();
         storage.setAccessGranted();
-        triggerSceneFlash("open");
+
+        const audio = document.getElementById("hymnAudio");
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        }
 
         setLoginMessage("", "");
         clearCoverAnimationListeners();
 
-        window.setTimeout(goToBook, 0);
+        triggerSceneFlash("open");
+        if (dom.sceneStage) dom.sceneStage.classList.add("scene--opening-book");
+        const burst = document.getElementById("coverEnergyBurst");
+        if (burst) burst.classList.add("is-active");
+
+        window.setTimeout(() => {
+          if (dom.sceneStage) dom.sceneStage.classList.remove("scene--opening-book");
+          if (burst) burst.classList.remove("is-active");
+          state.isEnteringBook = false;
+          setAccessControlsDisabled(false);
+          goToBook();
+          window.dispatchEvent(new CustomEvent("vibe-book-opened"));
+        }, COVER_OPEN_ANIM_MS);
       }
 
       function setButtonLoading(button, isLoading, loadingText = "загрузка...") {
@@ -2134,6 +2156,10 @@ void main() {
           btnHymnToggle.setAttribute("aria-hidden", show ? "false" : "true");
           if (show) syncHymnToggleUi();
         }
+
+        document.addEventListener("vibe-book-opened", () => {
+          syncHymnToggleUi();
+        });
 
         document.addEventListener("vibe-screenchange", (ev) => {
           const id = ev.detail && ev.detail.screenId;

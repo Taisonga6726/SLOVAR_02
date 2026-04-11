@@ -3573,11 +3573,6 @@ body {
   pointer-events: none;
 }
 
-/* Дубль с LOGO.svg в сцене: фиксированный блок скрываем, пока открыта книга на первом экране */
-body:has(#screen1.active .scene-stage.scene--book-open) .app-brand-logo {
-  display: none !important;
-}
-
 /* Как на экране обложки (book-cover): один размер, glow, лёгкая пульсация — на всех экранах одинаково */
 .app-brand-logo .app-brand-logo__img,
 .app-brand-logo img {
@@ -3599,6 +3594,52 @@ body:has(#screen1.active .scene-stage.scene--book-open) .app-brand-logo {
     transform: scale(1.03);
     opacity: 0.95;
   }
+}
+
+.cover-energy-burst {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: min(28%, 280px);
+  height: min(22%, 200px);
+  margin-left: calc(min(28%, 280px) / -2);
+  margin-top: calc(min(22%, 200px) / -2);
+  pointer-events: none;
+  z-index: 14;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 230, 160, 0.55) 0%,
+    rgba(180, 100, 255, 0.35) 38%,
+    rgba(74, 108, 255, 0.15) 62%,
+    transparent 78%
+  );
+  filter: blur(1px);
+  mix-blend-mode: screen;
+}
+
+.cover-energy-burst.is-active {
+  animation: coverEnergyExpand 0.92s ease-out forwards;
+}
+
+@keyframes coverEnergyExpand {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.92;
+    transform: scale(2.15);
+  }
+}
+
+.scene--opening-book .book-slot {
+  filter: brightness(1.08) saturate(1.12);
+  transition: filter 0.35s ease;
 }
 
 .screen.active.screen-enter-anim {
@@ -3751,6 +3792,7 @@ body:has(#screen1.active .scene-stage.scene--book-open) .app-brand-logo {
   .app-brand-logo .app-brand-logo__img,
   .app-brand-logo img,
   .ui-btn--hymn-toggle.ui-btn--hymn-playing,
+  .cover-energy-burst.is-active,
   .screen.active.screen-enter-anim {
     animation: none !important;
   }
