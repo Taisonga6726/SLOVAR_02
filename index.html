@@ -318,7 +318,7 @@
   
     </div>
 
-    <!-- ТЗ FINAL: screen3 — images/forma_cl.png, форма поверх -->
+    <!-- ТЗ FINAL: screen3 — images/forma_cl.png, «магическая книга»: ввод слева, записи справа -->
     <div id="screen3" class="screen tz-screen tz-screen--forma">
       <div class="tz-forma-scene">
         <div class="magic-float-words magic-float-words--forma" aria-hidden="true">
@@ -341,20 +341,54 @@
             onerror="this.onerror=null;this.src='images/LOGO.svg';"
           />
         </div>
+        <!-- Эффект «магии» у переплёта (центр разворота на иллюстрации) -->
+        <div class="tz-forma-spine-magic" aria-hidden="true">
+          <span class="tz-spine-core"></span>
+          <span class="tz-spine-whirl"></span>
+          <span class="tz-spine-spark tz-spine-spark--1"></span>
+          <span class="tz-spine-spark tz-spine-spark--2"></span>
+          <span class="tz-spine-spark tz-spine-spark--3"></span>
+          <span class="tz-spine-spark tz-spine-spark--4"></span>
+          <span class="tz-spine-spark tz-spine-spark--5"></span>
+          <span class="tz-spine-spark tz-spine-spark--6"></span>
+          <span class="tz-spine-particle tz-spine-particle--1"></span>
+          <span class="tz-spine-particle tz-spine-particle--2"></span>
+          <span class="tz-spine-particle tz-spine-particle--3"></span>
+          <span class="tz-spine-particle tz-spine-particle--4"></span>
+          <span class="tz-spine-particle tz-spine-particle--5"></span>
+          <span class="tz-spine-particle tz-spine-particle--6"></span>
+        </div>
         <img class="tz-bg-img tz-forma-bg" src="images/forma_cl.png" alt="" decoding="async" />
-        <form id="tzFormWord" class="tz-forma-form" novalidate>
-          <label class="tz-label tz-label--ink" for="tzInputWord">Слово</label>
-          <input id="tzInputWord" class="tz-input tz-input--ink" type="text" maxlength="30" required autocomplete="off" />
-          <label class="tz-label tz-label--ink" for="tzInputDesc">Описание</label>
-          <textarea id="tzInputDesc" class="tz-textarea tz-textarea--ink" maxlength="150" required rows="4"></textarea>
+        <form id="tzFormWord" class="tz-forma-form tz-forma-form--spellbook" novalidate>
+          <label class="tz-label tz-label--spellbook" for="tzInputWord">Слово</label>
+          <input
+            id="tzInputWord"
+            class="tz-input tz-input--spellbook"
+            type="text"
+            maxlength="30"
+            required
+            autocomplete="off"
+            placeholder="Напишите слово…"
+          />
+          <label class="tz-label tz-label--spellbook" for="tzInputDesc">Описание</label>
+          <textarea
+            id="tzInputDesc"
+            class="tz-textarea tz-textarea--spellbook"
+            maxlength="150"
+            required
+            rows="5"
+            placeholder="Коротко, по смыслу…"
+          ></textarea>
           <div class="tz-form__row tz-form__row--save">
-            <button type="submit" class="ui-btn ui-btn--primary" id="tzFormSave">Сохранить</button>
+            <button type="submit" class="ui-btn ui-btn--primary ui-btn--forma" id="tzFormSave">Сохранить</button>
           </div>
-          <button type="button" class="ui-btn ui-btn--primary tz-forma-back" id="tzFormCancel">Назад</button>
+          <button type="button" class="ui-btn ui-btn--primary ui-btn--forma tz-forma-back" id="tzFormCancel">Назад</button>
           <p id="tzFormMsg" class="tz-form-msg" role="status" aria-live="polite"></p>
         </form>
-        <aside class="tz-ink-preview" aria-label="Предпросмотр письма">
-          <div id="tzLivePreview" class="tz-live-preview"></div>
+        <!-- Правая страница: нумерованные записи после «Сохранить» -->
+        <aside class="tz-ink-preview" aria-label="Страница словаря">
+          <p class="tz-ink-preview-title">Вайбкодинг — описание</p>
+          <div id="tzLivePreview" class="tz-live-preview tz-live-preview--spellbook"></div>
         </aside>
         <audio id="audioPen" preload="metadata">
           <source src="assets/sounds/pen%20writing%20in%20a%20book%20magic.MP3" type="audio/mpeg" />

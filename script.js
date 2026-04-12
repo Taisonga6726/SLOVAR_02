@@ -2109,6 +2109,13 @@ void main() {
 
       function initTzScreens() {
         const audioPen = document.getElementById("audioPen");
+        if (audioPen) {
+          try {
+            audioPen.volume = 0.32;
+          } catch (_) {
+            /* ignore */
+          }
+        }
         let penIdleTimer = null;
 
         function stopPenIdleTimer() {
@@ -2128,14 +2135,22 @@ void main() {
           }
         }
 
+        /** Звук письма: один экземпляр, без play() на каждый символ — только сброс таймера паузы */
         function touchPenSound() {
           if (!audioPen) return;
           stopPenIdleTimer();
-          audioPen.play().catch(() => {});
+          if (audioPen.paused) {
+            try {
+              audioPen.currentTime = 0;
+            } catch (_) {
+              /* ignore */
+            }
+            audioPen.play().catch(() => {});
+          }
           penIdleTimer = window.setTimeout(() => {
             pausePenSound();
             penIdleTimer = null;
-          }, 1000);
+          }, 420);
         }
 
         const hymnAudioEl = document.getElementById("hymnAudio");
@@ -2162,9 +2177,9 @@ void main() {
           syncHymnToggleUi();
         });
 
-        let formaPreviewPrevLen = 0;
-        const FORMA_PAGE_CHARS = 300;
-        const INK_LINE_CHUNK = 52;
+        /** Записи на правой странице screen3: после 6 строк — «перелистывание», звук, очистка, нумерация глобальная */
+        let formaSpellbookPage = [];
+        const FORMA_SPELLBOOK_PAGE_MAX = 6;
 
         function playFormFlipSound() {
           const a = document.getElementById("audioFormFlip");
@@ -2185,7 +2200,8 @@ void main() {
             pausePenSound();
           }
           if (id === "screen3") {
-            formaPreviewPrevLen = 0;
+            formaSpellbookPage = [];
+            renderFormaSpellbookPage();
           }
           if (id === "screen4") {
             state.tzFlipSpreadIndex = 0;
@@ -2212,79 +2228,31 @@ void main() {
         const wIn = document.getElementById("tzInputWord");
         const dIn = document.getElementById("tzInputDesc");
         const msg = document.getElementById("tzFormMsg");
-        const preview = document.getElementById("tzLivePreview");
 
-        let previewAnimTimer = null;
-        let previewDebounce = null;
-
-        function tzPreviewInk() {
-          if (!preview) return;
-          const word = normalizeText((wIn && wIn.value) || "");
-          const description = normalizeText((dIn && dIn.value) || "");
-          const full =
-            word && description ? `${word} — ${description}` : word || description || "";
-          if (previewAnimTimer) {
-            window.clearInterval(previewAnimTimer);
-            previewAnimTimer = null;
-          }
-          preview.innerHTML = "";
-          if (!full) {
-            formaPreviewPrevLen = 0;
+        function renderFormaSpellbookPage() {
+          const el = document.getElementById("tzLivePreview");
+          if (!el) return;
+          el.innerHTML = "";
+          if (formaSpellbookPage.length === 0) {
+            const p = document.createElement("p");
+            p.className = "tz-ink-page-hint";
+            p.textContent = "Здесь появятся строки после «Сохранить».";
+            el.appendChild(p);
             return;
           }
-
-          const len = full.length;
-          if (len > formaPreviewPrevLen) {
-            const a = Math.max(0, len - 1);
-            const b = Math.max(0, formaPreviewPrevLen - 1);
-            if (Math.floor(a / FORMA_PAGE_CHARS) > Math.floor(b / FORMA_PAGE_CHARS)) {
-              playFormFlipSound();
-            }
-          }
-          formaPreviewPrevLen = len;
-
-          const displayText = full.slice(Math.max(0, len - FORMA_PAGE_CHARS));
-          const chunks = [];
-          for (let i = 0; i < displayText.length; i += INK_LINE_CHUNK) {
-            chunks.push(displayText.slice(i, i + INK_LINE_CHUNK));
-          }
-          if (chunks.length === 0) return;
-
           const ol = document.createElement("ol");
-          ol.className = "tz-ink-ol";
-          chunks.forEach(() => {
+          ol.className = "tz-ink-ol tz-ink-ol--spellbook-page";
+          ol.start = formaSpellbookPage[0].num;
+          formaSpellbookPage.forEach((entry) => {
             const li = document.createElement("li");
-            const span = document.createElement("span");
-            li.appendChild(span);
+            li.textContent = `${entry.word} — ${entry.description}`;
             ol.appendChild(li);
           });
-          preview.appendChild(ol);
-
-          const spans = ol.querySelectorAll("span");
-          let chunkIdx = 0;
-          let pos = 0;
-          previewAnimTimer = window.setInterval(() => {
-            if (chunkIdx >= chunks.length) {
-              window.clearInterval(previewAnimTimer);
-              previewAnimTimer = null;
-              return;
-            }
-            const cur = chunks[chunkIdx];
-            pos += 1;
-            spans[chunkIdx].textContent = cur.slice(0, pos);
-            if (pos >= cur.length) {
-              chunkIdx += 1;
-              pos = 0;
-            }
-          }, 20);
+          el.appendChild(ol);
         }
 
         function onFormInput() {
           touchPenSound();
-          window.clearTimeout(previewDebounce);
-          previewDebounce = window.setTimeout(() => {
-            tzPreviewInk();
-          }, 45);
         }
 
         if (wIn) wIn.addEventListener("input", onFormInput);
@@ -2317,8 +2285,18 @@ void main() {
             }
             if (wIn) wIn.value = "";
             if (dIn) dIn.value = "";
-            formaPreviewPrevLen = 0;
-            if (preview) preview.innerHTML = "";
+            const entryNum = state.words.length;
+            formaSpellbookPage.push({
+              word,
+              description,
+              num: entryNum
+            });
+            renderFormaSpellbookPage();
+            if (formaSpellbookPage.length >= FORMA_SPELLBOOK_PAGE_MAX) {
+              playFormFlipSound();
+              formaSpellbookPage = [];
+              renderFormaSpellbookPage();
+            }
             if (msg) {
               msg.textContent = "Сохранено.";
               msg.className = "tz-form-msg tz-form-msg--ok";
@@ -2326,6 +2304,8 @@ void main() {
             tzRefreshMvpScreens();
           });
         }
+
+        renderFormaSpellbookPage();
 
         const cancel = document.getElementById("tzFormCancel");
         if (cancel) cancel.addEventListener("click", () => window.showScreen("screen1"));
