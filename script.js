@@ -1476,10 +1476,12 @@
        * Адаптация @react-bits/MagicRings под текущий проект (vanilla JS + WebGL2).
        * Эффект курсора в неоновой палитре сайта: слой обложки (#sceneStage).
        */
-      function initMagicRingsFor(containerId, canvasId, stage) {
+      function initMagicRingsFor(containerId, canvasId, stage, ringOptions) {
         const container = document.getElementById(containerId);
         const canvas = document.getElementById(canvasId);
-        if (!container || !canvas || !stage) return function noop() {};
+        const opts = ringOptions || {};
+        const globalViewport = Boolean(opts.globalViewport);
+        if (!container || !canvas || (!stage && !globalViewport)) return function noop() {};
 
         if (prefersReducedMotion()) {
           container.setAttribute("hidden", "");
@@ -1681,6 +1683,13 @@ void main() {
         let raf = 0;
         let dpr = 1;
 
+        function getStageRect() {
+          if (globalViewport) {
+            return { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+          }
+          return stage.getBoundingClientRect();
+        }
+
         function resize() {
           const rect = container.getBoundingClientRect();
           dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
@@ -1694,7 +1703,7 @@ void main() {
         }
 
         function onMouseMove(e) {
-          const r = stage.getBoundingClientRect();
+          const r = getStageRect();
           mouse[0] = (e.clientX - r.left) / r.width - 0.5;
           mouse[1] = -((e.clientY - r.top) / r.height - 0.5);
         }
@@ -1710,11 +1719,17 @@ void main() {
           if (props.clickBurst) burst = 1;
         }
 
-        stage.addEventListener("mousemove", onMouseMove);
-        stage.addEventListener("mouseenter", onMouseEnter);
-        stage.addEventListener("mouseleave", onMouseLeave);
-        stage.addEventListener("click", onClick);
-        window.addEventListener("resize", resize, { passive: true });
+        if (globalViewport) {
+          window.addEventListener("mousemove", onMouseMove, { passive: true });
+          window.addEventListener("click", onClick);
+          window.addEventListener("resize", resize, { passive: true });
+        } else {
+          stage.addEventListener("mousemove", onMouseMove);
+          stage.addEventListener("mouseenter", onMouseEnter);
+          stage.addEventListener("mouseleave", onMouseLeave);
+          stage.addEventListener("click", onClick);
+          window.addEventListener("resize", resize, { passive: true });
+        }
         let ro = null;
         if (typeof ResizeObserver !== "undefined") {
           ro = new ResizeObserver(resize);
@@ -1724,6 +1739,10 @@ void main() {
 
         function draw(now) {
           raf = requestAnimationFrame(draw);
+
+          if (globalViewport) {
+            isHovered = true;
+          }
 
           smoothMouse[0] += (mouse[0] - smoothMouse[0]) * 0.045;
           smoothMouse[1] += (mouse[1] - smoothMouse[1]) * 0.045;
@@ -1767,11 +1786,17 @@ void main() {
 
         return function dispose() {
           cancelAnimationFrame(raf);
-          stage.removeEventListener("mousemove", onMouseMove);
-          stage.removeEventListener("mouseenter", onMouseEnter);
-          stage.removeEventListener("mouseleave", onMouseLeave);
-          stage.removeEventListener("click", onClick);
-          window.removeEventListener("resize", resize);
+          if (globalViewport) {
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("click", onClick);
+            window.removeEventListener("resize", resize);
+          } else {
+            stage.removeEventListener("mousemove", onMouseMove);
+            stage.removeEventListener("mouseenter", onMouseEnter);
+            stage.removeEventListener("mouseleave", onMouseLeave);
+            stage.removeEventListener("click", onClick);
+            window.removeEventListener("resize", resize);
+          }
           if (ro) ro.disconnect();
           gl.deleteBuffer(vbo);
           gl.deleteVertexArray(vao);
@@ -1783,8 +1808,12 @@ void main() {
 
       function initMagicRingsFx() {
         const d1 = initMagicRingsFor("magicRingsFx", "magicRingsCanvas", dom.sceneStage);
+        const d2 = initMagicRingsFor("tzGlobalMagicRings", "tzGlobalMagicRingsCanvas", null, {
+          globalViewport: true
+        });
         return function disposeMagicRingsAll() {
           d1();
+          d2();
         };
       }
 
@@ -2112,6 +2141,7 @@ void main() {
         if (audioPen) {
           try {
             audioPen.volume = 0.32;
+            audioPen.loop = false;
           } catch (_) {
             /* ignore */
           }
@@ -2192,6 +2222,18 @@ void main() {
           }
         }
 
+        /** Краткое свечение и искры у переплёта (screen3, центр forma_cl.png) */
+        function triggerFormaMagicBurst() {
+          const spine = document.getElementById("tzFormaSpineMagic");
+          if (!spine) return;
+          spine.classList.remove("tz-forma-spine-magic--save-burst");
+          void spine.offsetWidth;
+          spine.classList.add("tz-forma-spine-magic--save-burst");
+          window.setTimeout(() => {
+            spine.classList.remove("tz-forma-spine-magic--save-burst");
+          }, 920);
+        }
+
         document.addEventListener("vibe-screenchange", (ev) => {
           const id = ev.detail && ev.detail.screenId;
           state.words = storage.loadWords();
@@ -2228,6 +2270,9 @@ void main() {
         const wIn = document.getElementById("tzInputWord");
         const dIn = document.getElementById("tzInputDesc");
         const msg = document.getElementById("tzFormMsg");
+        const hintLine = document.getElementById("tzFormaHintSave");
+        const textSave = document.getElementById("tzTextSave");
+        const textEdit = document.getElementById("tzTextEdit");
 
         function renderFormaSpellbookPage() {
           const el = document.getElementById("tzLivePreview");
@@ -2236,19 +2281,26 @@ void main() {
           if (formaSpellbookPage.length === 0) {
             const p = document.createElement("p");
             p.className = "tz-ink-page-hint";
-            p.textContent = "Здесь появятся строки после «Сохранить».";
+            p.textContent = "Пустой разворот — строки появятся после сохранения.";
             el.appendChild(p);
             return;
           }
-          const ol = document.createElement("ol");
-          ol.className = "tz-ink-ol tz-ink-ol--spellbook-page";
-          ol.start = formaSpellbookPage[0].num;
+          const block = document.createElement("div");
+          block.className = "tz-ink-block";
           formaSpellbookPage.forEach((entry) => {
-            const li = document.createElement("li");
-            li.textContent = `${entry.word} — ${entry.description}`;
-            ol.appendChild(li);
+            const line = document.createElement("p");
+            line.className = "tz-ink-entry-line";
+            const num = document.createElement("span");
+            num.className = "tz-ink-entry-num";
+            num.textContent = `${entry.num}.`;
+            const text = document.createElement("span");
+            text.className = "tz-ink-entry-text";
+            text.textContent = `${entry.word} — ${entry.description}`;
+            line.appendChild(num);
+            line.appendChild(text);
+            block.appendChild(line);
           });
-          el.appendChild(ol);
+          el.appendChild(block);
         }
 
         function onFormInput() {
@@ -2258,50 +2310,100 @@ void main() {
         if (wIn) wIn.addEventListener("input", onFormInput);
         if (dIn) dIn.addEventListener("input", onFormInput);
 
+        /** Сохранение с экрана формы: опционально эффект у переплёта */
+        function submitFormaEntry(withMagicBurst) {
+          const word = normalizeText((wIn && wIn.value) || "");
+          const description = normalizeText((dIn && dIn.value) || "");
+          const err = validateWordForm(word, description, null);
+          if (err) {
+            if (msg) {
+              msg.textContent = err;
+              msg.className = "tz-form-msg tz-form-msg--err tz-form-msg--forma";
+            }
+            return false;
+          }
+          const newWord = createWordEntry(word, description, "");
+          state.words = storage.loadWords();
+          state.words.push(newWord);
+          const saved = storage.saveWords(state.words);
+          if (!saved.ok) {
+            state.words.pop();
+            if (msg) {
+              msg.textContent = saved.message || "Не удалось сохранить.";
+              msg.className = "tz-form-msg tz-form-msg--err tz-form-msg--forma";
+            }
+            return false;
+          }
+          if (wIn) wIn.value = "";
+          if (dIn) dIn.value = "";
+          const entryNum = state.words.length;
+          formaSpellbookPage.push({
+            word,
+            description,
+            num: entryNum
+          });
+          renderFormaSpellbookPage();
+          if (formaSpellbookPage.length >= FORMA_SPELLBOOK_PAGE_MAX) {
+            playFormFlipSound();
+            formaSpellbookPage = [];
+            renderFormaSpellbookPage();
+          }
+          if (msg) {
+            msg.textContent = "Сохранено.";
+            msg.className = "tz-form-msg tz-form-msg--ok tz-form-msg--forma";
+          }
+          if (withMagicBurst) {
+            triggerFormaMagicBurst();
+          }
+          tzRefreshMvpScreens();
+          return true;
+        }
+
+        function bindTextControl(el, fn) {
+          if (!el) return;
+          el.addEventListener("click", (e) => {
+            e.preventDefault();
+            fn();
+          });
+          el.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fn();
+            }
+          });
+        }
+
+        bindTextControl(textSave, () => {
+          submitFormaEntry(true);
+        });
+
+        bindTextControl(textEdit, () => {
+          if (msg) {
+            msg.textContent = "";
+            msg.className = "tz-form-msg tz-form-msg--forma";
+          }
+          if (wIn) {
+            wIn.focus();
+            try {
+              wIn.select();
+            } catch (_) {
+              /* ignore */
+            }
+          }
+        });
+
+        bindTextControl(hintLine, () => {
+          const ok = submitFormaEntry(true);
+          if (ok && hintLine) {
+            hintLine.classList.add("tz-forma-hint-line--active");
+            window.setTimeout(() => hintLine.classList.remove("tz-forma-hint-line--active"), 650);
+          }
+        });
+
         if (form) {
           form.addEventListener("submit", (e) => {
             e.preventDefault();
-            const word = normalizeText((wIn && wIn.value) || "");
-            const description = normalizeText((dIn && dIn.value) || "");
-            const err = validateWordForm(word, description, null);
-            if (err) {
-              if (msg) {
-                msg.textContent = err;
-                msg.className = "tz-form-msg tz-form-msg--err";
-              }
-              return;
-            }
-            const newWord = createWordEntry(word, description, "");
-            state.words = storage.loadWords();
-            state.words.push(newWord);
-            const saved = storage.saveWords(state.words);
-            if (!saved.ok) {
-              state.words.pop();
-              if (msg) {
-                msg.textContent = saved.message || "Не удалось сохранить.";
-                msg.className = "tz-form-msg tz-form-msg--err";
-              }
-              return;
-            }
-            if (wIn) wIn.value = "";
-            if (dIn) dIn.value = "";
-            const entryNum = state.words.length;
-            formaSpellbookPage.push({
-              word,
-              description,
-              num: entryNum
-            });
-            renderFormaSpellbookPage();
-            if (formaSpellbookPage.length >= FORMA_SPELLBOOK_PAGE_MAX) {
-              playFormFlipSound();
-              formaSpellbookPage = [];
-              renderFormaSpellbookPage();
-            }
-            if (msg) {
-              msg.textContent = "Сохранено.";
-              msg.className = "tz-form-msg tz-form-msg--ok";
-            }
-            tzRefreshMvpScreens();
+            submitFormaEntry(true);
           });
         }
 

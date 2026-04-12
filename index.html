@@ -14,13 +14,18 @@
 
 </head>
 <body>
+  <!-- Magic Rings (тот же WebGL, что на обложке): слой на весь viewport, активен на screen3–5 -->
+  <div id="tzGlobalMagicRings" class="magic-rings-fx magic-rings-fx--global" aria-hidden="true">
+    <canvas id="tzGlobalMagicRingsCanvas" width="300" height="200"></canvas>
+  </div>
+
   <!-- Блок: пропуск к основному содержимому (клавиатура / вспомогательные технологии) -->
   <a class="skip-link" href="#main-content">Перейти к содержимому</a>
 
   <button
     type="button"
     id="btnHymnToggle"
-    class="ui-btn ui-btn--hymn-toggle ui-btn--hymn-idle"
+    class="ui-btn ui-btn--hymn-toggle ui-btn--hymn-idle ui-btn--vibe-cover"
     hidden
     aria-hidden="true"
     aria-label="Гимн Вайбкодера: воспроизведение и пауза"
@@ -318,31 +323,29 @@
   
     </div>
 
-    <!-- ТЗ FINAL: screen3 — images/forma_cl.png, «магическая книга»: ввод слева, записи справа -->
+    <!-- screen3: forma_cl.png; логотип AI — общий блок #tzVibeAiBrand -->
     <div id="screen3" class="screen tz-screen tz-screen--forma">
       <div class="tz-forma-scene">
+        <!-- Плавающие слова: только по краям кадра, не над страницами (позиции в %) -->
         <div class="magic-float-words magic-float-words--forma" aria-hidden="true">
-          <span class="magic-float-word" style="--mf-l: 4%; --mf-t: 10%">VIBE</span>
-          <span class="magic-float-word" style="--mf-l: 78%; --mf-t: 12%">CODE</span>
-          <span class="magic-float-word" style="--mf-l: 8%; --mf-t: 78%">AI</span>
-          <span class="magic-float-word" style="--mf-l: 80%; --mf-t: 74%">СМЫСЛ</span>
-          <span class="magic-float-word" style="--mf-l: 5%; --mf-t: 44%">ПОТОК</span>
-          <span class="magic-float-word" style="--mf-l: 84%; --mf-t: 48%">МАГИЯ</span>
-          <span class="magic-float-word" style="--mf-l: 26%; --mf-t: 6%">ФОКУС</span>
-          <span class="magic-float-word" style="--mf-l: 70%; --mf-t: 86%">НЕЙРО</span>
+          <span class="magic-float-word" style="--mf-l: 2%; --mf-t: 6%; --mf-dur: 38s; --mf-fs: 10px">VIBE</span>
+          <span class="magic-float-word" style="--mf-l: 90%; --mf-t: 5%; --mf-dur: 44s; --mf-fs: 13px">CODE</span>
+          <span class="magic-float-word" style="--mf-l: 4%; --mf-t: 22%; --mf-dur: 32s; --mf-fs: 11px">ПОТОК</span>
+          <span class="magic-float-word" style="--mf-l: 92%; --mf-t: 20%; --mf-dur: 36s; --mf-fs: 9px">СМЫСЛ</span>
+          <span class="magic-float-word" style="--mf-l: 1%; --mf-t: 42%; --mf-dur: 41s; --mf-fs: 12px">ФОКУС</span>
+          <span class="magic-float-word" style="--mf-l: 88%; --mf-t: 38%; --mf-dur: 29s; --mf-fs: 10px">МАГИЯ</span>
+          <span class="magic-float-word" style="--mf-l: 6%; --mf-t: 58%; --mf-dur: 33s; --mf-fs: 11px">ВАЙБ</span>
+          <span class="magic-float-word" style="--mf-l: 91%; --mf-t: 55%; --mf-dur: 47s; --mf-fs: 9px">ЧИСЛО</span>
+          <span class="magic-float-word" style="--mf-l: 3%; --mf-t: 78%; --mf-dur: 35s; --mf-fs: 13px">IDEA</span>
+          <span class="magic-float-word" style="--mf-l: 87%; --mf-t: 72%; --mf-dur: 40s; --mf-fs: 10px">РИТМ</span>
+          <span class="magic-float-word" style="--mf-l: 5%; --mf-t: 90%; --mf-dur: 31s; --mf-fs: 12px">СВЕТ</span>
+          <span class="magic-float-word" style="--mf-l: 93%; --mf-t: 88%; --mf-dur: 43s; --mf-fs: 11px">ТОН</span>
+          <span class="magic-float-word" style="--mf-l: 1%; --mf-t: 14%; --mf-dur: 46s; --mf-fs: 8px">СОН</span>
+          <span class="magic-float-word" style="--mf-l: 95%; --mf-t: 14%; --mf-dur: 34s; --mf-fs: 12px">КОД</span>
+          <span class="magic-float-word" style="--mf-l: 8%; --mf-t: 96%; --mf-dur: 39s; --mf-fs: 10px">ПУЛЬС</span>
         </div>
-        <div class="tz-forma-brand-wrap">
-          <img
-            class="tz-forma-logo"
-            src="images/LOGO.png"
-            width="120"
-            alt=""
-            decoding="async"
-            onerror="this.onerror=null;this.src='images/LOGO.svg';"
-          />
-        </div>
-        <!-- Эффект «магии» у переплёта (центр разворота на иллюстрации) -->
-        <div class="tz-forma-spine-magic" aria-hidden="true">
+        <!-- Переплёт: постоянное свечение + краткий «всплеск» при сохранении (класс из JS) -->
+        <div id="tzFormaSpineMagic" class="tz-forma-spine-magic" aria-hidden="true">
           <span class="tz-spine-core"></span>
           <span class="tz-spine-whirl"></span>
           <span class="tz-spine-spark tz-spine-spark--1"></span>
@@ -363,27 +366,44 @@
           <label class="tz-label tz-label--spellbook" for="tzInputWord">Слово</label>
           <input
             id="tzInputWord"
-            class="tz-input tz-input--spellbook"
+            class="tz-input tz-input--spellbook tz-input--spellbook-word"
             type="text"
             maxlength="30"
             required
             autocomplete="off"
-            placeholder="Напишите слово…"
+            placeholder=""
           />
           <label class="tz-label tz-label--spellbook" for="tzInputDesc">Описание</label>
           <textarea
             id="tzInputDesc"
-            class="tz-textarea tz-textarea--spellbook"
+            class="tz-textarea tz-textarea--spellbook tz-textarea--spellbook-desc"
             maxlength="150"
             required
             rows="5"
-            placeholder="Коротко, по смыслу…"
+            placeholder=""
           ></textarea>
-          <div class="tz-form__row tz-form__row--save">
-            <button type="submit" class="ui-btn ui-btn--primary ui-btn--forma" id="tzFormSave">Сохранить</button>
+          <!-- Подсказка: клик = то же сохранение + эффект магии (основной сценарий через текст ниже) -->
+          <p
+            class="tz-forma-hint-line"
+            id="tzFormaHintSave"
+            role="button"
+            tabindex="0"
+          >
+            сохранить слово в книгу
+          </p>
+          <!-- Текстовые действия вместо кнопок -->
+          <div class="tz-forma-text-actions" aria-label="Действия">
+            <span class="tz-forma-text-action" id="tzTextSave" role="button" tabindex="0">сохранить</span>
+            <span class="tz-forma-text-sep" aria-hidden="true">|</span>
+            <span class="tz-forma-text-action" id="tzTextEdit" role="button" tabindex="0">редактировать</span>
           </div>
-          <button type="button" class="ui-btn ui-btn--primary ui-btn--forma tz-forma-back" id="tzFormCancel">Назад</button>
-          <p id="tzFormMsg" class="tz-form-msg" role="status" aria-live="polite"></p>
+          <p class="tz-forma-reactions-note">Реакции</p>
+          <!-- Резервные кнопки для доступности и тестов; визуально скрыты -->
+          <div class="tz-forma-reserve-btns">
+            <button type="submit" id="tzFormSave" class="ui-btn tz-forma-btn-reserve ui-btn--vibe-cover">Сохранить</button>
+            <button type="button" id="tzFormCancel" class="ui-btn tz-forma-btn-reserve ui-btn--vibe-cover">Назад</button>
+          </div>
+          <p id="tzFormMsg" class="tz-form-msg tz-form-msg--forma" role="status" aria-live="polite"></p>
         </form>
         <!-- Правая страница: нумерованные записи после «Сохранить» -->
         <aside class="tz-ink-preview" aria-label="Страница словаря">
@@ -411,16 +431,16 @@
             </div>
           </div>
           <nav class="tz-flip-nav" aria-label="Страницы книги">
-            <button type="button" class="ui-btn ui-btn--icon" id="tzFlipPrev" aria-label="Предыдущий разворот">
+            <button type="button" class="ui-btn ui-btn--icon ui-btn--vibe-cover" id="tzFlipPrev" aria-label="Предыдущий разворот">
               ◀
             </button>
             <span class="tz-flip-counter" id="tzFlipCounter">1 / 1</span>
-            <button type="button" class="ui-btn ui-btn--icon" id="tzFlipNext" aria-label="Следующий разворот">
+            <button type="button" class="ui-btn ui-btn--icon ui-btn--vibe-cover" id="tzFlipNext" aria-label="Следующий разворот">
               ▶
             </button>
           </nav>
         </div>
-        <button type="button" class="ui-btn ui-btn--ghost-nav tz-reed-back" id="tzBtnBookToMenu">← Экран книги</button>
+        <button type="button" class="ui-btn ui-btn--ghost-nav tz-reed-back ui-btn--vibe-cover" id="tzBtnBookToMenu">← Экран книги</button>
         <audio id="audioFlip" preload="metadata">
           <source src="assets/sounds/flipping%20through%20the%20pages%20of%20a%20book.MP3" type="audio/mpeg" />
         </audio>
@@ -441,11 +461,27 @@
           </div>
         </div>
         <div id="tzCatalogGrid" class="tz-catalog-grid"></div>
-        <button type="button" class="ui-btn ui-btn--ghost-nav" id="tzBtnCatalogToMenu">← Меню</button>
+        <button type="button" class="ui-btn ui-btn--ghost-nav ui-btn--vibe-cover" id="tzBtnCatalogToMenu">← Меню</button>
       </div>
     </div>
 
   </main>
+
+  <!-- Логотип AI + неон (как на обложке); после main — поверх контента, screen3–5 -->
+  <div id="tzVibeAiBrand" class="tz-vibe-ai-brand" aria-hidden="true">
+    <div class="tz-vibe-ai-brand__stack">
+      <span class="book-write-ai-logo__glow" aria-hidden="true"></span>
+      <div class="ai-logo-hotspot ai-logo-hotspot--tz-overlay" aria-hidden="true">
+        <span class="ai-logo-c-spark"></span>
+        <span class="ai-logo-c-spark"></span>
+        <span class="ai-logo-c-spark"></span>
+        <span class="ai-logo-c-spark"></span>
+        <span class="ai-logo-c-spark"></span>
+        <span class="ai-logo-c-spark"></span>
+      </div>
+      <span class="book-write-ai-logo__text">AI</span>
+    </div>
+  </div>
 
   <audio id="hymnAudio" preload="auto" loop>
     <source src="assets/sounds/versiya%205_hard-rok%20Tanya.mp3" type="audio/mpeg" />
