@@ -842,6 +842,28 @@
         dom.writingPreview.addEventListener("animationend", onEnd, { once: true });
       }
 
+      /** Логотип AI + глобальные Magic Rings: как на обложке — на 3–5 и при открытой книге на screen1 */
+      function syncVibeBrandOverlay() {
+        const id = document.body.dataset.activeScreen || "screen1";
+        const brand = document.getElementById("tzVibeAiBrand");
+        const rings = document.getElementById("tzGlobalMagicRings");
+        const s1 = document.getElementById("screen1");
+        const st = document.getElementById("sceneStage");
+        const bookOpen = st && st.classList.contains("scene--book-open");
+        const show =
+          id === "screen3" ||
+          id === "screen4" ||
+          id === "screen5" ||
+          (id === "screen1" && s1 && s1.classList.contains("active") && bookOpen);
+        if (brand) {
+          brand.classList.toggle("tz-vibe-ai-brand--visible", show);
+          brand.setAttribute("aria-hidden", show ? "false" : "true");
+        }
+        if (rings) {
+          rings.classList.toggle("magic-rings-fx--global--visible", show);
+        }
+      }
+
       function closeBookToCover() {
         clearWritingTimer();
         clearTypingTimer();
@@ -861,6 +883,7 @@
         if (dom.accessOverlay) {
           dom.accessOverlay.removeAttribute("hidden");
         }
+        syncVibeBrandOverlay();
       }
 
       function switchBookMode(mode) {
@@ -1138,6 +1161,7 @@
           pruneBookUiForStep2();
           state.words = storage.loadWords();
           state.isBookInitialized = true;
+          syncVibeBrandOverlay();
           return;
         }
         initBook();
@@ -1154,6 +1178,7 @@
           pruneBookUiForStep2();
           state.words = storage.loadWords();
           state.isBookInitialized = true;
+          syncVibeBrandOverlay();
           return;
         }
         initBook();
@@ -1481,6 +1506,8 @@
         const canvas = document.getElementById(canvasId);
         const opts = ringOptions || {};
         const globalViewport = Boolean(opts.globalViewport);
+        /** Сила «вспышки» колец при клике (как на обложке); для полноэкранного слоя — сильнее */
+        const burstImpulse = typeof opts.burstImpulse === "number" ? opts.burstImpulse : 1;
         if (!container || !canvas || (!stage && !globalViewport)) return function noop() {};
 
         if (prefersReducedMotion()) {
@@ -1715,19 +1742,23 @@ void main() {
           mouse[0] = 0;
           mouse[1] = 0;
         }
-        function onClick() {
-          if (props.clickBurst) burst = 1;
+        function triggerBurst() {
+          if (props.clickBurst) burst = burstImpulse;
+        }
+
+        function onPointerDown() {
+          triggerBurst();
         }
 
         if (globalViewport) {
           window.addEventListener("mousemove", onMouseMove, { passive: true });
-          window.addEventListener("click", onClick);
+          window.addEventListener("pointerdown", onPointerDown, { passive: true });
           window.addEventListener("resize", resize, { passive: true });
         } else {
           stage.addEventListener("mousemove", onMouseMove);
           stage.addEventListener("mouseenter", onMouseEnter);
           stage.addEventListener("mouseleave", onMouseLeave);
-          stage.addEventListener("click", onClick);
+          stage.addEventListener("pointerdown", onPointerDown, { passive: true });
           window.addEventListener("resize", resize, { passive: true });
         }
         let ro = null;
@@ -1747,7 +1778,7 @@ void main() {
           smoothMouse[0] += (mouse[0] - smoothMouse[0]) * 0.045;
           smoothMouse[1] += (mouse[1] - smoothMouse[1]) * 0.045;
           hover += ((isHovered ? 1 : 0) - hover) * 0.05;
-          burst *= 0.95;
+          burst *= globalViewport ? 0.92 : 0.95;
           if (burst < 0.001) burst = 0;
 
           gl.clearColor(0, 0, 0, 0);
@@ -1771,7 +1802,8 @@ void main() {
           gl.uniform1f(uniforms.hoverAmount, hover);
           gl.uniform1f(uniforms.hoverScale, props.hoverScale);
           gl.uniform1f(uniforms.parallax, props.parallax);
-          gl.uniform1f(uniforms.burst, props.clickBurst ? burst : 0);
+          const burstUniform = props.clickBurst ? burst * (globalViewport ? 1.15 : 1) : 0;
+          gl.uniform1f(uniforms.burst, burstUniform);
           gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
           gl.uniform2f(uniforms.mouse, smoothMouse[0], smoothMouse[1]);
           gl.uniform3f(uniforms.color, colorA[0], colorA[1], colorA[2]);
@@ -1788,13 +1820,13 @@ void main() {
           cancelAnimationFrame(raf);
           if (globalViewport) {
             window.removeEventListener("mousemove", onMouseMove);
-            window.removeEventListener("click", onClick);
+            window.removeEventListener("pointerdown", onPointerDown);
             window.removeEventListener("resize", resize);
           } else {
             stage.removeEventListener("mousemove", onMouseMove);
             stage.removeEventListener("mouseenter", onMouseEnter);
             stage.removeEventListener("mouseleave", onMouseLeave);
-            stage.removeEventListener("click", onClick);
+            stage.removeEventListener("pointerdown", onPointerDown);
             window.removeEventListener("resize", resize);
           }
           if (ro) ro.disconnect();
@@ -1809,7 +1841,8 @@ void main() {
       function initMagicRingsFx() {
         const d1 = initMagicRingsFor("magicRingsFx", "magicRingsCanvas", dom.sceneStage);
         const d2 = initMagicRingsFor("tzGlobalMagicRings", "tzGlobalMagicRingsCanvas", null, {
-          globalViewport: true
+          globalViewport: true,
+          burstImpulse: 1.45
         });
         return function disposeMagicRingsAll() {
           d1();
@@ -2244,6 +2277,15 @@ void main() {
           if (id === "screen3") {
             formaSpellbookPage = [];
             renderFormaSpellbookPage();
+            const wEl = document.getElementById("tzInputWord");
+            const dEl = document.getElementById("tzInputDesc");
+            const mEl = document.getElementById("tzFormMsg");
+            if (wEl) wEl.value = "";
+            if (dEl) dEl.value = "";
+            if (mEl) {
+              mEl.textContent = "";
+              mEl.className = "tz-form-msg tz-form-msg--forma";
+            }
           }
           if (id === "screen4") {
             state.tzFlipSpreadIndex = 0;
@@ -2285,22 +2327,16 @@ void main() {
             el.appendChild(p);
             return;
           }
-          const block = document.createElement("div");
-          block.className = "tz-ink-block";
+          const ol = document.createElement("ol");
+          ol.className = "tz-ink-ol tz-ink-ol--spellbook-page";
+          ol.setAttribute("aria-label", "Сохранённые слова по порядку");
           formaSpellbookPage.forEach((entry) => {
-            const line = document.createElement("p");
-            line.className = "tz-ink-entry-line";
-            const num = document.createElement("span");
-            num.className = "tz-ink-entry-num";
-            num.textContent = `${entry.num}.`;
-            const text = document.createElement("span");
-            text.className = "tz-ink-entry-text";
-            text.textContent = `${entry.word} — ${entry.description}`;
-            line.appendChild(num);
-            line.appendChild(text);
-            block.appendChild(line);
+            const li = document.createElement("li");
+            li.className = "tz-ink-spellbook-li";
+            li.textContent = `${entry.word} — ${entry.description}`;
+            ol.appendChild(li);
           });
-          el.appendChild(block);
+          el.appendChild(ol);
         }
 
         function onFormInput() {
@@ -2336,7 +2372,17 @@ void main() {
           }
           if (wIn) wIn.value = "";
           if (dIn) dIn.value = "";
-          const entryNum = state.words.length;
+          if (wIn) {
+            window.requestAnimationFrame(() => {
+              try {
+                wIn.focus();
+              } catch (_) {
+                /* ignore */
+              }
+            });
+          }
+          /* Нумерация 1…n сверху вниз на текущем развороте (после сброса снова с 1) */
+          const entryNum = formaSpellbookPage.length + 1;
           formaSpellbookPage.push({
             word,
             description,
@@ -2469,6 +2515,9 @@ void main() {
         state.words = storage.loadWords();
         document.body.dataset.activeScreen = "screen1";
         initTzScreens();
+        document.addEventListener("vibe-screenchange", syncVibeBrandOverlay);
+        document.addEventListener("vibe-book-opened", syncVibeBrandOverlay);
+        syncVibeBrandOverlay();
         renderBook();
         renderCatalog();
         // Первый экран всегда статичный: без автоперехода в раскрытую книгу при открытии файла.

@@ -353,9 +353,11 @@ body {
   filter: brightness(0.98);
 }
 
-/* Вариант C: hover-эффект по AI логотипу */
+/* Вариант C: логотип PNG по центру верхней зоны обложки / разворота */
 .ai-logo-hotspot {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: absolute;
   left: 50%;
   top: 13%;
@@ -384,8 +386,101 @@ body {
   animation: aiLogoShimmerPulse 2.8s ease-in-out infinite;
 }
 
+/* Мягкое свечение под PNG (анимация aiLogoShimmerPulse); слабее базового ::before — без «второго логотипа» */
+#aiLogoHotspot::before,
+.ai-logo-hotspot--book::before {
+  opacity: 0.28;
+}
+
 .ai-logo-hotspot::after {
   display: none;
+}
+
+/* Общий блок: images/LOGO.png.png — мягкое свечение + лёгкое «плавание» */
+.tz-vibe-ai-logo-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92%;
+  height: 88%;
+  z-index: 2;
+}
+
+/* Размытый ореол отключён: визуально дублировал PNG; свечение только у .tz-vibe-ai-logo-img */
+.tz-vibe-ai-logo__halo {
+  display: none;
+}
+
+.tz-vibe-ai-logo-img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  object-fit: contain;
+  animation:
+    tzVibeAiLogoFloat 4.8s ease-in-out infinite,
+    tzVibeAiLogoNeonPulse 3.2s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 10px rgba(120, 220, 255, 0.55))
+    drop-shadow(0 0 22px rgba(160, 100, 255, 0.4))
+    drop-shadow(0 0 34px rgba(255, 130, 200, 0.28));
+}
+
+.tz-vibe-ai-logo-wrap--overlay .tz-vibe-ai-logo-img {
+  max-width: min(56vw, 320px);
+  max-height: min(18vh, 130px);
+}
+
+.tz-vibe-ai-logo-wrap--book .tz-vibe-ai-logo-img {
+  max-width: 100%;
+  max-height: min(9.5vh, 88px);
+}
+
+.tz-vibe-ai-logo-wrap--book-inline .tz-vibe-ai-logo-img {
+  max-width: min(36vw, 220px);
+  max-height: min(8.5vh, 56px);
+}
+
+@keyframes tzVibeAiLogoFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes tzVibeAiLogoNeonPulse {
+  0%,
+  100% {
+    opacity: 0.92;
+    filter:
+      drop-shadow(0 0 10px rgba(120, 220, 255, 0.55))
+      drop-shadow(0 0 22px rgba(150, 100, 255, 0.42))
+      drop-shadow(0 0 34px rgba(255, 130, 200, 0.28))
+      hue-rotate(0deg);
+  }
+  33% {
+    opacity: 1;
+    filter:
+      drop-shadow(0 0 16px rgba(90, 210, 255, 0.72))
+      drop-shadow(0 0 28px rgba(170, 100, 255, 0.5))
+      drop-shadow(0 0 42px rgba(255, 150, 210, 0.38))
+      hue-rotate(14deg);
+  }
+  66% {
+    opacity: 0.96;
+    filter:
+      drop-shadow(0 0 14px rgba(255, 140, 200, 0.65))
+      drop-shadow(0 0 26px rgba(120, 180, 255, 0.45))
+      drop-shadow(0 0 38px rgba(200, 120, 255, 0.35))
+      hue-rotate(-10deg);
+  }
 }
 
 .ai-logo-c-spark {
@@ -420,6 +515,11 @@ body {
 /* Скрываем только подсветку на обложке; на картинке 2 — .ai-logo-hotspot--book */
 .scene-stage.scene--book-open #aiLogoHotspot {
   display: none;
+}
+
+/* Закрытая обложка: отдельный #aiLogoHotspot скрыт — лишний логотип над формой; при открытии книги — #tzVibeAiBrand */
+#screen1 #sceneStage:not(.scene--book-open) #aiLogoHotspot {
+  display: none !important;
 }
 
 /*
@@ -546,8 +646,9 @@ body {
   }
 }
 
+/* visible: плавающие слова и неон у краёв не обрезаются (иначе «стоят на месте») */
 .scene-stage.scene--book-open .book-image-wrap {
-  overflow: hidden;
+  overflow: visible;
 }
 
 .scene-stage.scene--book-open .book-image-wrap > .book-image {
@@ -581,11 +682,7 @@ body {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ai-logo-hotspot {
-    display: none;
-  }
-}
+/* prefers-reduced-motion: см. блок у .tz-vibe-ai-brand — логотип PNG не скрываем */
 
 /* Кольца курсора (адаптация MagicRings): поверх арта, но без блокировки кликов */
 .magic-rings-fx {
@@ -650,9 +747,16 @@ body {
 
 body[data-active-screen="screen3"] .magic-rings-fx--global,
 body[data-active-screen="screen4"] .magic-rings-fx--global,
-body[data-active-screen="screen5"] .magic-rings-fx--global {
+body[data-active-screen="screen5"] .magic-rings-fx--global,
+/* Открытая книга на первом экране — те же кольца, что на обложке */
+body[data-active-screen="screen1"]:has(#sceneStage.scene--book-open) .magic-rings-fx--global {
   opacity: 0.72;
   visibility: visible;
+}
+
+.magic-rings-fx--global.magic-rings-fx--global--visible {
+  opacity: 0.78 !important;
+  visibility: visible !important;
 }
 
 .magic-rings-fx--global canvas {
@@ -674,8 +778,15 @@ body[data-active-screen="screen5"] .magic-rings-fx--global {
 
 body[data-active-screen="screen3"] .tz-vibe-ai-brand,
 body[data-active-screen="screen4"] .tz-vibe-ai-brand,
-body[data-active-screen="screen5"] .tz-vibe-ai-brand {
+body[data-active-screen="screen5"] .tz-vibe-ai-brand,
+body[data-active-screen="screen1"]:has(#sceneStage.scene--book-open) .tz-vibe-ai-brand {
   display: flex;
+}
+
+/* JS syncVibeBrandOverlay — надёжнее селекторов по data-screen */
+.tz-vibe-ai-brand.tz-vibe-ai-brand--visible {
+  display: flex !important;
+  z-index: 240;
 }
 
 .tz-vibe-ai-brand__stack {
@@ -683,33 +794,28 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  min-height: min(20vh, 168px);
+  justify-content: center;
+  min-height: min(16vh, 140px);
   width: min(92vw, 480px);
 }
 
-.tz-vibe-ai-brand__stack .book-write-ai-logo__glow {
-  top: 48%;
+.tz-vibe-ai-brand__stack .tz-vibe-ai-logo-wrap {
+  width: auto;
+  height: auto;
+  max-width: 100%;
 }
 
-.ai-logo-hotspot.ai-logo-hotspot--tz-overlay {
-  left: 50%;
-  top: 44%;
-  width: min(64vw, 380px);
-  height: min(18vh, 150px);
-  transform: translate(-50%, -50%);
-  z-index: 1;
-}
-
-.tz-vibe-ai-brand__stack .book-write-ai-logo__text {
-  position: relative;
-  z-index: 2;
-  margin-top: clamp(4px, 1vh, 12px);
+/* screen1 + открытая книга: один логотип — только #tzVibeAiBrand; встроенные PNG убираем (без :has — надёжнее) */
+body[data-active-screen="screen1"] #sceneStage.scene--book-open .ai-logo-hotspot--book,
+body[data-active-screen="screen1"] #sceneStage.scene--book-open .book-write-ai-logo {
+  display: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tz-vibe-ai-brand {
-    display: none !important;
+  .tz-vibe-ai-brand .tz-vibe-ai-logo-img,
+  .ai-logo-hotspot .tz-vibe-ai-logo-img,
+  .book-write-ai-logo .tz-vibe-ai-logo-img {
+    animation: tzVibeAiLogoNeonPulse 5s ease-in-out infinite !important;
   }
 }
 
@@ -1590,6 +1696,8 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
 }
 
 .book-image {
+  position: relative;
+  z-index: 1;
   width: 100%;
   display: block;
   user-select: none;
@@ -1813,7 +1921,7 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
 /* Врезки: расширенная рабочая зона, выше и плотнее к развороту */
 .book-left {
   position: absolute;
-  z-index: 3;
+  z-index: 4;
   left: 30.6%;
   top: 23.8%;
   width: 18.6%;
@@ -1826,7 +1934,7 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
 
 .book-right {
   position: absolute;
-  z-index: 3;
+  z-index: 4;
   left: 50.1%;
   top: 23.8%;
   width: 19%;
@@ -2393,7 +2501,7 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
     #bookImageWrap.book-ui .book-left,
     #bookImageWrap.book-ui .book-right {
       position: absolute;
-      z-index: 2;
+      z-index: 4;
       top: 6%;
       height: 88%;
       display: flex;
@@ -3593,8 +3701,11 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
   overflow: hidden;
 }
 
+/* Выше .book-image (z:1) и canvas эффектов (z:2), ниже страниц book-left/right (z:4) */
 .magic-float-words--book {
-  z-index: 2;
+  z-index: 3;
+  /* Иначе смещение + свечение обрезаются у краёв разворота */
+  overflow: visible;
 }
 
 .magic-float-word {
@@ -3615,61 +3726,74 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
   will-change: transform, opacity;
 }
 
-/* Разворот с book-open.png: плавный «float», неон (фиолет / синий / розовый), только по краям сцены */
+/* Разворот: одна анимация (движение + неон) — иначе два @keyframes на одном элементе гасят transform в части браузеров */
 .magic-float-words--book .magic-float-word {
-  will-change: transform;
-  animation-name: magicFloatBookDrift;
-  animation-duration: 36s;
-  animation-timing-function: ease-in-out;
-  opacity: 0.88;
-  color: rgba(200, 190, 255, 0.92);
+  will-change: transform, opacity, filter;
+  animation: bookFloatMoveNeon var(--mf-dur, 22s) ease-in-out infinite;
+  animation-delay: var(--mf-delay, 0s);
+  font-size: var(--mf-fs, clamp(11px, 1.38vw, 16px));
+  opacity: 0.95;
+  color: rgba(230, 210, 255, 0.98);
   text-shadow:
-    0 0 12px rgba(168, 120, 255, 0.75),
-    0 0 26px rgba(90, 140, 255, 0.55),
-    0 0 42px rgba(255, 120, 200, 0.35);
+    0 0 14px rgba(168, 120, 255, 0.85),
+    0 0 28px rgba(90, 160, 255, 0.55),
+    0 0 40px rgba(255, 130, 200, 0.4);
+  filter: drop-shadow(0 0 8px rgba(150, 100, 255, 0.55))
+    drop-shadow(0 0 16px rgba(80, 160, 255, 0.4));
 }
 
-.magic-float-words--book .magic-float-word:nth-child(8n + 1) {
-  color: rgba(210, 180, 255, 0.95);
-  text-shadow:
-    0 0 12px rgba(180, 100, 255, 0.8),
-    0 0 28px rgba(120, 80, 255, 0.5);
-}
-
-.magic-float-words--book .magic-float-word:nth-child(8n + 3) {
-  color: rgba(170, 215, 255, 0.95);
-  text-shadow:
-    0 0 12px rgba(80, 160, 255, 0.75),
-    0 0 26px rgba(100, 200, 255, 0.45);
-}
-
-.magic-float-words--book .magic-float-word:nth-child(8n + 5) {
-  color: rgba(255, 185, 230, 0.9);
-  text-shadow:
-    0 0 14px rgba(255, 130, 200, 0.65),
-    0 0 30px rgba(200, 100, 255, 0.4);
-}
-
-.magic-float-word:nth-child(2) {
-  animation-delay: -3s;
-}
-.magic-float-word:nth-child(3) {
-  animation-delay: -5.5s;
-}
-.magic-float-word:nth-child(4) {
-  animation-delay: -2s;
-}
-.magic-float-word:nth-child(5) {
-  animation-delay: -7s;
-}
-.magic-float-word:nth-child(6) {
-  animation-delay: -4.2s;
-}
-.magic-float-word:nth-child(7) {
-  animation-delay: -6s;
-}
-.magic-float-word:nth-child(8) {
-  animation-delay: -8.5s;
+@keyframes bookFloatMoveNeon {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-4deg);
+    opacity: 0.72;
+    color: rgba(220, 195, 255, 0.98);
+    text-shadow:
+      0 0 12px rgba(180, 100, 255, 0.88),
+      0 0 26px rgba(100, 180, 255, 0.5),
+      0 0 36px rgba(255, 150, 200, 0.38);
+    filter: drop-shadow(0 0 8px rgba(160, 100, 255, 0.58)) hue-rotate(0deg);
+  }
+  20% {
+    transform: translate3d(22px, -24px, 0) rotate(3deg);
+    opacity: 0.92;
+    color: rgba(190, 235, 255, 0.98);
+    text-shadow:
+      0 0 18px rgba(80, 210, 255, 0.92),
+      0 0 32px rgba(140, 110, 255, 0.48),
+      0 0 44px rgba(255, 170, 220, 0.35);
+    filter: drop-shadow(0 0 12px rgba(100, 200, 255, 0.65)) hue-rotate(16deg);
+  }
+  40% {
+    transform: translate3d(-18px, -32px, 0) rotate(6deg);
+    opacity: 0.88;
+    color: rgba(255, 205, 240, 0.98);
+    text-shadow:
+      0 0 16px rgba(255, 130, 200, 0.85),
+      0 0 30px rgba(170, 100, 255, 0.52),
+      0 0 40px rgba(120, 200, 255, 0.36);
+    filter: drop-shadow(0 0 11px rgba(255, 150, 210, 0.55)) hue-rotate(-12deg);
+  }
+  60% {
+    transform: translate3d(20px, -14px, 0) rotate(1.5deg);
+    opacity: 0.85;
+    color: rgba(210, 220, 255, 0.98);
+    text-shadow:
+      0 0 14px rgba(130, 160, 255, 0.82),
+      0 0 28px rgba(200, 120, 255, 0.45),
+      0 0 38px rgba(100, 230, 255, 0.32);
+    filter: drop-shadow(0 0 10px rgba(150, 130, 255, 0.52)) hue-rotate(10deg);
+  }
+  80% {
+    transform: translate3d(-14px, 16px, 0) rotate(-3deg);
+    opacity: 0.78;
+    color: rgba(230, 200, 255, 0.96);
+    text-shadow:
+      0 0 13px rgba(200, 110, 255, 0.8),
+      0 0 26px rgba(90, 190, 255, 0.42),
+      0 0 34px rgba(255, 140, 190, 0.35);
+    filter: drop-shadow(0 0 9px rgba(180, 100, 255, 0.5)) hue-rotate(-8deg);
+  }
 }
 
 @keyframes magicFloatDrift {
@@ -3684,35 +3808,46 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
   }
 }
 
-/* Плавный цикл без рывка на стыке (разворот книги) */
+/* Плавный цикл: смещение + лёгкий поворот + «дыхание» opacity */
 @keyframes magicFloatBookDrift {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(-2.2deg);
-    opacity: 0.42;
+    transform: translate3d(0, 0, 0) rotate(-2.8deg);
+    opacity: 0.34;
   }
-  25% {
-    transform: translate3d(5px, -8px, 0) rotate(1.2deg);
-    opacity: 0.52;
+  20% {
+    transform: translate3d(4px, -7px, 0) rotate(0.8deg);
+    opacity: 0.62;
   }
-  50% {
-    transform: translate3d(11px, -15px, 0) rotate(3.2deg);
-    opacity: 0.56;
+  45% {
+    transform: translate3d(9px, -12px, 0) rotate(2.6deg);
+    opacity: 0.78;
   }
-  75% {
-    transform: translate3d(5px, -7px, 0) rotate(1deg);
-    opacity: 0.48;
+  70% {
+    transform: translate3d(5px, -6px, 0) rotate(1.1deg);
+    opacity: 0.55;
+  }
+  88% {
+    transform: translate3d(1px, -2px, 0) rotate(-0.5deg);
+    opacity: 0.4;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Не обнулять animation целиком — иначе слова «мертвые» и без свечения визуально */
   .magic-float-word {
-    animation: none !important;
-    opacity: 0.4;
+    animation-duration: 90s !important;
+    animation-timing-function: linear !important;
+    opacity: 0.42;
   }
 
   .magic-float-words--book .magic-float-word {
-    opacity: 0.38;
+    animation: bookFloatMoveNeon 70s linear infinite !important;
+    opacity: 0.9;
+  }
+
+  .magic-float-words--forma .magic-float-word {
+    animation-duration: 80s !important;
   }
 }
 
@@ -3729,52 +3864,57 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   animation: formaFloatWord var(--mf-dur, 36s) ease-in-out infinite;
+  animation-delay: var(--mf-delay, 0s);
   will-change: transform, opacity;
-  color: rgba(200, 185, 255, 0.92);
+  /* Неон + читаемая плотность; filter усиливает свечение в WebKit/Chromium */
+  color: rgba(230, 210, 255, 0.98);
   text-shadow:
-    0 0 10px rgba(150, 110, 220, 0.65),
-    0 0 22px rgba(100, 150, 230, 0.45),
-    0 0 34px rgba(230, 140, 200, 0.35);
+    0 0 12px rgba(180, 120, 255, 0.95),
+    0 0 28px rgba(100, 160, 255, 0.75),
+    0 0 44px rgba(255, 130, 210, 0.55),
+    0 0 2px rgba(40, 20, 80, 0.4);
+  filter: drop-shadow(0 0 8px rgba(160, 100, 255, 0.55)) drop-shadow(0 0 16px rgba(80, 140, 255, 0.4));
 }
 
 .magic-float-words--forma .magic-float-word:nth-child(3n) {
-  color: rgba(175, 210, 255, 0.9);
+  color: rgba(190, 225, 255, 0.98);
   text-shadow:
-    0 0 10px rgba(90, 150, 240, 0.55),
-    0 0 24px rgba(160, 120, 255, 0.4);
+    0 0 14px rgba(90, 180, 255, 0.9),
+    0 0 30px rgba(120, 160, 255, 0.65),
+    0 0 48px rgba(100, 200, 255, 0.4);
+  filter: drop-shadow(0 0 10px rgba(100, 180, 255, 0.65));
 }
 
 .magic-float-words--forma .magic-float-word:nth-child(3n + 2) {
-  color: rgba(255, 195, 230, 0.88);
+  color: rgba(255, 200, 235, 0.96);
   text-shadow:
-    0 0 12px rgba(230, 130, 200, 0.5),
-    0 0 26px rgba(140, 100, 220, 0.38);
+    0 0 14px rgba(255, 140, 210, 0.85),
+    0 0 32px rgba(200, 100, 255, 0.55),
+    0 0 46px rgba(255, 160, 220, 0.35);
+  filter: drop-shadow(0 0 10px rgba(255, 120, 200, 0.55));
 }
 
 @keyframes formaFloatWord {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(-4deg);
-    opacity: 0.25;
+    transform: translate3d(0, 0, 0) rotate(-3deg);
+    opacity: 0.28;
   }
-  25% {
-    transform: translate3d(6px, -10px, 0) rotate(2deg);
-    opacity: 0.72;
+  22% {
+    transform: translate3d(5px, -9px, 0) rotate(1.5deg);
+    opacity: 0.68;
   }
-  50% {
-    transform: translate3d(12px, -18px, 0) rotate(5deg);
-    opacity: 0.88;
+  48% {
+    transform: translate3d(10px, -16px, 0) rotate(3.8deg);
+    opacity: 0.82;
   }
-  75% {
-    transform: translate3d(4px, -8px, 0) rotate(1deg);
-    opacity: 0.55;
+  72% {
+    transform: translate3d(4px, -7px, 0) rotate(0.9deg);
+    opacity: 0.58;
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .magic-float-words--forma .magic-float-word {
-    animation: none !important;
-    opacity: 0.4;
+  90% {
+    transform: translate3d(1px, -3px, 0) rotate(-1deg);
+    opacity: 0.36;
   }
 }
 
@@ -3788,9 +3928,23 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
   margin: 0 auto;
 }
 
-.tz-forma-scene > .tz-forma-bg {
+/* Разворот: высота блока = высота PNG → left/top/% у формы совпадают с пергаментом */
+.tz-forma-book-layer {
   position: relative;
-  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  line-height: 0;
+}
+
+.tz-forma-book-layer > .tz-forma-bg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(92vh, 1000px);
+  object-fit: contain;
 }
 
 .tz-forma-scene,
@@ -4157,17 +4311,23 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
   z-index: 4;
 }
 
-.tz-forma-scene .tz-forma-form {
+/* Левая страница: внутри орнамента, до корешка (~50%); не выходим за край листа */
+.tz-forma-book-layer .tz-forma-form {
   position: absolute;
-  left: clamp(4%, 6vw, 10%);
-  top: clamp(22%, 24vh, 34%);
-  width: min(40%, 360px);
-  z-index: 4;
+  left: 11%;
+  top: 26%;
+  width: 30%;
+  max-width: 280px;
+  max-height: 48%;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  min-height: min(48vh, 440px);
+  min-height: 0;
   box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 /* Форма как страница книги: без «серых полей», рукописный текст */
@@ -4232,7 +4392,8 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
 #screen3 .tz-textarea--spellbook-desc {
   font-size: clamp(1.15rem, 2.8vw, 1.45rem);
   line-height: 1.75;
-  min-height: 8em;
+  min-height: 5em;
+  max-height: min(26vh, 200px);
   font-weight: 500;
   text-shadow:
     0 0 5px rgba(80, 65, 130, 0.2),
@@ -4343,12 +4504,24 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
 }
 
 @media (max-width: 900px) {
-  .tz-forma-scene .tz-forma-form {
+  .tz-forma-book-layer .tz-forma-form {
     left: 50%;
     transform: translateX(-50%);
-    width: min(88%, 400px);
-    top: clamp(28%, 30vh, 40%);
-    min-height: min(42vh, 400px);
+    width: min(74%, 320px);
+    max-width: none;
+    top: 27%;
+    max-height: 40%;
+    min-height: 0;
+  }
+
+  .tz-forma-book-layer .tz-ink-preview {
+    position: relative;
+    right: auto;
+    top: auto;
+    left: auto;
+    max-height: none;
+    width: min(92%, 400px);
+    margin: 10px auto 0;
   }
 }
 
@@ -4371,19 +4544,25 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
   border-color: rgba(127, 170, 255, 0.35) !important;
 }
 
-.tz-ink-preview {
+.tz-forma-book-layer .tz-ink-preview {
   position: absolute;
-  right: clamp(5%, 7vw, 10%);
-  top: clamp(24%, 26vh, 36%);
-  width: min(38%, 340px);
-  min-height: 140px;
-  z-index: 4;
-  padding: 10px 8px 10px clamp(14px, 2.5vw, 22px);
+  right: 11%;
+  top: 26%;
+  width: 30%;
+  max-width: 280px;
+  max-height: 48%;
+  min-height: 100px;
+  z-index: 5;
+  padding: 8px 6px 8px clamp(10px, 1.8vw, 16px);
   border-radius: 0;
   background: transparent;
   border: none;
   box-shadow: none;
   text-align: left;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .tz-ink-preview-title {
@@ -4406,16 +4585,6 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
   font-style: italic;
   color: rgba(30, 26, 74, 0.45);
   line-height: 1.4;
-}
-
-@media (max-width: 900px) {
-  .tz-ink-preview {
-    position: relative;
-    right: auto;
-    top: auto;
-    width: min(92%, 440px);
-    margin: 16px auto 0;
-  }
 }
 
 .tz-ink-ol {
@@ -4461,17 +4630,32 @@ body[data-active-screen="screen5"] .tz-vibe-ai-brand {
 
 .tz-ink-ol--spellbook-page {
   color: #221e52;
-  padding-left: 1.5em;
-  margin: 0;
+  padding-left: 1.45em;
+  margin: 0.35em 0 0;
   text-align: left;
+  list-style-type: decimal;
+  list-style-position: outside;
 }
 
-.tz-ink-ol--spellbook-page li {
-  margin: 0 0 0.55em;
-  padding-left: 0.2em;
+.tz-ink-ol--spellbook-page .tz-ink-spellbook-li {
+  margin: 0 0 0.6em;
+  padding-left: 0.25em;
+  font-family: "Caveat", "Marck Script", cursive;
+  font-size: clamp(1.05rem, 2.55vw, 1.38rem);
+  line-height: 1.45;
+  color: #161038;
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   text-shadow:
-    0 0 6px rgba(90, 70, 160, 0.22),
+    0 0 6px rgba(90, 70, 160, 0.2),
     0 0 14px rgba(120, 100, 200, 0.12);
+}
+
+.tz-ink-ol--spellbook-page .tz-ink-spellbook-li::marker {
+  color: #154f9e;
+  font-weight: 700;
+  font-family: "Caveat", "Marck Script", cursive;
 }
 
 .tz-ink-ol li {

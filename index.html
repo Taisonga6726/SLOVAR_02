@@ -53,12 +53,18 @@
           <div id="sceneFlash" class="flash" aria-hidden="true"></div>
           <!-- Вариант C: hotspot логотипа AI (искры + скан при hover) -->
           <div id="aiLogoHotspot" class="ai-logo-hotspot" aria-hidden="true">
-            <span class="ai-logo-c-spark"></span>
-            <span class="ai-logo-c-spark"></span>
-            <span class="ai-logo-c-spark"></span>
-            <span class="ai-logo-c-spark"></span>
-            <span class="ai-logo-c-spark"></span>
-            <span class="ai-logo-c-spark"></span>
+            <div class="tz-vibe-ai-logo-wrap">
+              <span class="tz-vibe-ai-logo__halo" aria-hidden="true"></span>
+              <img
+                class="tz-vibe-ai-logo-img"
+                src="images/LOGO.png.png"
+                alt=""
+                width="360"
+                height="160"
+                decoding="async"
+                loading="lazy"
+              />
+            </div>
           </div>
 
           <!-- Курсорный эффект: Magic Rings (адаптация без React/Three.js) -->
@@ -122,14 +128,22 @@
               <!-- book-ui: контент позиционируется по областям страниц на изображении, без отдельных «карточек» -->
               <div id="bookImageWrap" class="book-image-wrap book-ui">
                 <div class="magic-float-words magic-float-words--book" aria-hidden="true">
-                  <span class="magic-float-word" style="--mf-l: 3%; --mf-t: 6%">VIBE</span>
-                  <span class="magic-float-word" style="--mf-l: 82%; --mf-t: 8%">CODE</span>
-                  <span class="magic-float-word" style="--mf-l: 6%; --mf-t: 72%">AI</span>
-                  <span class="magic-float-word" style="--mf-l: 84%; --mf-t: 76%">СМЫСЛ</span>
-                  <span class="magic-float-word" style="--mf-l: 4%; --mf-t: 38%">ПОТОК</span>
-                  <span class="magic-float-word" style="--mf-l: 86%; --mf-t: 42%">МАГИЯ</span>
-                  <span class="magic-float-word" style="--mf-l: 22%; --mf-t: 4%">ФОКУС</span>
-                  <span class="magic-float-word" style="--mf-l: 68%; --mf-t: 88%">НЕЙРО</span>
+                  <!-- Верх 4 / слева 4 / справа 5 / низ 2; слова перемешаны с зонами; не над страницами -->
+                  <span class="magic-float-word" style="--mf-l: 10%; --mf-t: 3%; --mf-dur: 36s; --mf-fs: 13px; --mf-delay: -4s">ТОН</span>
+                  <span class="magic-float-word" style="--mf-l: 36%; --mf-t: 4%; --mf-dur: 41s; --mf-fs: 12px; --mf-delay: -11s">НЕЙРО</span>
+                  <span class="magic-float-word" style="--mf-l: 64%; --mf-t: 3%; --mf-dur: 33s; --mf-fs: 14px; --mf-delay: -1s">ВАЙБ</span>
+                  <span class="magic-float-word" style="--mf-l: 88%; --mf-t: 5%; --mf-dur: 39s; --mf-fs: 12px; --mf-delay: -7s">IDEA</span>
+                  <span class="magic-float-word" style="--mf-l: 2%; --mf-t: 17%; --mf-dur: 44s; --mf-fs: 13px; --mf-delay: -9s">ПУЛЬС</span>
+                  <span class="magic-float-word" style="--mf-l: 3%; --mf-t: 32%; --mf-dur: 32s; --mf-fs: 14px; --mf-delay: -2s">FLOW</span>
+                  <span class="magic-float-word" style="--mf-l: 2%; --mf-t: 47%; --mf-dur: 46s; --mf-fs: 12px; --mf-delay: -13s">МАГИЯ</span>
+                  <span class="magic-float-word" style="--mf-l: 4%; --mf-t: 62%; --mf-dur: 35s; --mf-fs: 13px; --mf-delay: -5s">СМЫСЛ</span>
+                  <span class="magic-float-word" style="--mf-l: 93%; --mf-t: 17%; --mf-dur: 40s; --mf-fs: 14px; --mf-delay: -8s">ПОТОК</span>
+                  <span class="magic-float-word" style="--mf-l: 92%; --mf-t: 34%; --mf-dur: 42s; --mf-fs: 13px; --mf-delay: -3s">РИТМ</span>
+                  <span class="magic-float-word" style="--mf-l: 94%; --mf-t: 50%; --mf-dur: 34s; --mf-fs: 14px; --mf-delay: -10s">CODE</span>
+                  <span class="magic-float-word" style="--mf-l: 91%; --mf-t: 66%; --mf-dur: 38s; --mf-fs: 12px; --mf-delay: -6s">VIBE</span>
+                  <span class="magic-float-word" style="--mf-l: 93%; --mf-t: 82%; --mf-dur: 45s; --mf-fs: 13px; --mf-delay: -12s">ЧИСЛО</span>
+                  <span class="magic-float-word" style="--mf-l: 22%; --mf-t: 93%; --mf-dur: 37s; --mf-fs: 14px; --mf-delay: -8.5s">ФОКУС</span>
+                  <span class="magic-float-word" style="--mf-l: 76%; --mf-t: 92%; --mf-dur: 41s; --mf-fs: 13px; --mf-delay: -4.5s">СВЕТ</span>
                 </div>
                 <div id="pageLightBurst" class="light-burst" aria-hidden="true"></div>
                 <div id="bookFxFlash" class="flash flash--book" aria-hidden="true"></div>
@@ -164,12 +178,18 @@
                 <canvas id="bookElectricFxCanvas" class="book-electric-fx-canvas" width="300" height="200" aria-hidden="true"></canvas>
                 <!-- Та же подсветка логотипа AI, что на обложке (shimmer + искры) -->
                 <div class="ai-logo-hotspot ai-logo-hotspot--book" aria-hidden="true">
-                  <span class="ai-logo-c-spark"></span>
-                  <span class="ai-logo-c-spark"></span>
-                  <span class="ai-logo-c-spark"></span>
-                  <span class="ai-logo-c-spark"></span>
-                  <span class="ai-logo-c-spark"></span>
-                  <span class="ai-logo-c-spark"></span>
+                  <div class="tz-vibe-ai-logo-wrap tz-vibe-ai-logo-wrap--book">
+                    <span class="tz-vibe-ai-logo__halo" aria-hidden="true"></span>
+                    <img
+                      class="tz-vibe-ai-logo-img"
+                      src="images/LOGO.png.png"
+                      alt=""
+                      width="280"
+                      height="120"
+                      decoding="async"
+                      loading="lazy"
+                    />
+                  </div>
                 </div>
                 <div id="viewMode" class="book-mode book-mode--view is-active" aria-live="polite">
                   <div class="book-left">
@@ -260,8 +280,18 @@
 
                 <!-- Логотип AI над корешком только на картинке формы (forma_cl) -->
                 <div class="book-write-ai-logo" aria-hidden="true">
-                  <span class="book-write-ai-logo__glow" aria-hidden="true"></span>
-                  <span class="book-write-ai-logo__text">AI</span>
+                  <div class="tz-vibe-ai-logo-wrap tz-vibe-ai-logo-wrap--book-inline">
+                    <span class="tz-vibe-ai-logo__halo" aria-hidden="true"></span>
+                    <img
+                      class="tz-vibe-ai-logo-img"
+                      src="images/LOGO.png.png"
+                      alt=""
+                      width="240"
+                      height="100"
+                      decoding="async"
+                      loading="lazy"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -326,23 +356,25 @@
     <!-- screen3: forma_cl.png; логотип AI — общий блок #tzVibeAiBrand -->
     <div id="screen3" class="screen tz-screen tz-screen--forma">
       <div class="tz-forma-scene">
+        <!-- Слой = точная высота/ширина картинки: форма и превью в % только внутри пергамента -->
+        <div class="tz-forma-book-layer">
         <!-- Плавающие слова: только по краям кадра, не над страницами (позиции в %) -->
         <div class="magic-float-words magic-float-words--forma" aria-hidden="true">
-          <span class="magic-float-word" style="--mf-l: 2%; --mf-t: 6%; --mf-dur: 38s; --mf-fs: 10px">VIBE</span>
-          <span class="magic-float-word" style="--mf-l: 90%; --mf-t: 5%; --mf-dur: 44s; --mf-fs: 13px">CODE</span>
-          <span class="magic-float-word" style="--mf-l: 4%; --mf-t: 22%; --mf-dur: 32s; --mf-fs: 11px">ПОТОК</span>
-          <span class="magic-float-word" style="--mf-l: 92%; --mf-t: 20%; --mf-dur: 36s; --mf-fs: 9px">СМЫСЛ</span>
-          <span class="magic-float-word" style="--mf-l: 1%; --mf-t: 42%; --mf-dur: 41s; --mf-fs: 12px">ФОКУС</span>
-          <span class="magic-float-word" style="--mf-l: 88%; --mf-t: 38%; --mf-dur: 29s; --mf-fs: 10px">МАГИЯ</span>
-          <span class="magic-float-word" style="--mf-l: 6%; --mf-t: 58%; --mf-dur: 33s; --mf-fs: 11px">ВАЙБ</span>
-          <span class="magic-float-word" style="--mf-l: 91%; --mf-t: 55%; --mf-dur: 47s; --mf-fs: 9px">ЧИСЛО</span>
-          <span class="magic-float-word" style="--mf-l: 3%; --mf-t: 78%; --mf-dur: 35s; --mf-fs: 13px">IDEA</span>
-          <span class="magic-float-word" style="--mf-l: 87%; --mf-t: 72%; --mf-dur: 40s; --mf-fs: 10px">РИТМ</span>
-          <span class="magic-float-word" style="--mf-l: 5%; --mf-t: 90%; --mf-dur: 31s; --mf-fs: 12px">СВЕТ</span>
-          <span class="magic-float-word" style="--mf-l: 93%; --mf-t: 88%; --mf-dur: 43s; --mf-fs: 11px">ТОН</span>
-          <span class="magic-float-word" style="--mf-l: 1%; --mf-t: 14%; --mf-dur: 46s; --mf-fs: 8px">СОН</span>
-          <span class="magic-float-word" style="--mf-l: 95%; --mf-t: 14%; --mf-dur: 34s; --mf-fs: 12px">КОД</span>
-          <span class="magic-float-word" style="--mf-l: 8%; --mf-t: 96%; --mf-dur: 39s; --mf-fs: 10px">ПУЛЬС</span>
+          <span class="magic-float-word" style="--mf-l: 1%; --mf-t: 5%; --mf-dur: 40s; --mf-fs: 10px; --mf-delay: -2s">VIBE</span>
+          <span class="magic-float-word" style="--mf-l: 91%; --mf-t: 5%; --mf-dur: 46s; --mf-fs: 12px; --mf-delay: -9s">CODE</span>
+          <span class="magic-float-word" style="--mf-l: 2%; --mf-t: 20%; --mf-dur: 33s; --mf-fs: 11px; --mf-delay: -4s">ПОТОК</span>
+          <span class="magic-float-word" style="--mf-l: 92%; --mf-t: 22%; --mf-dur: 37s; --mf-fs: 9px; --mf-delay: -11s">СМЫСЛ</span>
+          <span class="magic-float-word" style="--mf-l: 1%; --mf-t: 38%; --mf-dur: 42s; --mf-fs: 13px; --mf-delay: -1s">ФОКУС</span>
+          <span class="magic-float-word" style="--mf-l: 90%; --mf-t: 40%; --mf-dur: 30s; --mf-fs: 10px; --mf-delay: -7s">МАГИЯ</span>
+          <span class="magic-float-word" style="--mf-l: 3%; --mf-t: 56%; --mf-dur: 35s; --mf-fs: 11px; --mf-delay: -5s">ВАЙБ</span>
+          <span class="magic-float-word" style="--mf-l: 91%; --mf-t: 58%; --mf-dur: 48s; --mf-fs: 9px; --mf-delay: -12s">ЧИСЛО</span>
+          <span class="magic-float-word" style="--mf-l: 2%; --mf-t: 74%; --mf-dur: 36s; --mf-fs: 12px; --mf-delay: -3s">IDEA</span>
+          <span class="magic-float-word" style="--mf-l: 89%; --mf-t: 76%; --mf-dur: 41s; --mf-fs: 10px; --mf-delay: -8s">РИТМ</span>
+          <span class="magic-float-word" style="--mf-l: 4%; --mf-t: 90%; --mf-dur: 32s; --mf-fs: 12px; --mf-delay: -6s">СВЕТ</span>
+          <span class="magic-float-word" style="--mf-l: 92%; --mf-t: 90%; --mf-dur: 44s; --mf-fs: 11px; --mf-delay: -10s">ТОН</span>
+          <span class="magic-float-word" style="--mf-l: 1%; --mf-t: 12%; --mf-dur: 45s; --mf-fs: 8px; --mf-delay: -13s">СОН</span>
+          <span class="magic-float-word" style="--mf-l: 94%; --mf-t: 14%; --mf-dur: 34s; --mf-fs: 12px; --mf-delay: -2.5s">КОД</span>
+          <span class="magic-float-word" style="--mf-l: 3%; --mf-t: 96%; --mf-dur: 39s; --mf-fs: 10px; --mf-delay: -14s">ПУЛЬС</span>
         </div>
         <!-- Переплёт: постоянное свечение + краткий «всплеск» при сохранении (класс из JS) -->
         <div id="tzFormaSpineMagic" class="tz-forma-spine-magic" aria-hidden="true">
@@ -410,6 +442,7 @@
           <p class="tz-ink-preview-title">Вайбкодинг — описание</p>
           <div id="tzLivePreview" class="tz-live-preview tz-live-preview--spellbook"></div>
         </aside>
+        </div>
         <audio id="audioPen" preload="metadata">
           <source src="assets/sounds/pen%20writing%20in%20a%20book%20magic.MP3" type="audio/mpeg" />
         </audio>
@@ -470,16 +503,18 @@
   <!-- Логотип AI + неон (как на обложке); после main — поверх контента, screen3–5 -->
   <div id="tzVibeAiBrand" class="tz-vibe-ai-brand" aria-hidden="true">
     <div class="tz-vibe-ai-brand__stack">
-      <span class="book-write-ai-logo__glow" aria-hidden="true"></span>
-      <div class="ai-logo-hotspot ai-logo-hotspot--tz-overlay" aria-hidden="true">
-        <span class="ai-logo-c-spark"></span>
-        <span class="ai-logo-c-spark"></span>
-        <span class="ai-logo-c-spark"></span>
-        <span class="ai-logo-c-spark"></span>
-        <span class="ai-logo-c-spark"></span>
-        <span class="ai-logo-c-spark"></span>
+      <div class="tz-vibe-ai-logo-wrap tz-vibe-ai-logo-wrap--overlay">
+        <span class="tz-vibe-ai-logo__halo" aria-hidden="true"></span>
+        <img
+          class="tz-vibe-ai-logo-img"
+          src="images/LOGO.png.png"
+          alt=""
+          width="320"
+          height="140"
+          decoding="async"
+          loading="lazy"
+        />
       </div>
-      <span class="book-write-ai-logo__text">AI</span>
     </div>
   </div>
 
