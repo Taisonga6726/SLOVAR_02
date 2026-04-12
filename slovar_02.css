@@ -436,9 +436,9 @@ body {
   height: min(11vh, 102px);
 }
 
-/* Блок 3: книга открыта, step2-visual снят — без дубля AI над разворотом; форма без списка и реакций */
-.scene-stage.scene--book-open:not(.scene--step2-visual) .ai-logo-hotspot--book,
-.scene-stage.scene--book-open:not(.scene--step2-visual) .book-write-ai-logo {
+/* Открытая книга: только глобальный логотип сверху — встроенные PNG в развороте скрыты (в т.ч. при step2-visual) */
+.scene-stage.scene--book-open .ai-logo-hotspot--book,
+.scene-stage.scene--book-open .book-write-ai-logo {
   display: none !important;
   visibility: hidden;
   pointer-events: none;
@@ -2212,19 +2212,23 @@ body {
 /* Режим записи на форме forma_cl.png:
    точечная зона на левой странице и "живой" вывод на правой */
 #bookImageWrap.book-ui .book-mode--write .book-left {
-  left: 21%;
+  left: 50%;
   top: 18%;
-  width: 23%;
+  width: 21%;
   height: 48%;
   padding: 0;
+  transform: translateX(-100%);
+  box-sizing: border-box;
 }
 
 #bookImageWrap.book-ui .book-mode--write .book-right {
-  left: 56%;
+  left: 75%;
   top: 18%;
-  width: 23%;
+  width: 21%;
   height: 48%;
   padding: 0;
+  transform: translateX(-50%);
+  box-sizing: border-box;
 }
 
     #bookImageWrap.book-ui .paper-label {

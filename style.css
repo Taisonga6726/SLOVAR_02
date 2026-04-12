@@ -412,6 +412,115 @@ body {
   display: none;
 }
 
+/* Поток света: тонкие вертикальные полосы, движение снизу вверх (как на референсе) */
+.tz-ai-light-flow {
+  position: absolute;
+  inset: -14% -10% -20% -10%;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  opacity: 0.88;
+}
+
+.tz-ai-light-flow__beam {
+  position: absolute;
+  left: var(--tz-beam-x, 50%);
+  bottom: -8%;
+  width: var(--tz-beam-w, 3px);
+  height: 38%;
+  margin-left: calc(var(--tz-beam-w, 3px) / -2);
+  border-radius: 999px 999px 0 0;
+  transform-origin: 50% 100%;
+  background: linear-gradient(
+    to top,
+    transparent 0%,
+    rgba(55, 245, 255, 0.95) 22%,
+    rgba(200, 120, 255, 0.88) 52%,
+    rgba(255, 180, 240, 0.55) 78%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 10px rgba(100, 235, 255, 0.85),
+    0 0 22px rgba(150, 100, 255, 0.55),
+    0 0 36px rgba(255, 140, 220, 0.35);
+  animation: tzAiLightBeamRise 2.35s cubic-bezier(0.28, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.tz-ai-light-flow__beam:nth-child(1) {
+  --tz-beam-x: 11%;
+  animation-duration: 2.05s;
+  animation-delay: -0.1s;
+}
+.tz-ai-light-flow__beam:nth-child(2) {
+  --tz-beam-x: 24%;
+  --tz-beam-w: 2px;
+  animation-duration: 2.55s;
+  animation-delay: -0.65s;
+}
+.tz-ai-light-flow__beam:nth-child(3) {
+  --tz-beam-x: 38%;
+  animation-duration: 2.2s;
+  animation-delay: -1.2s;
+}
+.tz-ai-light-flow__beam:nth-child(4) {
+  --tz-beam-x: 50%;
+  --tz-beam-w: 4px;
+  animation-duration: 2.85s;
+  animation-delay: -0.35s;
+}
+.tz-ai-light-flow__beam:nth-child(5) {
+  --tz-beam-x: 62%;
+  animation-duration: 2.15s;
+  animation-delay: -1.55s;
+}
+.tz-ai-light-flow__beam:nth-child(6) {
+  --tz-beam-x: 76%;
+  --tz-beam-w: 2px;
+  animation-duration: 2.7s;
+  animation-delay: -0.9s;
+}
+.tz-ai-light-flow__beam:nth-child(7) {
+  --tz-beam-x: 89%;
+  animation-duration: 2.4s;
+  animation-delay: -1.85s;
+}
+
+.tz-vibe-ai-logo-wrap--book .tz-ai-light-flow {
+  inset: -10% -8% -14% -8%;
+  opacity: 0.82;
+}
+
+.tz-vibe-ai-logo-wrap--book .tz-ai-light-flow__beam {
+  height: 34%;
+  box-shadow:
+    0 0 8px rgba(100, 235, 255, 0.75),
+    0 0 18px rgba(150, 100, 255, 0.45);
+}
+
+.tz-vibe-ai-logo-wrap--book-inline .tz-ai-light-flow {
+  inset: -8% -6% -12% -6%;
+  opacity: 0.78;
+}
+
+@keyframes tzAiLightBeamRise {
+  0% {
+    transform: translate3d(0, 18%, 0) scaleY(0.35);
+    opacity: 0;
+  }
+  7% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 0.88;
+  }
+  100% {
+    transform: translate3d(0, -290%, 0) scaleY(1.08);
+    opacity: 0;
+  }
+}
+
 .tz-vibe-ai-logo-img {
   position: relative;
   z-index: 1;
@@ -558,9 +667,9 @@ body {
   height: min(11vh, 102px);
 }
 
-/* Блок 3: книга открыта, step2-visual снят — без дубля AI над разворотом; форма без списка и реакций */
-.scene-stage.scene--book-open:not(.scene--step2-visual) .ai-logo-hotspot--book,
-.scene-stage.scene--book-open:not(.scene--step2-visual) .book-write-ai-logo {
+/* Открытая книга: только #tzVibeAiBrand сверху — встроенные PNG в развороте скрыты всегда (в т.ч. при step2-visual, иначе дубль) */
+.scene-stage.scene--book-open .ai-logo-hotspot--book,
+.scene-stage.scene--book-open .book-write-ai-logo {
   display: none !important;
   visibility: hidden;
   pointer-events: none;
@@ -776,7 +885,7 @@ body[data-active-screen="screen1"]:has(#sceneStage.scene--book-open) .magic-ring
   pointer-events: none;
 }
 
-body[data-active-screen="screen3"] .tz-vibe-ai-brand,
+/* screen3: без показа — логотип на forma_cl.png, иначе дубль с #tzVibeAiBrand */
 body[data-active-screen="screen4"] .tz-vibe-ai-brand,
 body[data-active-screen="screen5"] .tz-vibe-ai-brand,
 body[data-active-screen="screen1"]:has(#sceneStage.scene--book-open) .tz-vibe-ai-brand {
@@ -805,17 +914,21 @@ body[data-active-screen="screen1"]:has(#sceneStage.scene--book-open) .tz-vibe-ai
   max-width: 100%;
 }
 
-/* screen1 + открытая книга: один логотип — только #tzVibeAiBrand; встроенные PNG убираем (без :has — надёжнее) */
-body[data-active-screen="screen1"] #sceneStage.scene--book-open .ai-logo-hotspot--book,
-body[data-active-screen="screen1"] #sceneStage.scene--book-open .book-write-ai-logo {
-  display: none !important;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .tz-vibe-ai-brand .tz-vibe-ai-logo-img,
   .ai-logo-hotspot .tz-vibe-ai-logo-img,
   .book-write-ai-logo .tz-vibe-ai-logo-img {
     animation: tzVibeAiLogoNeonPulse 5s ease-in-out infinite !important;
+  }
+
+  .tz-ai-light-flow {
+    opacity: 0.55;
+    mix-blend-mode: screen;
+  }
+
+  .tz-ai-light-flow__beam {
+    animation-duration: 14s !important;
+    animation-timing-function: linear !important;
   }
 }
 
@@ -2529,21 +2642,25 @@ body[data-active-screen="screen1"] #sceneStage.scene--book-open .book-write-ai-l
     }
 
 /* Режим записи на форме forma_cl.png:
-   точечная зона на левой странице и "живой" вывод на правой */
+   левая колонка — к центру левой страницы; правая — к центру правой (к корешку от внешнего края) */
 #bookImageWrap.book-ui .book-mode--write .book-left {
-  left: 21%;
+  left: 50%;
   top: 18%;
-  width: 23%;
+  width: 21%;
   height: 48%;
   padding: 0;
+  transform: translateX(-100%);
+  box-sizing: border-box;
 }
 
 #bookImageWrap.book-ui .book-mode--write .book-right {
-  left: 56%;
+  left: 75%;
   top: 18%;
-  width: 23%;
+  width: 21%;
   height: 48%;
   padding: 0;
+  transform: translateX(-50%);
+  box-sizing: border-box;
 }
 
     #bookImageWrap.book-ui .paper-label {
@@ -4311,13 +4428,14 @@ body[data-active-screen="screen1"] #sceneStage.scene--book-open .book-write-ai-l
   z-index: 4;
 }
 
-/* Левая страница: внутри орнамента, до корешка (~50%); не выходим за край листа */
+/* Левая страница: по центру левой половины разворота, внутри орнамента */
 .tz-forma-book-layer .tz-forma-form {
   position: absolute;
-  left: 11%;
+  left: 25%;
   top: 26%;
-  width: 30%;
+  width: 26%;
   max-width: 280px;
+  transform: translateX(-50%);
   max-height: 48%;
   z-index: 5;
   display: flex;
@@ -4456,6 +4574,13 @@ body[data-active-screen="screen1"] #sceneStage.scene--book-open .book-write-ai-l
     0 0 12px rgba(90, 70, 160, 0.45),
     0 0 22px rgba(120, 100, 200, 0.22);
   outline: none;
+}
+
+.tz-forma-text-action--pulse {
+  color: rgba(38, 32, 82, 0.85) !important;
+  text-shadow:
+    0 0 12px rgba(90, 75, 150, 0.38),
+    0 0 20px rgba(120, 100, 200, 0.28) !important;
 }
 
 .tz-forma-reactions-note {

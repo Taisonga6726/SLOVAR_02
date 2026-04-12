@@ -850,17 +850,22 @@
         const s1 = document.getElementById("screen1");
         const st = document.getElementById("sceneStage");
         const bookOpen = st && st.classList.contains("scene--book-open");
-        const show =
+        /* screen3: логотип AI уже на forma_cl.png — без второго слоя #tzVibeAiBrand */
+        const brandShow =
+          id === "screen4" ||
+          id === "screen5" ||
+          (id === "screen1" && s1 && s1.classList.contains("active") && bookOpen);
+        const ringsShow =
           id === "screen3" ||
           id === "screen4" ||
           id === "screen5" ||
           (id === "screen1" && s1 && s1.classList.contains("active") && bookOpen);
         if (brand) {
-          brand.classList.toggle("tz-vibe-ai-brand--visible", show);
-          brand.setAttribute("aria-hidden", show ? "false" : "true");
+          brand.classList.toggle("tz-vibe-ai-brand--visible", brandShow);
+          brand.setAttribute("aria-hidden", brandShow ? "false" : "true");
         }
         if (rings) {
-          rings.classList.toggle("magic-rings-fx--global--visible", show);
+          rings.classList.toggle("magic-rings-fx--global--visible", ringsShow);
         }
       }
 
@@ -2312,7 +2317,6 @@ void main() {
         const wIn = document.getElementById("tzInputWord");
         const dIn = document.getElementById("tzInputDesc");
         const msg = document.getElementById("tzFormMsg");
-        const hintLine = document.getElementById("tzFormaHintSave");
         const textSave = document.getElementById("tzTextSave");
         const textEdit = document.getElementById("tzTextEdit");
 
@@ -2420,7 +2424,11 @@ void main() {
         }
 
         bindTextControl(textSave, () => {
-          submitFormaEntry(true);
+          const ok = submitFormaEntry(true);
+          if (ok && textSave) {
+            textSave.classList.add("tz-forma-text-action--pulse");
+            window.setTimeout(() => textSave.classList.remove("tz-forma-text-action--pulse"), 650);
+          }
         });
 
         bindTextControl(textEdit, () => {
@@ -2435,14 +2443,6 @@ void main() {
             } catch (_) {
               /* ignore */
             }
-          }
-        });
-
-        bindTextControl(hintLine, () => {
-          const ok = submitFormaEntry(true);
-          if (ok && hintLine) {
-            hintLine.classList.add("tz-forma-hint-line--active");
-            window.setTimeout(() => hintLine.classList.remove("tz-forma-hint-line--active"), 650);
           }
         });
 

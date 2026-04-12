@@ -51,10 +51,33 @@
       >
           <!-- Вспышка успех/ошибка (ТЗ: div.flash) -->
           <div id="sceneFlash" class="flash" aria-hidden="true"></div>
+          <!-- Обложка: восходящие лучи от зоны логотипа AI (#aiLogoHotspot скрыт — лучи отдельным слоем) -->
+          <div id="coverAiRiseRays" class="cover-ai-rise-rays" aria-hidden="true">
+            <div class="cover-ai-rise-rays__pillar"></div>
+            <div class="tz-ai-light-flow tz-ai-light-flow--cover-rise">
+              <span class="tz-ai-light-flow__beam tz-ai-light-flow__beam--cover"></span>
+              <span class="tz-ai-light-flow__beam tz-ai-light-flow__beam--cover"></span>
+              <span class="tz-ai-light-flow__beam tz-ai-light-flow__beam--cover"></span>
+              <span class="tz-ai-light-flow__beam tz-ai-light-flow__beam--cover"></span>
+              <span class="tz-ai-light-flow__beam tz-ai-light-flow__beam--cover"></span>
+              <span class="tz-ai-light-flow__beam tz-ai-light-flow__beam--cover"></span>
+              <span class="tz-ai-light-flow__beam tz-ai-light-flow__beam--cover"></span>
+              <span class="tz-ai-light-flow__beam tz-ai-light-flow__beam--cover"></span>
+            </div>
+          </div>
           <!-- Вариант C: hotspot логотипа AI (искры + скан при hover) -->
           <div id="aiLogoHotspot" class="ai-logo-hotspot" aria-hidden="true">
             <div class="tz-vibe-ai-logo-wrap">
               <span class="tz-vibe-ai-logo__halo" aria-hidden="true"></span>
+              <div class="tz-ai-light-flow" aria-hidden="true">
+                <span class="tz-ai-light-flow__beam"></span>
+                <span class="tz-ai-light-flow__beam"></span>
+                <span class="tz-ai-light-flow__beam"></span>
+                <span class="tz-ai-light-flow__beam"></span>
+                <span class="tz-ai-light-flow__beam"></span>
+                <span class="tz-ai-light-flow__beam"></span>
+                <span class="tz-ai-light-flow__beam"></span>
+              </div>
               <img
                 class="tz-vibe-ai-logo-img"
                 src="images/LOGO.png.png"
@@ -180,6 +203,15 @@
                 <div class="ai-logo-hotspot ai-logo-hotspot--book" aria-hidden="true">
                   <div class="tz-vibe-ai-logo-wrap tz-vibe-ai-logo-wrap--book">
                     <span class="tz-vibe-ai-logo__halo" aria-hidden="true"></span>
+                    <div class="tz-ai-light-flow" aria-hidden="true">
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                    </div>
                     <img
                       class="tz-vibe-ai-logo-img"
                       src="images/LOGO.png.png"
@@ -282,6 +314,15 @@
                 <div class="book-write-ai-logo" aria-hidden="true">
                   <div class="tz-vibe-ai-logo-wrap tz-vibe-ai-logo-wrap--book-inline">
                     <span class="tz-vibe-ai-logo__halo" aria-hidden="true"></span>
+                    <div class="tz-ai-light-flow" aria-hidden="true">
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                      <span class="tz-ai-light-flow__beam"></span>
+                    </div>
                     <img
                       class="tz-vibe-ai-logo-img"
                       src="images/LOGO.png.png"
@@ -353,7 +394,7 @@
   
     </div>
 
-    <!-- screen3: forma_cl.png; логотип AI — общий блок #tzVibeAiBrand -->
+    <!-- screen3: forma_cl.png; логотип AI на картинке — без #tzVibeAiBrand (без дубля) -->
     <div id="screen3" class="screen tz-screen tz-screen--forma">
       <div class="tz-forma-scene">
         <!-- Слой = точная высота/ширина картинки: форма и превью в % только внутри пергамента -->
@@ -414,16 +455,7 @@
             rows="5"
             placeholder=""
           ></textarea>
-          <!-- Подсказка: клик = то же сохранение + эффект магии (основной сценарий через текст ниже) -->
-          <p
-            class="tz-forma-hint-line"
-            id="tzFormaHintSave"
-            role="button"
-            tabindex="0"
-          >
-            сохранить слово в книгу
-          </p>
-          <!-- Текстовые действия вместо кнопок -->
+          <!-- Только текстовые действия (без второй подложки) -->
           <div class="tz-forma-text-actions" aria-label="Действия">
             <span class="tz-forma-text-action" id="tzTextSave" role="button" tabindex="0">сохранить</span>
             <span class="tz-forma-text-sep" aria-hidden="true">|</span>
@@ -505,6 +537,15 @@
     <div class="tz-vibe-ai-brand__stack">
       <div class="tz-vibe-ai-logo-wrap tz-vibe-ai-logo-wrap--overlay">
         <span class="tz-vibe-ai-logo__halo" aria-hidden="true"></span>
+        <div class="tz-ai-light-flow" aria-hidden="true">
+          <span class="tz-ai-light-flow__beam"></span>
+          <span class="tz-ai-light-flow__beam"></span>
+          <span class="tz-ai-light-flow__beam"></span>
+          <span class="tz-ai-light-flow__beam"></span>
+          <span class="tz-ai-light-flow__beam"></span>
+          <span class="tz-ai-light-flow__beam"></span>
+          <span class="tz-ai-light-flow__beam"></span>
+        </div>
         <img
           class="tz-vibe-ai-logo-img"
           src="images/LOGO.png.png"
